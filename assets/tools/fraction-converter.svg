@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="mathGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="numberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景圆形 -->
+  <circle cx="32" cy="32" r="30" fill="url(#mathGrad)" opacity="0.1"/>
+  
+  <!-- 分数部分 -->
+  <g transform="translate(12, 20)">
+    <!-- 分子 -->
+    <text x="8" y="8" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="url(#mathGrad)" text-anchor="middle">3</text>
+    <!-- 分数线 -->
+    <line x1="2" y1="12" x2="14" y2="12" stroke="url(#mathGrad)" stroke-width="2"/>
+    <!-- 分母 -->
+    <text x="8" y="24" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="url(#mathGrad)" text-anchor="middle">4</text>
+  </g>
+  
+  <!-- 转换箭头 -->
+  <g transform="translate(32, 32)">
+    <!-- 双向箭头 -->
+    <path d="M-8 -2 L8 -2" stroke="url(#numberGrad)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M6 -4 L8 -2 L6 0" stroke="url(#numberGrad)" stroke-width="2" stroke-linecap="round" fill="none"/>
+    
+    <path d="M8 2 L-8 2" stroke="url(#numberGrad)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M-6 0 L-8 2 L-6 4" stroke="url(#numberGrad)" stroke-width="2" stroke-linecap="round" fill="none"/>
+  </g>
+  
+  <!-- 小数部分 -->
+  <g transform="translate(44, 32)">
+    <text x="0" y="4" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="url(#numberGrad)" text-anchor="middle">0.75</text>
+  </g>
+  
+  <!-- 计算器背景 -->
+  <rect x="8" y="42" width="48" height="16" rx="3" fill="white" stroke="#e2e8f0" stroke-width="1" opacity="0.9"/>
+  
+  <!-- 数学符号装饰 -->
+  <g fill="url(#mathGrad)" opacity="0.4" font-family="Arial, sans-serif" font-size="8">
+    <text x="12" y="52">÷</text>
+    <text x="20" y="52">×</text>
+    <text x="28" y="52">+</text>
+    <text x="36" y="52">-</text>
+    <text x="44" y="52">=</text>
+    <text x="52" y="52">%</text>
+  </g>
+  
+  <!-- 数字按钮装饰 -->
+  <g fill="#64748b" opacity="0.6">
+    <rect x="10" y="46" width="4" height="3" rx="0.5"/>
+    <rect x="16" y="46" width="4" height="3" rx="0.5"/>
+    <rect x="22" y="46" width="4" height="3" rx="0.5"/>
+    <rect x="28" y="46" width="4" height="3" rx="0.5"/>
+    <rect x="34" y="46" width="4" height="3" rx="0.5"/>
+    <rect x="40" y="46" width="4" height="3" rx="0.5"/>
+    <rect x="46" y="46" width="4" height="3" rx="0.5"/>
+    <rect x="52" y="46" width="4" height="3" rx="0.5"/>
+  </g>
+  
+  <!-- 装饰性数学公式 -->
+  <g fill="url(#numberGrad)" opacity="0.3" font-family="Arial, sans-serif" font-size="6">
+    <text x="58" y="12">1/2</text>
+    <text x="4" y="8">0.5</text>
+    <text x="6" y="60">2/3</text>
+    <text x="52" y="60">0.67</text>
+  </g>
+</svg>

@@ -1,0 +1,259 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle with Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2c3e50;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#34495e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="screenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a8a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="buttonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8fafc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e2e8f0;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="operatorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ea580c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="equalsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#16a34a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#15803d;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="clearGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#dc2626;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b91c1c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="frameGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#475569;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#334155;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#bgGradient)" stroke="#2c3e50" stroke-width="2"/>
+  
+  <!-- Calculator Body -->
+  <g transform="translate(8, 6)">
+    <rect x="0" y="0" width="48" height="52" rx="6" fill="url(#frameGradient)" stroke="#334155" stroke-width="2"/>
+    
+    <!-- Calculator Frame -->
+    <rect x="2" y="2" width="44" height="48" rx="4" fill="#475569" stroke="#334155" stroke-width="1"/>
+    
+    <!-- Display Screen -->
+    <g transform="translate(4, 4)">
+      <rect x="0" y="0" width="40" height="12" rx="3" fill="url(#screenGradient)" stroke="#1e40af" stroke-width="2"/>
+      <rect x="2" y="2" width="36" height="8" rx="2" fill="#1e3a8a" stroke="#1e40af" stroke-width="1"/>
+      
+      <!-- Display Text -->
+      <text x="34" y="7.5" font-family="monospace" font-size="4" font-weight="bold" fill="#ffffff" text-anchor="end">123.45</text>
+      
+      <!-- Display Glow Effect -->
+      <rect x="2" y="2" width="36" height="8" rx="2" fill="none" stroke="#60a5fa" stroke-width="0.5" opacity="0.6">
+        <animate attributeName="opacity" values="0.6;0.3;0.6" dur="2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    
+    <!-- Button Grid -->
+    <g transform="translate(4, 18)">
+      <!-- Row 1: Clear, +/-, %, ÷ -->
+      <g transform="translate(0, 0)">
+        <!-- Clear Button -->
+        <rect x="0" y="0" width="8" height="6" rx="2" fill="url(#clearGradient)" stroke="#b91c1c" stroke-width="1"/>
+        <text x="4" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#ffffff" text-anchor="middle">C</text>
+        
+        <!-- Plus/Minus Button -->
+        <rect x="10" y="0" width="8" height="6" rx="2" fill="url(#buttonGradient)" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="14" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#1e293b" text-anchor="middle">±</text>
+        
+        <!-- Percent Button -->
+        <rect x="20" y="0" width="8" height="6" rx="2" fill="url(#buttonGradient)" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="24" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#1e293b" text-anchor="middle">%</text>
+        
+        <!-- Divide Button -->
+        <rect x="30" y="0" width="8" height="6" rx="2" fill="url(#operatorGradient)" stroke="#ea580c" stroke-width="1"/>
+        <text x="34" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#ffffff" text-anchor="middle">÷</text>
+      </g>
+      
+      <!-- Row 2: 7, 8, 9, × -->
+      <g transform="translate(0, 8)">
+        <rect x="0" y="0" width="8" height="6" rx="2" fill="url(#buttonGradient)" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="4" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#1e293b" text-anchor="middle">7</text>
+        
+        <rect x="10" y="0" width="8" height="6" rx="2" fill="url(#buttonGradient)" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="14" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#1e293b" text-anchor="middle">8</text>
+        
+        <rect x="20" y="0" width="8" height="6" rx="2" fill="url(#buttonGradient)" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="24" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#1e293b" text-anchor="middle">9</text>
+        
+        <rect x="30" y="0" width="8" height="6" rx="2" fill="url(#operatorGradient)" stroke="#ea580c" stroke-width="1"/>
+        <text x="34" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#ffffff" text-anchor="middle">×</text>
+      </g>
+      
+      <!-- Row 3: 4, 5, 6, - -->
+      <g transform="translate(0, 16)">
+        <rect x="0" y="0" width="8" height="6" rx="2" fill="url(#buttonGradient)" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="4" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#1e293b" text-anchor="middle">4</text>
+        
+        <rect x="10" y="0" width="8" height="6" rx="2" fill="url(#buttonGradient)" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="14" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#1e293b" text-anchor="middle">5</text>
+        
+        <rect x="20" y="0" width="8" height="6" rx="2" fill="url(#buttonGradient)" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="24" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#1e293b" text-anchor="middle">6</text>
+        
+        <rect x="30" y="0" width="8" height="6" rx="2" fill="url(#operatorGradient)" stroke="#ea580c" stroke-width="1"/>
+        <text x="34" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#ffffff" text-anchor="middle">-</text>
+      </g>
+      
+      <!-- Row 4: 1, 2, 3, + -->
+      <g transform="translate(0, 24)">
+        <rect x="0" y="0" width="8" height="6" rx="2" fill="url(#buttonGradient)" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="4" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#1e293b" text-anchor="middle">1</text>
+        
+        <rect x="10" y="0" width="8" height="6" rx="2" fill="url(#buttonGradient)" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="14" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#1e293b" text-anchor="middle">2</text>
+        
+        <rect x="20" y="0" width="8" height="6" rx="2" fill="url(#buttonGradient)" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="24" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#1e293b" text-anchor="middle">3</text>
+        
+        <rect x="30" y="0" width="8" height="6" rx="2" fill="url(#operatorGradient)" stroke="#ea580c" stroke-width="1"/>
+        <text x="34" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#ffffff" text-anchor="middle">+</text>
+      </g>
+      
+      <!-- Row 5: 0 (wide), ., = -->
+      <g transform="translate(0, 32)">
+        <!-- Zero Button (wide) -->
+        <rect x="0" y="0" width="18" height="6" rx="2" fill="url(#buttonGradient)" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="9" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#1e293b" text-anchor="middle">0</text>
+        
+        <!-- Decimal Point Button -->
+        <rect x="20" y="0" width="8" height="6" rx="2" fill="url(#buttonGradient)" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="24" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#1e293b" text-anchor="middle">.</text>
+        
+        <!-- Equals Button -->
+        <rect x="30" y="0" width="8" height="6" rx="2" fill="url(#equalsGradient)" stroke="#15803d" stroke-width="1"/>
+        <text x="34" y="4" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#ffffff" text-anchor="middle">=</text>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Calculator Brand/Model -->
+  <g transform="translate(12, 2)">
+    <rect x="0" y="0" width="40" height="3" rx="1" fill="#64748b" stroke="#475569" stroke-width="1"/>
+    <text x="20" y="2" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#ffffff" text-anchor="middle">CALCULATOR</text>
+  </g>
+  
+  <!-- Button Press Animation -->
+  <g transform="translate(42, 42)">
+    <circle cx="0" cy="0" r="2" fill="#f97316" opacity="0.8">
+      <animate attributeName="r" values="1;3;1" dur="1.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Solar Panel -->
+  <g transform="translate(44, 8)">
+    <rect x="0" y="0" width="8" height="4" rx="1" fill="#1f2937" stroke="#374151" stroke-width="1"/>
+    <rect x="1" y="1" width="6" height="2" rx="0.5" fill="#4b5563" stroke="#6b7280" stroke-width="0.5"/>
+    
+    <!-- Solar Panel Lines -->
+    <line x1="2" y1="1" x2="2" y2="3" stroke="#9ca3af" stroke-width="0.3"/>
+    <line x1="3.5" y1="1" x2="3.5" y2="3" stroke="#9ca3af" stroke-width="0.3"/>
+    <line x1="5" y1="1" x2="5" y2="3" stroke="#9ca3af" stroke-width="0.3"/>
+    <line x1="6.5" y1="1" x2="6.5" y2="3" stroke="#9ca3af" stroke-width="0.3"/>
+    
+    <!-- Solar Panel Reflection -->
+    <rect x="1" y="1" width="2" height="0.5" rx="0.2" fill="#ffffff" opacity="0.3">
+      <animate attributeName="opacity" values="0.3;0.1;0.3" dur="3s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+  
+  <!-- Memory Indicators -->
+  <g transform="translate(2, 8)">
+    <circle cx="2" cy="2" r="1" fill="#10b981">
+      <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <text x="2" y="2.5" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">M</text>
+  </g>
+  
+  <!-- Function Mode Indicator -->
+  <g transform="translate(2, 12)">
+    <circle cx="2" cy="2" r="1" fill="#8b5cf6">
+      <animate attributeName="opacity" values="1;0.3;1" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <text x="2" y="2.5" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">F</text>
+  </g>
+  
+  <!-- Calculation History -->
+  <g transform="translate(54, 16)">
+    <rect x="0" y="0" width="8" height="12" rx="2" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+    <text x="4" y="3" font-family="monospace" font-size="1" fill="#64748b" text-anchor="middle">历史</text>
+    <text x="4" y="5" font-family="monospace" font-size="0.8" fill="#94a3b8" text-anchor="middle">5+3=8</text>
+    <text x="4" y="7" font-family="monospace" font-size="0.8" fill="#94a3b8" text-anchor="middle">9×2=18</text>
+    <text x="4" y="9" font-family="monospace" font-size="0.8" fill="#94a3b8" text-anchor="middle">15÷3=5</text>
+    <text x="4" y="11" font-family="monospace" font-size="0.8" fill="#94a3b8" text-anchor="middle">7-4=3</text>
+  </g>
+  
+  <!-- Scientific Functions -->
+  <g transform="translate(2, 20)">
+    <rect x="0" y="0" width="4" height="16" rx="1" fill="#475569" stroke="#334155" stroke-width="1"/>
+    <text x="2" y="2" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">sin</text>
+    <text x="2" y="4" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">cos</text>
+    <text x="2" y="6" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">tan</text>
+    <text x="2" y="8" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">log</text>
+    <text x="2" y="10" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">ln</text>
+    <text x="2" y="12" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">√</text>
+    <text x="2" y="14" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">x²</text>
+    <text x="2" y="16" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">π</text>
+  </g>
+  
+  <!-- Power Indicator -->
+  <g transform="translate(54, 2)">
+    <circle cx="2" cy="2" r="1.5" fill="#22c55e" stroke="#16a34a" stroke-width="1">
+      <animate attributeName="opacity" values="1;0.5;1" dur="1s" repeatCount="indefinite"/>
+    </circle>
+    <text x="2" y="2.5" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">ON</text>
+  </g>
+  
+  <!-- Calculation Process Animation -->
+  <g transform="translate(32, 14)">
+    <path d="M -2 0 L 0 -2 L 2 0 L 0 2 Z" fill="#60a5fa" opacity="0.6">
+      <animateTransform attributeName="transform" type="rotate" values="0;360" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <!-- Result Sparkle -->
+  <g transform="translate(48, 32)">
+    <path d="M 0 0 L 1 -2 L 2 0 L 1 2 Z" fill="#fbbf24" opacity="0.8">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.2;0.5" dur="1.5s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <!-- Error Indicator -->
+  <g transform="translate(2, 40)">
+    <rect x="0" y="0" width="4" height="2" rx="1" fill="#dc2626" opacity="0">
+      <animate attributeName="opacity" values="0;1;0" dur="3s" repeatCount="indefinite" begin="5s"/>
+    </rect>
+    <text x="2" y="1.3" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">ERR</text>
+  </g>
+  
+  <!-- Calculation Mode -->
+  <g transform="translate(54, 32)">
+    <rect x="0" y="0" width="8" height="6" rx="2" fill="#7c3aed" stroke="#6d28d9" stroke-width="1"/>
+    <text x="4" y="2" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">模式</text>
+    <text x="4" y="4" font-family="sans-serif" font-size="0.8" fill="#e0e7ff" text-anchor="middle">标准</text>
+    <text x="4" y="5.5" font-family="sans-serif" font-size="0.8" fill="#e0e7ff" text-anchor="middle">科学</text>
+  </g>
+  
+  <!-- Battery Indicator -->
+  <g transform="translate(54, 40)">
+    <rect x="0" y="0" width="6" height="3" rx="1" fill="#1f2937" stroke="#374151" stroke-width="1"/>
+    <rect x="6" y="1" width="1" height="1" rx="0.2" fill="#374151"/>
+    <rect x="1" y="1" width="4" height="1" rx="0.3" fill="#22c55e">
+      <animate attributeName="width" values="4;2;4" dur="5s" repeatCount="indefinite"/>
+    </rect>
+    <text x="3" y="5" font-family="sans-serif" font-size="0.6" fill="#64748b" text-anchor="middle">85%</text>
+  </g>
+</svg>

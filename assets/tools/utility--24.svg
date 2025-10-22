@@ -1,0 +1,428 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle with Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="imageGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff9a9e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fecfef;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="canvasGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="screenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a8edea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fed6e3;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="toolGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fa709a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fee140;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="panelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#43e97b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#38f9d7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="hologramGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffecd2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fcb69f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="photoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#4ecdc4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#45b7d1;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="brushGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#96fbc4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f9f047;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#bgGradient)" stroke="#667eea" stroke-width="2"/>
+  
+  <!-- Image Processing Workstation Base -->
+  <g transform="translate(6, 10)">
+    <rect x="0" y="0" width="52" height="36" rx="4" fill="url(#imageGradient)" stroke="#fecfef" stroke-width="2"/>
+    
+    <!-- Workstation Surface -->
+    <g transform="translate(2, 2)">
+      <rect x="0" y="0" width="48" height="32" rx="2" fill="#ffffff" stroke="#ff9a9e" stroke-width="1" opacity="0.95"/>
+      
+      <!-- Grid Pattern for Design -->
+      <g stroke="#ff9a9e" stroke-width="0.2" opacity="0.2">
+        <line x1="0" y1="8" x2="48" y2="8"/>
+        <line x1="0" y1="16" x2="48" y2="16"/>
+        <line x1="0" y1="24" x2="48" y2="24"/>
+        <line x1="12" y1="0" x2="12" y2="32"/>
+        <line x1="24" y1="0" x2="24" y2="32"/>
+        <line x1="36" y1="0" x2="36" y2="32"/>
+      </g>
+    </g>
+    
+    <!-- Main Canvas Display -->
+    <g transform="translate(14, 4)">
+      <rect x="0" y="0" width="20" height="16" rx="2" fill="url(#canvasGradient)" stroke="#00f2fe" stroke-width="1.5"/>
+      
+      <!-- Canvas Screen -->
+      <g transform="translate(1, 1)">
+        <rect x="0" y="0" width="18" height="14" rx="1" fill="#000000" stroke="#4facfe" stroke-width="0.5"/>
+        
+        <!-- Image Preview -->
+        <g transform="translate(1, 1)">
+          <!-- Background Layer -->
+          <rect x="0" y="0" width="16" height="12" rx="0.5" fill="url(#photoGradient)" opacity="0.8"/>
+          
+          <!-- Sample Image Elements -->
+          <g transform="translate(2, 2)">
+            <!-- Mountain Silhouette -->
+            <path d="M 0 8 L 3 4 L 6 6 L 9 2 L 12 5 L 12 8 Z" fill="#2c3e50" opacity="0.7"/>
+            
+            <!-- Sun -->
+            <circle cx="10" cy="3" r="1.5" fill="#f39c12" opacity="0.9">
+              <animate attributeName="opacity" values="0.9;0.6;0.9" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            
+            <!-- Clouds -->
+            <ellipse cx="3" cy="2" rx="1.5" ry="0.8" fill="#ecf0f1" opacity="0.8"/>
+            <ellipse cx="8" cy="1.5" rx="1.2" ry="0.6" fill="#ecf0f1" opacity="0.6"/>
+            
+            <!-- Color Adjustment Overlay -->
+            <rect x="0" y="0" width="12" height="8" rx="0.3" fill="url(#toolGradient)" opacity="0.1">
+              <animate attributeName="opacity" values="0.1;0.3;0.1" dur="4s" repeatCount="indefinite"/>
+            </rect>
+          </g>
+          
+          <!-- Processing Indicators -->
+          <g transform="translate(1, 10)">
+            <rect x="0" y="0" width="14" height="1.5" rx="0.3" fill="url(#panelGradient)" opacity="0.8"/>
+            <text x="7" y="1" font-family="monospace" font-size="0.6" fill="#ffffff" text-anchor="middle">IMAGE PROCESSOR v4.0</text>
+          </g>
+        </g>
+      </g>
+      
+      <!-- 3D Holographic Projector -->
+      <g transform="translate(10, -4)">
+        <circle cx="0" cy="0" r="1.8" fill="url(#hologramGradient)" stroke="#fcb69f" stroke-width="0.5">
+          <animate attributeName="fill" values="url(#hologramGradient);#ffecd2;url(#hologramGradient)" dur="2.5s" repeatCount="indefinite"/>
+        </circle>
+        
+        <!-- Hologram Beam -->
+        <g opacity="0.7">
+          <path d="M 0 -1.8 L -2.5 -7 L 2.5 -7 Z" fill="url(#canvasGradient)" opacity="0.3">
+            <animate attributeName="opacity" values="0.3;0.1;0.3" dur="2.5s" repeatCount="indefinite"/>
+          </path>
+          
+          <!-- Floating Image Elements -->
+          <g transform="translate(0, -9)">
+            <g opacity="0.9">
+              <animateTransform attributeName="transform" type="translate" values="0 -9;-1.5 -10.5;0 -9" dur="3.5s" repeatCount="indefinite"/>
+              <rect x="-0.8" y="-0.8" width="1.6" height="1.6" rx="0.3" fill="url(#photoGradient)"/>
+              <rect x="-0.5" y="-0.5" width="1" height="1" rx="0.2" fill="#ffffff" opacity="0.8"/>
+            </g>
+            <g opacity="0.9">
+              <animateTransform attributeName="transform" type="translate" values="0 -9;1.5 -10.5;0 -9" dur="3.5s" repeatCount="indefinite" begin="1.2s"/>
+              <circle cx="0" cy="0" r="0.8" fill="url(#brushGradient)"/>
+              <circle cx="0" cy="0" r="0.5" fill="#ffffff" opacity="0.7"/>
+            </g>
+            <g opacity="0.9">
+              <animateTransform attributeName="transform" type="translate" values="0 -9;0 -11;0 -9" dur="3.5s" repeatCount="indefinite" begin="2.4s"/>
+              <path d="M -0.6 -0.6 L 0.6 -0.6 L 0.6 0.6 L -0.6 0.6 Z" fill="url(#toolGradient)"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    
+    <!-- Tool Palette -->
+    <g transform="translate(2, 22)">
+      <!-- Left Tool Panel -->
+      <g transform="translate(0, 0)">
+        <rect x="0" y="0" width="22" height="10" rx="2" fill="url(#screenGradient)" stroke="#fed6e3" stroke-width="1"/>
+        
+        <!-- Image Tools -->
+        <g transform="translate(2, 2)">
+          <!-- Brush Tool -->
+          <g transform="translate(1, 0)">
+            <rect x="0" y="0" width="3.5" height="1" rx="0.5" fill="url(#brushGradient)" stroke="#f9f047" stroke-width="0.3">
+              <animate attributeName="fill" values="url(#brushGradient);#96fbc4;url(#brushGradient)" dur="4s" repeatCount="indefinite"/>
+            </rect>
+            <circle cx="3.5" cy="0.5" r="0.8" fill="url(#brushGradient)" stroke="#f9f047" stroke-width="0.3"/>
+            <circle cx="3.5" cy="0.5" r="0.4" fill="#ffffff" opacity="0.8"/>
+          </g>
+          
+          <!-- Eraser Tool -->
+          <g transform="translate(6, 0)">
+            <rect x="0" y="0" width="2.5" height="1.2" rx="0.3" fill="url(#toolGradient)" stroke="#fee140" stroke-width="0.3"/>
+            <rect x="0.3" y="0.3" width="1.9" height="0.6" rx="0.2" fill="#ffffff" opacity="0.9"/>
+          </g>
+          
+          <!-- Selection Tool -->
+          <g transform="translate(10, 0)">
+            <rect x="0" y="0" width="2" height="2" rx="0.3" fill="none" stroke="url(#canvasGradient)" stroke-width="0.4" stroke-dasharray="0.3,0.3">
+              <animate attributeName="stroke-dashoffset" values="0;1.2" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <circle cx="0" cy="0" r="0.3" fill="url(#canvasGradient)"/>
+            <circle cx="2" cy="0" r="0.3" fill="url(#canvasGradient)"/>
+            <circle cx="0" cy="2" r="0.3" fill="url(#canvasGradient)"/>
+            <circle cx="2" cy="2" r="0.3" fill="url(#canvasGradient)"/>
+          </g>
+          
+          <!-- Color Picker -->
+          <g transform="translate(14, 0)">
+            <circle cx="1" cy="1" r="1" fill="url(#photoGradient)" stroke="#45b7d1" stroke-width="0.3"/>
+            <path d="M 0.3 0.3 L 1.7 0.3 L 1.7 1.7 L 0.3 1.7 Z" fill="none" stroke="#ffffff" stroke-width="0.2"/>
+            <line x1="0.3" y1="1" x2="1.7" y2="1" stroke="#ffffff" stroke-width="0.1"/>
+            <line x1="1" y1="0.3" x2="1" y2="1.7" stroke="#ffffff" stroke-width="0.1"/>
+          </g>
+          
+          <!-- Filter Tool -->
+          <g transform="translate(1, 3.5)">
+            <rect x="0" y="0" width="3" height="2.5" rx="0.3" fill="url(#hologramGradient)" stroke="#fcb69f" stroke-width="0.3"/>
+            <rect x="0.3" y="0.3" width="2.4" height="1.9" rx="0.2" fill="#000000"/>
+            
+            <!-- Filter Effect Lines -->
+            <g transform="translate(0.5, 0.5)">
+              <line x1="0" y1="0.3" x2="2" y2="0.3" stroke="#ff6b6b" stroke-width="0.1" opacity="0.8"/>
+              <line x1="0" y1="0.7" x2="2" y2="0.7" stroke="#4ecdc4" stroke-width="0.1" opacity="0.8"/>
+              <line x1="0" y1="1.1" x2="2" y2="1.1" stroke="#45b7d1" stroke-width="0.1" opacity="0.8"/>
+              <line x1="0" y1="1.5" x2="2" y2="1.5" stroke="#96fbc4" stroke-width="0.1" opacity="0.8"/>
+            </g>
+          </g>
+          
+          <!-- Transform Tool -->
+          <g transform="translate(6, 3.5)">
+            <rect x="0" y="0" width="2.5" height="2.5" rx="0.3" fill="url(#canvasGradient)" stroke="#00f2fe" stroke-width="0.3"/>
+            <g transform="translate(1.25, 1.25)">
+              <circle cx="0" cy="0" r="0.3" fill="#ffffff"/>
+              <line x1="-0.8" y1="0" x2="0.8" y2="0" stroke="#ffffff" stroke-width="0.2"/>
+              <line x1="0" y1="-0.8" x2="0" y2="0.8" stroke="#ffffff" stroke-width="0.2"/>
+              <path d="M 0.6 -0.2 L 0.8 0 L 0.6 0.2" fill="none" stroke="#ffffff" stroke-width="0.2"/>
+              <path d="M -0.6 -0.2 L -0.8 0 L -0.6 0.2" fill="none" stroke="#ffffff" stroke-width="0.2"/>
+            </g>
+          </g>
+          
+          <!-- Layers Tool -->
+          <g transform="translate(10, 3.5)">
+            <g>
+              <rect x="0" y="0" width="2" height="1.5" rx="0.2" fill="url(#toolGradient)" stroke="#fee140" stroke-width="0.2" opacity="0.9"/>
+              <rect x="0.3" y="0.5" width="2" height="1.5" rx="0.2" fill="url(#panelGradient)" stroke="#38f9d7" stroke-width="0.2" opacity="0.8"/>
+              <rect x="0.6" y="1" width="2" height="1.5" rx="0.2" fill="url(#canvasGradient)" stroke="#00f2fe" stroke-width="0.2" opacity="0.7"/>
+            </g>
+          </g>
+          
+          <!-- Crop Tool -->
+          <g transform="translate(14, 3.5)">
+            <rect x="0" y="0" width="2.5" height="2.5" rx="0.3" fill="url(#photoGradient)" stroke="#45b7d1" stroke-width="0.3"/>
+            <rect x="0.5" y="0.5" width="1.5" height="1.5" rx="0.2" fill="none" stroke="#ffffff" stroke-width="0.3" stroke-dasharray="0.2,0.2">
+              <animate attributeName="stroke-dashoffset" values="0;0.8" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <!-- Crop Handles -->
+            <rect x="0.3" y="0.3" width="0.4" height="0.4" rx="0.1" fill="#ffffff"/>
+            <rect x="1.8" y="0.3" width="0.4" height="0.4" rx="0.1" fill="#ffffff"/>
+            <rect x="0.3" y="1.8" width="0.4" height="0.4" rx="0.1" fill="#ffffff"/>
+            <rect x="1.8" y="1.8" width="0.4" height="0.4" rx="0.1" fill="#ffffff"/>
+          </g>
+        </g>
+        
+        <text x="11" y="13" font-family="sans-serif" font-size="1" fill="#667eea" text-anchor="middle">图像工具</text>
+      </g>
+      
+      <!-- Right Color Panel -->
+      <g transform="translate(26, 0)">
+        <rect x="0" y="0" width="22" height="10" rx="2" fill="url(#screenGradient)" stroke="#fed6e3" stroke-width="1"/>
+        
+        <!-- Color Palette -->
+        <g transform="translate(2, 2)">
+          <!-- Primary Colors -->
+          <g transform="translate(1, 0)">
+            <circle cx="0" cy="0" r="0.8" fill="#ff6b6b">
+              <animate attributeName="r" values="0.8;1;0.8" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="2.5" cy="0" r="0.8" fill="#4ecdc4">
+              <animate attributeName="r" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" begin="0.5s"/>
+            </circle>
+            <circle cx="5" cy="0" r="0.8" fill="#45b7d1">
+              <animate attributeName="r" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" begin="1s"/>
+            </circle>
+            <circle cx="7.5" cy="0" r="0.8" fill="#96fbc4">
+              <animate attributeName="r" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+            </circle>
+            <circle cx="10" cy="0" r="0.8" fill="#f9f047">
+              <animate attributeName="r" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" begin="2s"/>
+            </circle>
+            <circle cx="12.5" cy="0" r="0.8" fill="#fa709a">
+              <animate attributeName="r" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" begin="2.5s"/>
+            </circle>
+          </g>
+          
+          <!-- Secondary Colors -->
+          <g transform="translate(1, 2.5)">
+            <circle cx="0" cy="0" r="0.6" fill="#e74c3c" opacity="0.8"/>
+            <circle cx="2.5" cy="0" r="0.6" fill="#1abc9c" opacity="0.8"/>
+            <circle cx="5" cy="0" r="0.6" fill="#3498db" opacity="0.8"/>
+            <circle cx="7.5" cy="0" r="0.6" fill="#2ecc71" opacity="0.8"/>
+            <circle cx="10" cy="0" r="0.6" fill="#f1c40f" opacity="0.8"/>
+            <circle cx="12.5" cy="0" r="0.6" fill="#e91e63" opacity="0.8"/>
+          </g>
+          
+          <!-- Gradient Bar -->
+          <g transform="translate(1, 4.5)">
+            <rect x="0" y="0" width="16" height="1.5" rx="0.75" fill="url(#photoGradient)" stroke="#45b7d1" stroke-width="0.3"/>
+            <circle cx="8" cy="0.75" r="0.5" fill="#ffffff" stroke="#45b7d1" stroke-width="0.3">
+              <animateTransform attributeName="transform" type="translate" values="0 0;-6 0;6 0;0 0" dur="4s" repeatCount="indefinite"/>
+            </circle>
+          </g>
+        </g>
+        
+        <text x="11" y="13" font-family="sans-serif" font-size="1" fill="#667eea" text-anchor="middle">调色板</text>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Rotating Processing Indicator -->
+  <g transform="translate(58, 18)">
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="0 0 0;360 0 0" dur="5s" repeatCount="indefinite"/>
+      <!-- Processing Ring -->
+      <circle cx="0" cy="0" r="3.5" fill="none" stroke="url(#canvasGradient)" stroke-width="1.5" stroke-dasharray="6,2">
+        <animate attributeName="stroke-dashoffset" values="0;8" dur="1s" repeatCount="indefinite"/>
+      </circle>
+      
+      <!-- Center Icon -->
+      <circle cx="0" cy="0" r="2" fill="url(#photoGradient)" stroke="#45b7d1" stroke-width="1"/>
+      <rect x="-1" y="-1" width="2" height="2" rx="0.3" fill="#ffffff" opacity="0.9"/>
+      <circle cx="0" cy="0" r="0.5" fill="url(#canvasGradient)"/>
+    </g>
+  </g>
+  
+  <!-- Control Panel -->
+  <g transform="translate(4, 50)">
+    <rect x="0" y="0" width="56" height="10" rx="2" fill="url(#panelGradient)" stroke="#38f9d7" stroke-width="1"/>
+    
+    <!-- Status Lights -->
+    <g transform="translate(4, 2)">
+      <circle cx="0" cy="0" r="1" fill="#43e97b">
+        <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <text x="0" y="4" font-family="sans-serif" font-size="0.7" fill="#ffffff" text-anchor="middle">处理中</text>
+      
+      <circle cx="6" cy="0" r="1" fill="#fee140">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+      </circle>
+      <text x="6" y="4" font-family="sans-serif" font-size="0.7" fill="#ffffff" text-anchor="middle">渲染</text>
+      
+      <circle cx="12" cy="0" r="1" fill="#4facfe">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" begin="1s"/>
+      </circle>
+      <text x="12" y="4" font-family="sans-serif" font-size="0.7" fill="#ffffff" text-anchor="middle">优化</text>
+    </g>
+    
+    <!-- Control Buttons -->
+    <g transform="translate(20, 1.5)">
+      <rect x="0" y="0" width="5" height="2.5" rx="1.25" fill="url(#hologramGradient)" stroke="#fcb69f" stroke-width="0.5">
+        <animate attributeName="fill" values="url(#hologramGradient);#ffecd2;url(#hologramGradient)" dur="3s" repeatCount="indefinite"/>
+      </rect>
+      <text x="2.5" y="1.7" font-family="sans-serif" font-size="0.7" font-weight="bold" fill="#667eea" text-anchor="middle">处理</text>
+      
+      <rect x="7" y="0" width="5" height="2.5" rx="1.25" fill="url(#hologramGradient)" stroke="#fcb69f" stroke-width="0.5"/>
+      <text x="9.5" y="1.7" font-family="sans-serif" font-size="0.7" font-weight="bold" fill="#667eea" text-anchor="middle">滤镜</text>
+      
+      <rect x="14" y="0" width="6" height="2.5" rx="1.25" fill="url(#hologramGradient)" stroke="#fcb69f" stroke-width="0.5"/>
+      <text x="17" y="1.7" font-family="sans-serif" font-size="0.7" font-weight="bold" fill="#667eea" text-anchor="middle">色彩调整</text>
+      
+      <rect x="22" y="0" width="6" height="2.5" rx="1.25" fill="url(#canvasGradient)" stroke="#00f2fe" stroke-width="0.5"/>
+      <text x="25" y="1.7" font-family="sans-serif" font-size="0.7" font-weight="bold" fill="#ffffff" text-anchor="middle">图像工具</text>
+    </g>
+    
+    <!-- Progress Bar -->
+    <g transform="translate(4, 6.5)">
+      <rect x="0" y="0" width="48" height="1.5" rx="0.75" fill="#ffffff" stroke="#38f9d7" stroke-width="0.3" opacity="0.3"/>
+      <rect x="0" y="0" width="32" height="1.5" rx="0.75" fill="url(#photoGradient)" stroke="#45b7d1" stroke-width="0.3">
+        <animate attributeName="width" values="0;48;0" dur="6s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+  </g>
+  
+  <!-- Floating Image Particles -->
+  <g transform="translate(8, 6)">
+    <g opacity="0.8">
+      <animateTransform attributeName="transform" type="translate" values="8 6;12 4;8 6" dur="4s" repeatCount="indefinite"/>
+      <rect x="-0.6" y="-0.6" width="1.2" height="1.2" rx="0.3" fill="url(#photoGradient)" stroke="#45b7d1" stroke-width="0.3"/>
+    </g>
+  </g>
+  
+  <g transform="translate(56, 6)">
+    <g opacity="0.8">
+      <animateTransform attributeName="transform" type="translate" values="56 6;52 4;56 6" dur="4s" repeatCount="indefinite" begin="2s"/>
+      <circle cx="0" cy="0" r="0.8" fill="url(#brushGradient)" stroke="#f9f047" stroke-width="0.3"/>
+    </g>
+  </g>
+  
+  <!-- Sparkle Effects -->
+  <g transform="translate(16, 2)">
+    <path d="M 0 0 L 0.8 -1.6 L 1.6 0 L 0.8 1.6 Z" fill="url(#canvasGradient)" opacity="0.9">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.3;0.5" dur="2.5s" repeatCount="indefinite" begin="0s"/>
+    </path>
+  </g>
+  
+  <g transform="translate(48, 2)">
+    <path d="M 0 0 L 0.8 -1.6 L 1.6 0 L 0.8 1.6 Z" fill="url(#photoGradient)" opacity="0.7">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.3;0.5" dur="2.5s" repeatCount="indefinite" begin="1.2s"/>
+    </path>
+  </g>
+  
+  <!-- Tool Category Label -->
+  <g transform="translate(32, 2)">
+    <rect x="-12" y="0" width="24" height="3" rx="1.5" fill="url(#canvasGradient)" stroke="#00f2fe" stroke-width="0.5"/>
+    <text x="0" y="2.2" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">图像处理工作站</text>
+  </g>
+  
+  <!-- Status Displays -->
+  <g transform="translate(2, 2)">
+    <rect x="0" y="0" width="6" height="2.5" rx="1.25" fill="#43e97b" stroke="#38f9d7" stroke-width="0.5"/>
+    <text x="3" y="1.7" font-family="sans-serif" font-size="0.7" font-weight="bold" fill="#ffffff" text-anchor="middle">就绪</text>
+  </g>
+  
+  <g transform="translate(2, 5)">
+    <rect x="0" y="0" width="8" height="2.5" rx="1.25" fill="#fee140" stroke="#fa709a" stroke-width="0.5"/>
+    <text x="4" y="1.7" font-family="sans-serif" font-size="0.7" font-weight="bold" fill="#667eea" text-anchor="middle">图像模式</text>
+  </g>
+  
+  <g transform="translate(54, 2)">
+    <rect x="0" y="0" width="6" height="2.5" rx="1.25" fill="#4facfe" stroke="#00f2fe" stroke-width="0.5"/>
+    <text x="3" y="1.7" font-family="sans-serif" font-size="0.7" font-weight="bold" fill="#ffffff" text-anchor="middle">高清</text>
+  </g>
+  
+  <g transform="translate(54, 5)">
+    <rect x="0" y="0" width="6" height="2.5" rx="1.25" fill="#fa709a" stroke="#fee140" stroke-width="0.5"/>
+    <text x="3" y="1.7" font-family="sans-serif" font-size="0.7" font-weight="bold" fill="#ffffff" text-anchor="middle">专业版</text>
+  </g>
+  
+  <!-- Energy Flow Animation -->
+  <g transform="translate(32, 32)">
+    <circle cx="0" cy="0" r="28" fill="none" stroke="url(#photoGradient)" stroke-width="0.8" opacity="0.1">
+      <animate attributeName="r" values="24;32;24" dur="6s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.1;0.03;0.1" dur="6s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Performance Indicator -->
+  <g transform="translate(32, 62)">
+    <rect x="-8" y="0" width="16" height="2" rx="1" fill="url(#hologramGradient)" stroke="#fcb69f" stroke-width="0.5"/>
+    <text x="0" y="1.4" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#667eea" text-anchor="middle">图像质量: 4K+</text>
+  </g>
+  
+  <g transform="translate(48, 62)">
+    <rect x="0" y="0" width="12" height="2" rx="1" fill="url(#canvasGradient)" stroke="#00f2fe" stroke-width="0.5"/>
+    <text x="6" y="1.4" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">处理完成</text>
+  </g>
+  
+  <!-- Version Info -->
+  <g transform="translate(4, 62)">
+    <rect x="0" y="0" width="6" height="2" rx="1" fill="url(#photoGradient)" stroke="#45b7d1" stroke-width="0.5"/>
+    <text x="3" y="1.4" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">v4.0</text>
+  </g>
+</svg>

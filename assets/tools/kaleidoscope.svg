@@ -1,0 +1,187 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="kaleidoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ec4899;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#be185d;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="centerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="segment1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:0.8" />
+    </linearGradient>
+    <linearGradient id="segment2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:0.8" />
+    </linearGradient>
+    <linearGradient id="segment3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#2563eb;stop-opacity:0.8" />
+    </linearGradient>
+    <linearGradient id="segment4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ef4444;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#dc2626;stop-opacity:0.8" />
+    </linearGradient>
+    <linearGradient id="segment5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#0891b2;stop-opacity:0.8" />
+    </linearGradient>
+    <linearGradient id="segment6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#84cc16;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#65a30d;stop-opacity:0.8" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="url(#kaleidoGrad)" filter="url(#shadow)"/>
+  
+  <!-- Kaleidoscope Base Circle -->
+  <circle cx="100" cy="100" r="70" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+  
+  <!-- Rotating Kaleidoscope Segments -->
+  <g transform-origin="100 100">
+    <animateTransform attributeName="transform" type="rotate" values="0 100 100;360 100 100" dur="8s" repeatCount="indefinite"/>
+    
+    <!-- Segment 1 -->
+    <path d="M100,100 L100,30 A70,70 0 0,1 160.6,50 Z" fill="url(#segment1)" opacity="0.9">
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Segment 2 -->
+    <path d="M100,100 L160.6,50 A70,70 0 0,1 160.6,150 Z" fill="url(#segment2)" opacity="0.9">
+      <animate attributeName="opacity" values="1;0.7;1" dur="2s" repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Segment 3 -->
+    <path d="M100,100 L160.6,150 A70,70 0 0,1 100,170 Z" fill="url(#segment3)" opacity="0.9">
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Segment 4 -->
+    <path d="M100,100 L100,170 A70,70 0 0,1 39.4,150 Z" fill="url(#segment4)" opacity="0.9">
+      <animate attributeName="opacity" values="1;0.7;1" dur="2s" repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Segment 5 -->
+    <path d="M100,100 L39.4,150 A70,70 0 0,1 39.4,50 Z" fill="url(#segment5)" opacity="0.9">
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
+    </path>
+    
+    <!-- Segment 6 -->
+    <path d="M100,100 L39.4,50 A70,70 0 0,1 100,30 Z" fill="url(#segment6)" opacity="0.9">
+      <animate attributeName="opacity" values="1;0.7;1" dur="2s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <!-- Inner Decorative Elements -->
+  <g transform-origin="100 100">
+    <animateTransform attributeName="transform" type="rotate" values="360 100 100;0 100 100" dur="6s" repeatCount="indefinite"/>
+    
+    <!-- Inner Triangles -->
+    <polygon points="100,60 120,90 80,90" fill="rgba(255,255,255,0.6)" opacity="0.8">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
+    </polygon>
+    <polygon points="100,140 80,110 120,110" fill="rgba(255,255,255,0.6)" opacity="0.8">
+      <animate attributeName="opacity" values="1;0.5;1" dur="1.5s" repeatCount="indefinite"/>
+    </polygon>
+    <polygon points="70,100 100,80 100,120" fill="rgba(255,255,255,0.6)" opacity="0.8">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
+    </polygon>
+    <polygon points="130,100 100,120 100,80" fill="rgba(255,255,255,0.6)" opacity="0.8">
+      <animate attributeName="opacity" values="1;0.5;1" dur="1.5s" repeatCount="indefinite"/>
+    </polygon>
+  </g>
+  
+  <!-- Center Crystal -->
+  <circle cx="100" cy="100" r="15" fill="url(#centerGrad)" filter="url(#glow)">
+    <animate attributeName="r" values="12;18;12" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Center Highlight -->
+  <circle cx="100" cy="100" r="8" fill="rgba(255,255,255,0.8)" opacity="0.9">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Outer Decorative Rings -->
+  <g transform-origin="100 100">
+    <animateTransform attributeName="transform" type="rotate" values="0 100 100;360 100 100" dur="12s" repeatCount="indefinite"/>
+    
+    <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="5,5"/>
+    <circle cx="100" cy="100" r="85" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="3,7"/>
+  </g>
+  
+  <!-- Floating Sparkles -->
+  <g opacity="0.8">
+    <g transform-origin="50 50">
+      <animateTransform attributeName="transform" type="rotate" values="0 50 50;360 50 50" dur="4s" repeatCount="indefinite"/>
+      <circle cx="50" cy="50" r="2" fill="#fbbf24">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+    
+    <g transform-origin="150 60">
+      <animateTransform attributeName="transform" type="rotate" values="360 150 60;0 150 60" dur="5s" repeatCount="indefinite"/>
+      <circle cx="150" cy="60" r="1.5" fill="#fbbf24">
+        <animate attributeName="opacity" values="1;0.3;1" dur="2.5s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+    
+    <g transform-origin="40 140">
+      <animateTransform attributeName="transform" type="rotate" values="0 40 140;360 40 140" dur="6s" repeatCount="indefinite"/>
+      <circle cx="40" cy="140" r="1" fill="#fbbf24">
+        <animate attributeName="opacity" values="0.5;1;0.5" dur="1.8s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+    
+    <g transform-origin="160 140">
+      <animateTransform attributeName="transform" type="rotate" values="360 160 140;0 160 140" dur="7s" repeatCount="indefinite"/>
+      <circle cx="160" cy="140" r="1.2" fill="#fbbf24">
+        <animate attributeName="opacity" values="0.7;1;0.7" dur="2.2s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+  </g>
+  
+  <!-- Interactive Cursor -->
+  <g transform="translate(170,30)">
+    <circle cx="0" cy="0" r="8" fill="rgba(255,255,255,0.9)" filter="url(#shadow)">
+      <animate attributeName="r" values="6;10;6" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <path d="M-3,-3 L3,3 M3,-3 L-3,3" stroke="#be185d" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="0" cy="0" r="12" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1" stroke-dasharray="2,2">
+      <animateTransform attributeName="transform" type="rotate" values="0;360" dur="3s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Category Label -->
+  <rect x="20" y="175" width="160" height="15" rx="7" fill="rgba(255,255,255,0.9)" filter="url(#shadow)"/>
+  <text x="100" y="186" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#be185d">交互式万花筒</text>
+  
+  <!-- Status Indicators -->
+  <g transform="translate(20,10)">
+    <rect x="0" y="0" width="40" height="12" rx="6" fill="rgba(34,197,94,0.9)"/>
+    <text x="20" y="9" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="white">旋转中</text>
+  </g>
+  
+  <g transform="translate(70,10)">
+    <rect x="0" y="0" width="45" height="12" rx="6" fill="rgba(59,130,246,0.9)"/>
+    <text x="22.5" y="9" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="white">交互模式</text>
+  </g>
+  
+  <g transform="translate(125,10)">
+    <rect x="0" y="0" width="55" height="12" rx="6" fill="rgba(168,85,247,0.9)"/>
+    <text x="27.5" y="9" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="white">6色模式</text>
+  </g>
+</svg>

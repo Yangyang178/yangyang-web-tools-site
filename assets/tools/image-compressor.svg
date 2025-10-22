@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" fill="#8b5cf6" stroke="#7c3aed"/>
+  <rect x="5" y="5" width="14" height="10" rx="1" fill="#a78bfa"/>
+  <circle cx="8" cy="8" r="1.5" fill="#fbbf24"/>
+  <polygon points="5,12 8,9 11,12 14,10 19,15 19,15 5,15" fill="#c4b5fd"/>
+  
+  <!-- Compression arrows -->
+  <path d="M2 18 L6 18" stroke="#ef4444" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M18 18 L22 18" stroke="#ef4444" stroke-width="2" marker-start="url(#arrowhead)"/>
+  
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444"/>
+    </marker>
+  </defs>
+  
+  <!-- Size indicator -->
+  <text x="12" y="20" font-family="Arial, sans-serif" font-size="3" font-weight="bold" fill="#ef4444" text-anchor="middle">↓</text>
+</svg>

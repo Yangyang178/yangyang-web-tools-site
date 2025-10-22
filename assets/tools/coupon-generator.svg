@@ -1,0 +1,196 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="couponGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="coupon1Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#dc2626;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="coupon2Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="coupon3Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="machineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6b7280;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4b5563;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="url(#couponGrad)" filter="url(#shadow)"/>
+  
+  <!-- Coupon Generator Machine -->
+  <rect x="60" y="40" width="80" height="60" rx="8" fill="url(#machineGrad)" filter="url(#shadow)"/>
+  
+  <!-- Machine Screen -->
+  <rect x="70" y="50" width="60" height="30" rx="4" fill="#1f2937"/>
+  <rect x="72" y="52" width="56" height="26" rx="2" fill="#0f172a"/>
+  
+  <!-- Screen Content -->
+  <g font-family="monospace" font-size="6" fill="#10b981">
+    <text x="75" y="60">生成中...</text>
+    <text x="75" y="68">批次: 100</text>
+    <text x="75" y="76">进度: 75%</text>
+  </g>
+  
+  <!-- Progress Bar on Screen -->
+  <rect x="75" y="78" width="48" height="2" rx="1" fill="rgba(16,185,129,0.3)"/>
+  <rect x="75" y="78" width="36" height="2" rx="1" fill="#10b981">
+    <animate attributeName="width" values="0;48;0" dur="3s" repeatCount="indefinite"/>
+  </rect>
+  
+  <!-- Machine Buttons -->
+  <circle cx="80" cy="90" r="4" fill="#ef4444" opacity="0.9">
+    <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="95" cy="90" r="4" fill="#10b981" opacity="0.9">
+    <animate attributeName="opacity" values="1;0.7;1" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="110" cy="90" r="4" fill="#3b82f6" opacity="0.9">
+    <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="125" cy="90" r="4" fill="#f59e0b" opacity="0.9">
+    <animate attributeName="opacity" values="1;0.7;1" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Output Slot -->
+  <rect x="75" y="95" width="50" height="4" rx="2" fill="#374151"/>
+  
+  <!-- Generated Coupons -->
+  <!-- Coupon 1 -->
+  <g transform="translate(50,110)">
+    <rect x="0" y="0" width="40" height="20" rx="3" fill="url(#coupon1Grad)" filter="url(#shadow)" opacity="0.9">
+      <animate attributeName="opacity" values="0;1;1" dur="1s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="0,-10;0,0;0,0" dur="1s" repeatCount="indefinite"/>
+    </rect>
+    <!-- Coupon perforations -->
+    <g fill="rgba(255,255,255,0.3)">
+      <circle cx="0" cy="10" r="2"/>
+      <circle cx="40" cy="10" r="2"/>
+    </g>
+    <!-- Coupon content -->
+    <text x="20" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="6" font-weight="bold" fill="white">50%</text>
+    <text x="20" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-size="4" fill="rgba(255,255,255,0.8)">OFF</text>
+  </g>
+  
+  <!-- Coupon 2 -->
+  <g transform="translate(110,115)">
+    <rect x="0" y="0" width="40" height="20" rx="3" fill="url(#coupon2Grad)" filter="url(#shadow)" opacity="0.9">
+      <animate attributeName="opacity" values="0;1;1" dur="1s" repeatCount="indefinite" begin="0.5s"/>
+      <animateTransform attributeName="transform" type="translate" values="0,-10;0,0;0,0" dur="1s" repeatCount="indefinite" begin="0.5s"/>
+    </rect>
+    <g fill="rgba(255,255,255,0.3)">
+      <circle cx="0" cy="10" r="2"/>
+      <circle cx="40" cy="10" r="2"/>
+    </g>
+    <text x="20" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="6" font-weight="bold" fill="white">¥20</text>
+    <text x="20" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-size="4" fill="rgba(255,255,255,0.8)">减免</text>
+  </g>
+  
+  <!-- Coupon 3 -->
+  <g transform="translate(80,140)">
+    <rect x="0" y="0" width="40" height="20" rx="3" fill="url(#coupon3Grad)" filter="url(#shadow)" opacity="0.9">
+      <animate attributeName="opacity" values="0;1;1" dur="1s" repeatCount="indefinite" begin="1s"/>
+      <animateTransform attributeName="transform" type="translate" values="0,-10;0,0;0,0" dur="1s" repeatCount="indefinite" begin="1s"/>
+    </rect>
+    <g fill="rgba(255,255,255,0.3)">
+      <circle cx="0" cy="10" r="2"/>
+      <circle cx="40" cy="10" r="2"/>
+    </g>
+    <text x="20" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="5" font-weight="bold" fill="white">买1送1</text>
+    <text x="20" y="15" text-anchor="middle" font-family="Arial, sans-serif" font-size="4" fill="rgba(255,255,255,0.8)">特惠</text>
+  </g>
+  
+  <!-- Batch Counter -->
+  <g transform="translate(160,70)">
+    <rect x="0" y="0" width="30" height="40" rx="5" fill="rgba(255,255,255,0.9)" filter="url(#shadow)"/>
+    <text x="15" y="12" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#d97706">批量</text>
+    <text x="15" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#ef4444">100</text>
+    <text x="15" y="32" text-anchor="middle" font-family="Arial, sans-serif" font-size="6" fill="#6b7280">张</text>
+  </g>
+  
+  <!-- QR Code Generator -->
+  <g transform="translate(20,50)">
+    <rect x="0" y="0" width="25" height="25" rx="3" fill="white" filter="url(#shadow)"/>
+    <!-- Mini QR pattern -->
+    <g fill="#1f2937">
+      <rect x="2" y="2" width="6" height="6"/>
+      <rect x="17" y="2" width="6" height="6"/>
+      <rect x="2" y="17" width="6" height="6"/>
+      <rect x="10" y="5" width="1" height="1"/>
+      <rect x="12" y="5" width="1" height="1"/>
+      <rect x="15" y="5" width="1" height="1"/>
+      <rect x="10" y="8" width="1" height="1"/>
+      <rect x="13" y="8" width="1" height="1"/>
+      <rect x="16" y="8" width="1" height="1"/>
+      <rect x="11" y="11" width="1" height="1"/>
+      <rect x="14" y="11" width="1" height="1"/>
+      <rect x="17" y="11" width="1" height="1"/>
+      <rect x="10" y="14" width="1" height="1"/>
+      <rect x="13" y="14" width="1" height="1"/>
+      <rect x="16" y="14" width="1" height="1"/>
+      <rect x="11" y="17" width="1" height="1"/>
+      <rect x="14" y="17" width="1" height="1"/>
+      <rect x="17" y="17" width="1" height="1"/>
+      <rect x="12" y="20" width="1" height="1"/>
+      <rect x="15" y="20" width="1" height="1"/>
+    </g>
+    
+    <!-- QR Generation Effect -->
+    <rect x="0" y="0" width="25" height="2" fill="rgba(16,185,129,0.6)" opacity="0">
+      <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="0;23;0" dur="2s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+  
+  <!-- Floating Money Symbols -->
+  <g opacity="0.7">
+    <text x="30" y="30" font-family="Arial, sans-serif" font-size="12" fill="#fbbf24" opacity="0.8">¥</text>
+    <animateTransform attributeName="transform" type="translate" values="0,0;10,-15;20,-30" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.7;0;0.7" dur="3s" repeatCount="indefinite"/>
+    
+    <text x="170" y="40" font-family="Arial, sans-serif" font-size="10" fill="#fbbf24" opacity="0.6">%</text>
+    <animateTransform attributeName="transform" type="translate" values="0,0;-8,-12;-16,-24" dur="3.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.6;0;0.6" dur="3.5s" repeatCount="indefinite"/>
+    
+    <text x="40" y="180" font-family="Arial, sans-serif" font-size="8" fill="#fbbf24" opacity="0.5">OFF</text>
+    <animateTransform attributeName="transform" type="translate" values="0,0;15,-10;30,-20" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.5;0;0.5" dur="4s" repeatCount="indefinite"/>
+  </g>
+  
+  <!-- Category Label -->
+  <rect x="15" y="175" width="170" height="15" rx="7" fill="rgba(255,255,255,0.9)" filter="url(#shadow)"/>
+  <text x="100" y="186" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#d97706">优惠券批量生成工具</text>
+  
+  <!-- Status Indicators -->
+  <g transform="translate(20,10)">
+    <rect x="0" y="0" width="40" height="12" rx="6" fill="rgba(34,197,94,0.9)"/>
+    <text x="20" y="9" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="white">生成中</text>
+  </g>
+  
+  <g transform="translate(70,10)">
+    <rect x="0" y="0" width="45" height="12" rx="6" fill="rgba(59,130,246,0.9)"/>
+    <text x="22.5" y="9" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="white">批量模式</text>
+  </g>
+  
+  <g transform="translate(125,10)">
+    <rect x="0" y="0" width="55" height="12" rx="6" fill="rgba(168,85,247,0.9)"/>
+    <text x="27.5" y="9" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="white">多种类型</text>
+  </g>
+</svg>

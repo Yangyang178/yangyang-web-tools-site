@@ -1,0 +1,395 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle with Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="studioGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff9a9e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fecfef;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cameraGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="lensGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a8edea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fed6e3;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="lightGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fa709a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fee140;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="screenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#43e97b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#38f9d7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="photoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#4ecdc4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#45b7d1;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="tripodGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#96fbc4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f9f047;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="editGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffecd2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fcb69f;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="flashGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#fee140;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#fa709a;stop-opacity:0.3" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#bgGradient)" stroke="#667eea" stroke-width="2"/>
+  
+  <!-- Photography Studio Base -->
+  <g transform="translate(4, 8)">
+    <rect x="0" y="0" width="56" height="40" rx="4" fill="url(#studioGradient)" stroke="#fecfef" stroke-width="2"/>
+    
+    <!-- Studio Floor -->
+    <g transform="translate(2, 2)">
+      <rect x="0" y="0" width="52" height="36" rx="2" fill="#ffffff" stroke="#ff9a9e" stroke-width="1" opacity="0.95"/>
+      
+      <!-- Floor Grid Pattern -->
+      <g stroke="#ff9a9e" stroke-width="0.2" opacity="0.15">
+        <line x1="0" y1="9" x2="52" y2="9"/>
+        <line x1="0" y1="18" x2="52" y2="18"/>
+        <line x1="0" y1="27" x2="52" y2="27"/>
+        <line x1="13" y1="0" x2="13" y2="36"/>
+        <line x1="26" y1="0" x2="26" y2="36"/>
+        <line x1="39" y1="0" x2="39" y2="36"/>
+      </g>
+    </g>
+    
+    <!-- Professional Camera Setup -->
+    <g transform="translate(20, 6)">
+      <!-- Camera Body -->
+      <rect x="0" y="0" width="16" height="12" rx="2" fill="url(#cameraGradient)" stroke="#00f2fe" stroke-width="1.5"/>
+      
+      <!-- Camera Details -->
+      <g transform="translate(1, 1)">
+        <rect x="0" y="0" width="14" height="10" rx="1" fill="#000000" stroke="#4facfe" stroke-width="0.5"/>
+        
+        <!-- Viewfinder -->
+        <g transform="translate(1, 1)">
+          <rect x="0" y="0" width="12" height="8" rx="0.5" fill="url(#photoGradient)" opacity="0.9"/>
+          
+          <!-- Photo Preview -->
+          <g transform="translate(1, 1)">
+            <!-- Portrait Subject -->
+            <ellipse cx="5" cy="2.5" rx="2" ry="2.5" fill="#f39c12" opacity="0.8"/>
+            <circle cx="5" cy="2" r="1.2" fill="#e67e22" opacity="0.9"/>
+            
+            <!-- Background Bokeh -->
+            <circle cx="2" cy="1.5" r="0.8" fill="#3498db" opacity="0.4">
+              <animate attributeName="opacity" values="0.4;0.2;0.4" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="8" cy="2" r="0.6" fill="#e74c3c" opacity="0.3">
+              <animate attributeName="opacity" values="0.3;0.1;0.3" dur="3s" repeatCount="indefinite" begin="1s"/>
+            </circle>
+            <circle cx="3" cy="5" r="0.5" fill="#2ecc71" opacity="0.3">
+              <animate attributeName="opacity" values="0.3;0.1;0.3" dur="3s" repeatCount="indefinite" begin="2s"/>
+            </circle>
+            
+            <!-- Focus Frame -->
+            <rect x="3.5" y="1" width="3" height="3" rx="0.2" fill="none" stroke="#ffffff" stroke-width="0.3" stroke-dasharray="0.5,0.5">
+              <animate attributeName="stroke-dashoffset" values="0;1" dur="2s" repeatCount="indefinite"/>
+            </rect>
+          </g>
+          
+          <!-- Camera Info Display -->
+          <g transform="translate(1, 7)">
+            <rect x="0" y="0" width="10" height="1" rx="0.2" fill="url(#screenGradient)" opacity="0.8"/>
+            <text x="5" y="0.7" font-family="monospace" font-size="0.5" fill="#ffffff" text-anchor="middle">PHOTO STUDIO v5.0</text>
+          </g>
+        </g>
+      </g>
+      
+      <!-- Camera Lens -->
+      <g transform="translate(8, -6)">
+        <circle cx="0" cy="0" r="4" fill="url(#lensGradient)" stroke="#fed6e3" stroke-width="1">
+          <animate attributeName="fill" values="url(#lensGradient);#a8edea;url(#lensGradient)" dur="4s" repeatCount="indefinite"/>
+        </circle>
+        
+        <!-- Lens Elements -->
+        <circle cx="0" cy="0" r="3" fill="#000000" stroke="#a8edea" stroke-width="0.5"/>
+        <circle cx="0" cy="0" r="2.2" fill="url(#cameraGradient)" opacity="0.7"/>
+        <circle cx="0" cy="0" r="1.5" fill="#000000"/>
+        <circle cx="0" cy="0" r="0.8" fill="url(#photoGradient)" opacity="0.8">
+          <animate attributeName="r" values="0.8;1.2;0.8" dur="3s" repeatCount="indefinite"/>
+        </circle>
+        
+        <!-- Lens Reflection -->
+        <ellipse cx="-1" cy="-1" rx="1.5" ry="0.8" fill="#ffffff" opacity="0.3">
+          <animate attributeName="opacity" values="0.3;0.1;0.3" dur="2.5s" repeatCount="indefinite"/>
+        </ellipse>
+      </g>
+    </g>
+    
+    <!-- Tripod Stand -->
+    <g transform="translate(28, 18)">
+      <!-- Tripod Legs -->
+      <g stroke="url(#tripodGradient)" stroke-width="1.5" fill="none">
+        <line x1="0" y1="0" x2="-8" y2="18" stroke-linecap="round"/>
+        <line x1="0" y1="0" x2="8" y2="18" stroke-linecap="round"/>
+        <line x1="0" y1="0" x2="0" y2="20" stroke-linecap="round"/>
+      </g>
+      
+      <!-- Tripod Head -->
+      <circle cx="0" cy="0" r="2" fill="url(#tripodGradient)" stroke="#f9f047" stroke-width="0.5"/>
+      <circle cx="0" cy="0" r="1.2" fill="#000000"/>
+      <circle cx="0" cy="0" r="0.6" fill="url(#cameraGradient)"/>
+      
+      <!-- Tripod Feet -->
+      <circle cx="-8" cy="18" r="1" fill="url(#tripodGradient)" stroke="#f9f047" stroke-width="0.3"/>
+      <circle cx="8" cy="18" r="1" fill="url(#tripodGradient)" stroke="#f9f047" stroke-width="0.3"/>
+      <circle cx="0" cy="20" r="1" fill="url(#tripodGradient)" stroke="#f9f047" stroke-width="0.3"/>
+    </g>
+    
+    <!-- Studio Lighting Setup -->
+    <g transform="translate(6, 4)">
+      <!-- Left Light -->
+      <g transform="translate(0, 0)">
+        <rect x="0" y="0" width="3" height="8" rx="1.5" fill="url(#lightGradient)" stroke="#fee140" stroke-width="0.5"/>
+        <ellipse cx="1.5" cy="2" rx="2" ry="1" fill="url(#flashGradient)" opacity="0.6">
+          <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite"/>
+        </ellipse>
+        
+        <!-- Light Stand -->
+        <line x1="1.5" y1="8" x2="1.5" y2="16" stroke="url(#tripodGradient)" stroke-width="1" stroke-linecap="round"/>
+        <circle cx="1.5" cy="16" r="0.8" fill="url(#tripodGradient)" stroke="#f9f047" stroke-width="0.3"/>
+      </g>
+      
+      <!-- Right Light -->
+      <g transform="translate(44, 0)">
+        <rect x="0" y="0" width="3" height="8" rx="1.5" fill="url(#lightGradient)" stroke="#fee140" stroke-width="0.5"/>
+        <ellipse cx="1.5" cy="2" rx="2" ry="1" fill="url(#flashGradient)" opacity="0.6">
+          <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite" begin="1s"/>
+        </ellipse>
+        
+        <!-- Light Stand -->
+        <line x1="1.5" y1="8" x2="1.5" y2="16" stroke="url(#tripodGradient)" stroke-width="1" stroke-linecap="round"/>
+        <circle cx="1.5" cy="16" r="0.8" fill="url(#tripodGradient)" stroke="#f9f047" stroke-width="0.3"/>
+      </g>
+      
+      <!-- Background Light -->
+      <g transform="translate(22, -2)">
+        <rect x="0" y="0" width="8" height="3" rx="1.5" fill="url(#lightGradient)" stroke="#fee140" stroke-width="0.5"/>
+        <ellipse cx="4" cy="1.5" rx="1" ry="2.5" fill="url(#flashGradient)" opacity="0.4">
+          <animate attributeName="opacity" values="0.4;0.1;0.4" dur="2.5s" repeatCount="indefinite" begin="0.5s"/>
+        </ellipse>
+        
+        <!-- Light Stand -->
+        <line x1="4" y1="3" x2="4" y2="8" stroke="url(#tripodGradient)" stroke-width="1" stroke-linecap="round"/>
+        <circle cx="4" cy="8" r="0.8" fill="url(#tripodGradient)" stroke="#f9f047" stroke-width="0.3"/>
+      </g>
+    </g>
+    
+    <!-- Photo Editing Workstation -->
+    <g transform="translate(2, 24)">
+      <rect x="0" y="0" width="52" height="12" rx="2" fill="url(#editGradient)" stroke="#fcb69f" stroke-width="1"/>
+      
+      <!-- Monitor Display -->
+      <g transform="translate(4, 2)">
+        <rect x="0" y="0" width="20" height="8" rx="1" fill="#000000" stroke="#ffecd2" stroke-width="0.5"/>
+        
+        <!-- Photo Gallery -->
+        <g transform="translate(1, 1)">
+          <!-- Main Photo -->
+          <rect x="0" y="0" width="8" height="6" rx="0.3" fill="url(#photoGradient)" stroke="#45b7d1" stroke-width="0.3"/>
+          <rect x="0.5" y="0.5" width="7" height="5" rx="0.2" fill="#ffffff" opacity="0.9"/>
+          
+          <!-- Sample Photos -->
+          <g transform="translate(1, 1)">
+            <rect x="0" y="0" width="2" height="1.5" rx="0.1" fill="#e74c3c" opacity="0.8"/>
+            <rect x="2.5" y="0" width="2" height="1.5" rx="0.1" fill="#3498db" opacity="0.8"/>
+            <rect x="0" y="2" width="2" height="1.5" rx="0.1" fill="#2ecc71" opacity="0.8"/>
+            <rect x="2.5" y="2" width="2" height="1.5" rx="0.1" fill="#f39c12" opacity="0.8"/>
+          </g>
+          
+          <!-- Thumbnail Strip -->
+          <g transform="translate(10, 0)">
+            <rect x="0" y="0" width="8" height="1.5" rx="0.2" fill="url(#screenGradient)" opacity="0.8"/>
+            
+            <!-- Thumbnails -->
+            <g transform="translate(0.5, 0.2)">
+              <rect x="0" y="0" width="1" height="1.1" rx="0.1" fill="#e74c3c" opacity="0.9">
+                <animate attributeName="opacity" values="0.9;0.5;0.9" dur="3s" repeatCount="indefinite"/>
+              </rect>
+              <rect x="1.5" y="0" width="1" height="1.1" rx="0.1" fill="#3498db" opacity="0.7"/>
+              <rect x="3" y="0" width="1" height="1.1" rx="0.1" fill="#2ecc71" opacity="0.7"/>
+              <rect x="4.5" y="0" width="1" height="1.1" rx="0.1" fill="#f39c12" opacity="0.7"/>
+              <rect x="6" y="0" width="1" height="1.1" rx="0.1" fill="#9b59b6" opacity="0.7"/>
+            </g>
+            
+            <!-- Timeline -->
+            <g transform="translate(0, 2)">
+              <rect x="0" y="0" width="8" height="0.8" rx="0.4" fill="#000000" stroke="#43e97b" stroke-width="0.2"/>
+              <rect x="0.2" y="0.2" width="3" height="0.4" rx="0.2" fill="url(#screenGradient)">
+                <animate attributeName="width" values="0;8;0" dur="5s" repeatCount="indefinite"/>
+              </rect>
+            </g>
+            
+            <!-- Effects Panel -->
+            <g transform="translate(0, 3.5)">
+              <rect x="0" y="0" width="8" height="2.5" rx="0.3" fill="url(#lensGradient)" stroke="#fed6e3" stroke-width="0.3"/>
+              
+              <!-- Effect Icons -->
+              <g transform="translate(0.5, 0.3)">
+                <!-- Brightness -->
+                <circle cx="1" cy="0.8" r="0.6" fill="#f1c40f" opacity="0.8">
+                  <animate attributeName="opacity" values="0.8;0.4;0.8" dur="2s" repeatCount="indefinite"/>
+                </circle>
+                <path d="M 1 0.2 L 1 1.4 M 0.4 0.8 L 1.6 0.8 M 0.6 0.4 L 1.4 1.2 M 0.6 1.2 L 1.4 0.4" stroke="#ffffff" stroke-width="0.1"/>
+                
+                <!-- Contrast -->
+                <g transform="translate(2.5, 0)">
+                  <circle cx="0" cy="0.8" r="0.6" fill="#34495e" opacity="0.8"/>
+                  <path d="M 0 0.2 A 0.6 0.6 0 0 1 0 1.4" fill="#ecf0f1"/>
+                </g>
+                
+                <!-- Saturation -->
+                <g transform="translate(5, 0)">
+                  <circle cx="0" cy="0.8" r="0.6" fill="url(#photoGradient)" opacity="0.8"/>
+                  <circle cx="0" cy="0.8" r="0.3" fill="#ffffff" opacity="0.7"/>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      
+      <!-- Control Panel -->
+      <g transform="translate(26, 2)">
+        <rect x="0" y="0" width="24" height="8" rx="1" fill="url(#screenGradient)" stroke="#38f9d7" stroke-width="0.5"/>
+        
+        <!-- Adjustment Sliders -->
+        <g transform="translate(2, 1)">
+          <!-- Exposure Slider -->
+          <g transform="translate(0, 0)">
+            <rect x="0" y="0" width="8" height="0.8" rx="0.4" fill="#ffffff" stroke="#43e97b" stroke-width="0.2" opacity="0.8"/>
+            <circle cx="3" cy="0.4" r="0.5" fill="url(#lightGradient)" stroke="#fee140" stroke-width="0.2">
+              <animateTransform attributeName="transform" type="translate" values="0 0;4 0;0 0" dur="4s" repeatCount="indefinite"/>
+            </circle>
+            <text x="10" y="0.6" font-family="sans-serif" font-size="0.6" fill="#ffffff">曝光</text>
+          </g>
+          
+          <!-- Highlights Slider -->
+          <g transform="translate(0, 1.5)">
+            <rect x="0" y="0" width="8" height="0.8" rx="0.4" fill="#ffffff" stroke="#43e97b" stroke-width="0.2" opacity="0.8"/>
+            <circle cx="5" cy="0.4" r="0.5" fill="url(#lightGradient)" stroke="#fee140" stroke-width="0.2">
+              <animateTransform attributeName="transform" type="translate" values="0 0;-2 0;0 0" dur="4s" repeatCount="indefinite" begin="1s"/>
+            </circle>
+            <text x="10" y="0.6" font-family="sans-serif" font-size="0.6" fill="#ffffff">高光</text>
+          </g>
+          
+          <!-- Shadows Slider -->
+          <g transform="translate(0, 3)">
+            <rect x="0" y="0" width="8" height="0.8" rx="0.4" fill="#ffffff" stroke="#43e97b" stroke-width="0.2" opacity="0.8"/>
+            <circle cx="2" cy="0.4" r="0.5" fill="url(#lightGradient)" stroke="#fee140" stroke-width="0.2">
+              <animateTransform attributeName="transform" type="translate" values="0 0;3 0;0 0" dur="4s" repeatCount="indefinite" begin="2s"/>
+            </circle>
+            <text x="10" y="0.6" font-family="sans-serif" font-size="0.6" fill="#ffffff">阴影</text>
+          </g>
+          
+          <!-- Vibrance Slider -->
+          <g transform="translate(0, 4.5)">
+            <rect x="0" y="0" width="8" height="0.8" rx="0.4" fill="#ffffff" stroke="#43e97b" stroke-width="0.2" opacity="0.8"/>
+            <circle cx="6" cy="0.4" r="0.5" fill="url(#photoGradient)" stroke="#45b7d1" stroke-width="0.2">
+              <animateTransform attributeName="transform" type="translate" values="0 0;-3 0;0 0" dur="4s" repeatCount="indefinite" begin="3s"/>
+            </circle>
+            <text x="10" y="0.6" font-family="sans-serif" font-size="0.6" fill="#ffffff">自然饱和度</text>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Flash Effect -->
+  <g transform="translate(32, 32)">
+    <circle cx="0" cy="0" r="25" fill="url(#flashGradient)" opacity="0.1">
+      <animate attributeName="opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="r" values="20;30;20" dur="3s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Floating Photo Elements -->
+  <g transform="translate(8, 4)">
+    <g opacity="0.8">
+      <animateTransform attributeName="transform" type="translate" values="8 4;12 2;8 4" dur="4s" repeatCount="indefinite"/>
+      <rect x="-0.8" y="-0.8" width="1.6" height="1.6" rx="0.3" fill="url(#photoGradient)" stroke="#45b7d1" stroke-width="0.3"/>
+      <rect x="-0.5" y="-0.5" width="1" height="1" rx="0.2" fill="#ffffff" opacity="0.8"/>
+    </g>
+  </g>
+  
+  <g transform="translate(56, 4)">
+    <g opacity="0.8">
+      <animateTransform attributeName="transform" type="translate" values="56 4;52 2;56 4" dur="4s" repeatCount="indefinite" begin="2s"/>
+      <circle cx="0" cy="0" r="0.8" fill="url(#lightGradient)" stroke="#fee140" stroke-width="0.3"/>
+      <circle cx="0" cy="0" r="0.4" fill="#ffffff" opacity="0.7"/>
+    </g>
+  </g>
+  
+  <!-- Sparkle Effects -->
+  <g transform="translate(16, 2)">
+    <path d="M 0 0 L 0.8 -1.6 L 1.6 0 L 0.8 1.6 Z" fill="url(#cameraGradient)" opacity="0.9">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.3;0.5" dur="2.5s" repeatCount="indefinite" begin="0s"/>
+    </path>
+  </g>
+  
+  <g transform="translate(48, 2)">
+    <path d="M 0 0 L 0.8 -1.6 L 1.6 0 L 0.8 1.6 Z" fill="url(#photoGradient)" opacity="0.7">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.3;0.5" dur="2.5s" repeatCount="indefinite" begin="1.2s"/>
+    </path>
+  </g>
+  
+  <!-- Tool Category Label -->
+  <g transform="translate(32, 2)">
+    <rect x="-12" y="0" width="24" height="3" rx="1.5" fill="url(#cameraGradient)" stroke="#00f2fe" stroke-width="0.5"/>
+    <text x="0" y="2.2" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">摄影工作室</text>
+  </g>
+  
+  <!-- Status Displays -->
+  <g transform="translate(2, 2)">
+    <rect x="0" y="0" width="6" height="2.5" rx="1.25" fill="#43e97b" stroke="#38f9d7" stroke-width="0.5"/>
+    <text x="3" y="1.7" font-family="sans-serif" font-size="0.7" font-weight="bold" fill="#ffffff" text-anchor="middle">就绪</text>
+  </g>
+  
+  <g transform="translate(2, 5)">
+    <rect x="0" y="0" width="8" height="2.5" rx="1.25" fill="#fee140" stroke="#fa709a" stroke-width="0.5"/>
+    <text x="4" y="1.7" font-family="sans-serif" font-size="0.7" font-weight="bold" fill="#667eea" text-anchor="middle">摄影模式</text>
+  </g>
+  
+  <g transform="translate(54, 2)">
+    <rect x="0" y="0" width="6" height="2.5" rx="1.25" fill="#4facfe" stroke="#00f2fe" stroke-width="0.5"/>
+    <text x="3" y="1.7" font-family="sans-serif" font-size="0.7" font-weight="bold" fill="#ffffff" text-anchor="middle">专业</text>
+  </g>
+  
+  <g transform="translate(54, 5)">
+    <rect x="0" y="0" width="6" height="2.5" rx="1.25" fill="#fa709a" stroke="#fee140" stroke-width="0.5"/>
+    <text x="3" y="1.7" font-family="sans-serif" font-size="0.7" font-weight="bold" fill="#ffffff" text-anchor="middle">高端</text>
+  </g>
+  
+  <!-- Performance Indicator -->
+  <g transform="translate(32, 62)">
+    <rect x="-8" y="0" width="16" height="2" rx="1" fill="url(#editGradient)" stroke="#fcb69f" stroke-width="0.5"/>
+    <text x="0" y="1.4" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#667eea" text-anchor="middle">画质: 专业级</text>
+  </g>
+  
+  <g transform="translate(48, 62)">
+    <rect x="0" y="0" width="12" height="2" rx="1" fill="url(#cameraGradient)" stroke="#00f2fe" stroke-width="0.5"/>
+    <text x="6" y="1.4" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">拍摄完成</text>
+  </g>
+  
+  <!-- Version Info -->
+  <g transform="translate(4, 62)">
+    <rect x="0" y="0" width="6" height="2" rx="1" fill="url(#photoGradient)" stroke="#45b7d1" stroke-width="0.5"/>
+    <text x="3" y="1.4" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">v5.0</text>
+  </g>
+</svg>

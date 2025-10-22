@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="tableGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="elementGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景圆形 -->
+  <circle cx="32" cy="32" r="30" fill="url(#tableGrad)" opacity="0.1"/>
+  
+  <!-- 周期表网格背景 -->
+  <rect x="8" y="16" width="48" height="32" rx="2" fill="white" stroke="#e2e8f0" stroke-width="1" opacity="0.9"/>
+  
+  <!-- 元素格子 -->
+  <g>
+    <!-- 第一行 -->
+    <rect x="10" y="18" width="6" height="6" rx="1" fill="url(#elementGrad)" opacity="0.8"/>
+    <rect x="18" y="18" width="6" height="6" rx="1" fill="#ff6b6b" opacity="0.6"/>
+    <rect x="26" y="18" width="6" height="6" rx="1" fill="#4ecdc4" opacity="0.6"/>
+    <rect x="34" y="18" width="6" height="6" rx="1" fill="#45b7d1" opacity="0.6"/>
+    <rect x="42" y="18" width="6" height="6" rx="1" fill="#96ceb4" opacity="0.6"/>
+    <rect x="50" y="18" width="6" height="6" rx="1" fill="#feca57" opacity="0.6"/>
+    
+    <!-- 第二行 -->
+    <rect x="10" y="26" width="6" height="6" rx="1" fill="#ff9ff3" opacity="0.6"/>
+    <rect x="18" y="26" width="6" height="6" rx="1" fill="#54a0ff" opacity="0.6"/>
+    <rect x="26" y="26" width="6" height="6" rx="1" fill="#5f27cd" opacity="0.6"/>
+    <rect x="34" y="26" width="6" height="6" rx="1" fill="#00d2d3" opacity="0.6"/>
+    <rect x="42" y="26" width="6" height="6" rx="1" fill="#ff9f43" opacity="0.6"/>
+    <rect x="50" y="26" width="6" height="6" rx="1" fill="#10ac84" opacity="0.6"/>
+    
+    <!-- 第三行 -->
+    <rect x="10" y="34" width="6" height="6" rx="1" fill="#ee5a6f" opacity="0.6"/>
+    <rect x="18" y="34" width="6" height="6" rx="1" fill="#0abde3" opacity="0.6"/>
+    <rect x="26" y="34" width="6" height="6" rx="1" fill="#006ba6" opacity="0.6"/>
+    <rect x="34" y="34" width="6" height="6" rx="1" fill="#f368e0" opacity="0.6"/>
+    <rect x="42" y="34" width="6" height="6" rx="1" fill="#ff3838" opacity="0.6"/>
+    <rect x="50" y="34" width="6" height="6" rx="1" fill="#2ed573" opacity="0.6"/>
+    
+    <!-- 第四行 -->
+    <rect x="10" y="42" width="6" height="6" rx="1" fill="#3742fa" opacity="0.6"/>
+    <rect x="18" y="42" width="6" height="6" rx="1" fill="#2f3542" opacity="0.6"/>
+    <rect x="26" y="42" width="6" height="6" rx="1" fill="#ff4757" opacity="0.6"/>
+    <rect x="34" y="42" width="6" height="6" rx="1" fill="#7bed9f" opacity="0.6"/>
+    <rect x="42" y="42" width="6" height="6" rx="1" fill="#70a1ff" opacity="0.6"/>
+    <rect x="50" y="42" width="6" height="6" rx="1" fill="#5352ed" opacity="0.6"/>
+  </g>
+  
+  <!-- 突出显示的元素 (氢) -->
+  <rect x="10" y="18" width="6" height="6" rx="1" fill="url(#elementGrad)" stroke="#667eea" stroke-width="2"/>
+  
+  <!-- 元素符号 H -->
+  <text x="13" y="23" font-family="Arial, sans-serif" font-size="4" font-weight="bold" fill="white" text-anchor="middle">H</text>
+  
+  <!-- 原子序数 1 -->
+  <text x="11.5" y="20" font-family="Arial, sans-serif" font-size="2" fill="white">1</text>
+  
+  <!-- 放大镜 -->
+  <g transform="translate(45, 8)">
+    <circle cx="0" cy="0" r="4" fill="none" stroke="url(#tableGrad)" stroke-width="2"/>
+    <path d="M3 3 L7 7" stroke="url(#tableGrad)" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  
+  <!-- 分子结构装饰 -->
+  <g fill="url(#elementGrad)" opacity="0.4">
+    <circle cx="58" cy="52" r="1.5"/>
+    <circle cx="6" cy="8" r="1"/>
+    <circle cx="12" cy="56" r="1"/>
+    <line x1="58" y1="52" x2="6" y2="8" stroke="url(#elementGrad)" stroke-width="0.5" opacity="0.3"/>
+  </g>
+</svg>

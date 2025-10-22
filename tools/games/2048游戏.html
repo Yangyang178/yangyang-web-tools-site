@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2048 - 固定方格版</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #faf8ef;
+            margin: 0;
+            padding: 10px;
+            touch-action: manipulation;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header {
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        h1 {
+            font-size: clamp(24px, 6vw, 40px);
+            margin: 0;
+            color: #776e65;
+        }
+        .subtitle {
+            color: #776e65;
+            margin-bottom: 10px;
+            font-size: clamp(12px, 3vw, 18px);
+        }
+        .scores {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        .score-container {
+            background: #bbada0;
+            padding: 10px 15px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            min-width: 100px;
+        }
+        .score-title {
+            font-size: clamp(10px, 2.5vw, 14px);
+            display: block;
+        }
+        .score-value {
+            font-size: clamp(16px, 4vw, 24px);
+        }
+        .controls-top {
+            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        button {
+            background-color: #8f7a66;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: clamp(12px, 3vw, 16px);
+            cursor: pointer;
+            min-width: 100px;
+        }
+        button:hover {
+            background-color: #9f8b77;
+        }
+        .game-wrapper {
+            width: min(95vw, 95vh, 500px);
+            height: min(95vw, 95vh, 500px);
+            margin: 10px auto;
+            position: relative;
+        }
+        .game-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #bbada0;
+            border-radius: 6px;
+            padding: 2%;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 2%;
+            height: 100%;
+            width: 100%;
+        }
+        .cell {
+            background-color: #cdc1b4;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #776e65;
+            aspect-ratio: 1; /* 确保始终是正方形 */
+            font-size: min(6vw, 6vh, 35px);
+        }
+        .tile-2 { background-color: #eee4da; }
+        .tile-4 { background-color: #ede0c8; }
+        .tile-8 { background-color: #f2b179; color: white; }
+        .tile-16 { background-color: #f59563; color: white; }
+        .tile-32 { background-color: #f67c5f; color: white; }
+        .tile-64 { background-color: #f65e3b; color: white; }
+        .tile-128 { background-color: #edcf72; color: white; font-size: min(5vw, 5vh, 30px); }
+        .tile-256 { background-color: #edcc61; color: white; font-size: min(5vw, 5vh, 30px); }
+        .tile-512 { background-color: #edc850; color: white; font-size: min(5vw, 5vh, 30px); }
+        .tile-1024 { background-color: #edc53f; color: white; font-size: min(4vw, 4vh, 25px); }
+        .tile-2048 { background-color: #edc22e; color: white; font-size: min(4vw, 4vh, 25px); }
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(238, 228, 218, 0.73);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            z-index: 100;
+            display: none;
+        }
+        .game-over-text {
+            font-size: min(8vw, 8vh, 48px);
+            font-weight: bold;
+            color: #776e65;
+            margin-bottom: 20px;
+        }
+        .sound-control {
+            font-size: clamp(12px, 3vw, 16px);
+        }
+        .controls-bottom {
+            display: none;
+            width: min(90vw, 500px);
+            margin: 10px auto;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+        }
+        .control-btn {
+            background-color: #8f7a66;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: min(6vw, 24px);
+            cursor: pointer;
+            aspect-ratio: 1;
+        }
+        .control-btn.up { grid-column: 2; grid-row: 1; }
+        .control-btn.down { grid-column: 2; grid-row: 3; }
+        .control-btn.left { grid-column: 1; grid-row: 2; }
+        .control-btn.right { grid-column: 3; grid-row: 2; }
+        .instructions {
+            color: #776e65;
+            width: min(90vw, 500px);
+            margin: 10px auto;
+            text-align: left;
+            font-size: clamp(12px, 3vw, 16px);
+        }
+
+        @media (max-width: 768px) {
+            .controls-bottom {
+                display: grid;
+            }
+            body {
+                padding: 5px;
+                justify-content: flex-start;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            body {
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: flex-start;
+                padding-top: 10px;
+            }
+            .header {
+                width: auto;
+                margin-right: 20px;
+            }
+            .scores {
+                width: auto;
+                flex-direction: column;
+            }
+            .controls-top {
+                order: 1;
+                width: 100%;
+            }
+            .game-wrapper {
+                order: 0;
+                margin: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>2048</h1>
+        <div class="subtitle">合并相同的数字，看看你能得到多少分！</div>
+    </div>
+    
+    <div class="scores">
+        <div class="score-container">
+            <span class="score-title">分数</span>
+            <span class="score-value" id="score">0</span>
+        </div>
+        <div class="score-container">
+            <span class="score-title">最高分</span>
+            <span class="score-value" id="best-score">0</span>
+        </div>
+    </div>
+    
+    <div class="controls-top">
+        <button id="new-game-btn">新游戏</button>
+        <div class="sound-control">
+            <label>
+                <input type="checkbox" id="sound-toggle" checked> 开启音效
+            </label>
+        </div>
+    </div>
+    
+    <div class="game-wrapper">
+        <div class="game-container">
+            <div class="grid" id="grid"></div>
+            <div class="game-over" id="game-over">
+                <div class="game-over-text">游戏结束!</div>
+                <button id="try-again-btn">再试一次</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls-bottom">
+        <button class="control-btn up" id="up-btn">↑</button>
+        <button class="control-btn down" id="down-btn">↓</button>
+        <button class="control-btn left" id="left-btn">←</button>
+        <button class="control-btn right" id="right-btn">→</button>
+    </div>
+    
+    <div class="instructions">
+        <p><strong>游戏规则：</strong></p>
+        <p>使用键盘方向键(↑↓←→)或WASD移动方块，手机用户可使用屏幕下方按钮或滑动操作。</p>
+        <p>当两个相同数字的方块碰撞时，它们会合并成一个更大的数字。</p>
+        <p>每次移动后，会在空白处随机出现一个2或4。</p>
+        <p>当你得到2048时，你就赢了！(但可以继续玩)</p>
+        <p>当没有空格且无法合并时，游戏结束。</p>
+    </div>
+
+    <!-- 音频元素 -->
+    <audio id="move-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-quick-jump-arcade-game-239.mp3" preload="auto"></audio>
+    <audio id="merge-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3" preload="auto"></audio>
+    <audio id="game-over-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-lose-2027.mp3" preload="auto"></audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('grid');
+            const scoreDisplay = document.getElementById('score');
+            const bestScoreDisplay = document.getElementById('best-score');
+            const gameOverDisplay = document.getElementById('game-over');
+            const newGameBtn = document.getElementById('new-game-btn');
+            const tryAgainBtn = document.getElementById('try-again-btn');
+            const soundToggle = document.getElementById('sound-toggle');
+            
+            // 移动控制按钮
+            const upBtn = document.getElementById('up-btn');
+            const downBtn = document.getElementById('down-btn');
+            const leftBtn = document.getElementById('left-btn');
+            const rightBtn = document.getElementById('right-btn');
+            
+            // 音效元素
+            const moveSound = document.getElementById('move-sound');
+            const mergeSound = document.getElementById('merge-sound');
+            const gameOverSound = document.getElementById('game-over-sound');
+            
+            let board = [];
+            let score = 0;
+            let bestScore = localStorage.getItem('bestScore') || 0;
+            bestScoreDisplay.textContent = bestScore;
+            
+            // 触摸相关变量
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let touchEndX = 0;
+            let touchEndY = 0;
+            
+            // 播放音效函数
+            function playSound(sound) {
+                if (soundToggle.checked) {
+                    sound.currentTime = 0;
+                    sound.play().catch(e => console.log('音效播放失败:', e));
+                }
+            }
+            
+            // 初始化游戏
+            function initGame() {
+                board = [
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0]
+                ];
+                
+                score = 0;
+                scoreDisplay.textContent = score;
+                gameOverDisplay.style.display = 'none';
+                
+                grid.innerHTML = '';
+                
+                for (let i = 0; i < 16; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    grid.appendChild(cell);
+                }
+                
+                addRandomTile();
+                addRandomTile();
+                
+                updateBoard();
+            }
+            
+            function addRandomTile() {
+                const emptyCells = [];
+                
+                for (let row = 0; row < 4; row++) {
+                    for (let col = 0; col < 4; col++) {
+                        if (board[row][col] === 0) {
+                            emptyCells.push({ row, col });
+                        }
+                    }
+                }
+                
+                if (emptyCells.length > 0) {
+                    const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                    board[randomCell.row][randomCell.col] = Math.random() < 0.9 ? 2 : 4;
+                }
+            }
+            
+            function updateBoard() {
+                const cells = document.querySelectorAll('.cell');
+                
+                for (let row = 0; row < 4; row++) {
+                    for (let col = 0; col < 4; col++) {
+                        const index = row * 4 + col;
+                        const cell = cells[index];
+                        const value = board[row][col];
+                        
+                        cell.textContent = '';
+                        cell.className = 'cell';
+                        
+                        if (value > 0) {
+                            cell.textContent = value;
+                            cell.classList.add(`tile-${value}`);
+                        }
+                    }
+                }
+            }
+            
+            function move(direction) {
+                let moved = false;
+                let merged = false;
+                const oldBoard = JSON.parse(JSON.stringify(board));
+                
+                switch (direction) {
+                    case 'up':
+                        for (let col = 0; col < 4; col++) {
+                            for (let row = 1; row < 4; row++) {
+                                if (board[row][col] !== 0) {
+                                    let currentRow = row;
+                                    while (currentRow > 0 && board[currentRow - 1][col] === 0) {
+                                        board[currentRow - 1][col] = board[currentRow][col];
+                                        board[currentRow][col] = 0;
+                                        currentRow--;
+                                        moved = true;
+                                    }
+                                    
+                                    if (currentRow > 0 && board[currentRow - 1][col] === board[currentRow][col]) {
+                                        board[currentRow - 1][col] *= 2;
+                                        score += board[currentRow - 1][col];
+                                        board[currentRow][col] = 0;
+                                        moved = true;
+                                        merged = true;
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                        
+                    case 'down':
+                        for (let col = 0; col < 4; col++) {
+                            for (let row = 2; row >= 0; row--) {
+                                if (board[row][col] !== 0) {
+                                    let currentRow = row;
+                                    while (currentRow < 3 && board[currentRow + 1][col] === 0) {
+                                        board[currentRow + 1][col] = board[currentRow][col];
+                                        board[currentRow][col] = 0;
+                                        currentRow++;
+                                        moved = true;
+                                    }
+                                    
+                                    if (currentRow < 3 && board[currentRow + 1][col] === board[currentRow][col]) {
+                                        board[currentRow + 1][col] *= 2;
+                                        score += board[currentRow + 1][col];
+                                        board[currentRow][col] = 0;
+                                        moved = true;
+                                        merged = true;
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                        
+                    case 'left':
+                        for (let row = 0; row < 4; row++) {
+                            for (let col = 1; col < 4; col++) {
+                                if (board[row][col] !== 0) {
+                                    let currentCol = col;
+                                    while (currentCol > 0 && board[row][currentCol - 1] === 0) {
+                                        board[row][currentCol - 1] = board[row][currentCol];
+                                        board[row][currentCol] = 0;
+                                        currentCol--;
+                                        moved = true;
+                                    }
+                                    
+                                    if (currentCol > 0 && board[row][currentCol - 1] === board[row][currentCol]) {
+                                        board[row][currentCol - 1] *= 2;
+                                        score += board[row][currentCol - 1];
+                                        board[row][currentCol] = 0;
+                                        moved = true;
+                                        merged = true;
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                        
+                    case 'right':
+                        for (let row = 0; row < 4; row++) {
+                            for (let col = 2; col >= 0; col--) {
+                                if (board[row][col] !== 0) {
+                                    let currentCol = col;
+                                    while (currentCol < 3 && board[row][currentCol + 1] === 0) {
+                                        board[row][currentCol + 1] = board[row][currentCol];
+                                        board[row][currentCol] = 0;
+                                        currentCol++;
+                                        moved = true;
+                                    }
+                                    
+                                    if (currentCol < 3 && board[row][currentCol + 1] === board[row][currentCol]) {
+                                        board[row][currentCol + 1] *= 2;
+                                        score += board[row][currentCol + 1];
+                                        board[row][currentCol] = 0;
+                                        moved = true;
+                                        merged = true;
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                }
+                
+                if (moved) {
+                    playSound(moveSound);
+                    
+                    if (merged) {
+                        playSound(mergeSound);
+                    }
+                    
+                    scoreDisplay.textContent = score;
+                    
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestScoreDisplay.textContent = bestScore;
+                        localStorage.setItem('bestScore', bestScore);
+                    }
+                    
+                    addRandomTile();
+                    updateBoard();
+                    
+                    if (isGameOver()) {
+                        gameOverDisplay.style.display = 'flex';
+                        playSound(gameOverSound);
+                    }
+                }
+            }
+            
+            function isGameOver() {
+                for (let row = 0; row < 4; row++) {
+                    for (let col = 0; col < 4; col++) {
+                        if (board[row][col] === 0) {
+                            return false;
+                        }
+                    }
+                }
+                
+                for (let row = 0; row < 4; row++) {
+                    for (let col = 0; col < 4; col++) {
+                        const value = board[row][col];
+                        
+                        if (col < 3 && board[row][col + 1] === value) {
+                            return false;
+                        }
+                        
+                        if (row < 3 && board[row + 1][col] === value) {
+                            return false;
+                        }
+                    }
+                }
+                
+                return true;
+            }
+            
+            document.addEventListener('keydown', (e) => {
+                if (gameOverDisplay.style.display === 'flex') return;
+                
+                switch (e.key) {
+                    case 'ArrowUp':
+                    case 'w':
+                    case 'W':
+                        move('up');
+                        break;
+                    case 'ArrowDown':
+                    case 's':
+                    case 'S':
+                        move('down');
+                        break;
+                    case 'ArrowLeft':
+                    case 'a':
+                    case 'A':
+                        move('left');
+                        break;
+                    case 'ArrowRight':
+                    case 'd':
+                    case 'D':
+                        move('right');
+                        break;
+                }
+            });
+            
+            grid.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }, false);
+            
+            grid.addEventListener('touchend', (e) => {
+                if (gameOverDisplay.style.display === 'flex') return;
+                
+                touchEndX = e.changedTouches[0].clientX;
+                touchEndY = e.changedTouches[0].clientY;
+                
+                const dx = touchEndX - touchStartX;
+                const dy = touchEndY - touchStartY;
+                
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    if (dx > 0) {
+                        move('right');
+                    } else {
+                        move('left');
+                    }
+                } else {
+                    if (dy > 0) {
+                        move('down');
+                    } else {
+                        move('up');
+                    }
+                }
+            }, false);
+            
+            upBtn.addEventListener('click', () => move('up'));
+            downBtn.addEventListener('click', () => move('down'));
+            leftBtn.addEventListener('click', () => move('left'));
+            rightBtn.addEventListener('click', () => move('right'));
+            
+            newGameBtn.addEventListener('click', initGame);
+            tryAgainBtn.addEventListener('click', initGame);
+            
+            initGame();
+        });
+    </script>
+</body>
+</html>

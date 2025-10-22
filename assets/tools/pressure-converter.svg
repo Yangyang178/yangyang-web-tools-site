@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="pressureGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ee5a52;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="dialGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f1f5f9;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- 背景圆形 -->
+  <circle cx="32" cy="32" r="30" fill="url(#gaugeGrad)" opacity="0.1"/>
+  
+  <!-- 压力表外壳 -->
+  <circle cx="32" cy="32" r="20" fill="url(#gaugeGrad)" stroke="#374151" stroke-width="2"/>
+  <circle cx="32" cy="32" r="17" fill="url(#dialGrad)"/>
+  
+  <!-- 刻度线 -->
+  <g stroke="#64748b" stroke-width="1">
+    <!-- 主要刻度 -->
+    <line x1="32" y1="17" x2="32" y2="20" stroke-width="2"/>
+    <line x1="47" y1="32" x2="44" y2="32" stroke-width="2"/>
+    <line x1="32" y1="47" x2="32" y2="44" stroke-width="2"/>
+    <line x1="17" y1="32" x2="20" y2="32" stroke-width="2"/>
+    
+    <!-- 次要刻度 -->
+    <line x1="41.5" y1="20.5" x2="40.2" y2="21.8"/>
+    <line x1="43.5" y1="41.5" x2="42.2" y2="40.2"/>
+    <line x1="22.5" y1="43.5" x2="23.8" y2="42.2"/>
+    <line x1="20.5" y1="22.5" x2="21.8" y2="23.8"/>
+  </g>
+  
+  <!-- 数字刻度 -->
+  <g fill="#374151" font-family="Arial, sans-serif" font-size="6" text-anchor="middle">
+    <text x="32" y="22">0</text>
+    <text x="42" y="35">50</text>
+    <text x="32" y="46">100</text>
+    <text x="22" y="35">150</text>
+  </g>
+  
+  <!-- 指针 -->
+  <g transform="rotate(45 32 32)">
+    <line x1="32" y1="32" x2="32" y2="22" stroke="url(#pressureGrad)" stroke-width="2" stroke-linecap="round"/>
+    <polygon points="32,22 30,24 34,24" fill="url(#pressureGrad)"/>
+  </g>
+  
+  <!-- 中心圆点 -->
+  <circle cx="32" cy="32" r="2" fill="#374151"/>
+  
+  <!-- 压力单位显示 -->
+  <rect x="26" y="38" width="12" height="6" rx="1" fill="white" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="32" y="42" font-family="Arial, sans-serif" font-size="4" fill="#374151" text-anchor="middle">PSI</text>
+  
+  <!-- 管道连接 -->
+  <rect x="30" y="52" width="4" height="8" fill="#64748b"/>
+  <rect x="28" y="56" width="8" height="4" rx="1" fill="#374151"/>
+  
+  <!-- 压力波纹效果 -->
+  <g stroke="url(#pressureGrad)" stroke-width="1" fill="none" opacity="0.4">
+    <circle cx="32" cy="32" r="24"/>
+    <circle cx="32" cy="32" r="26"/>
+    <circle cx="32" cy="32" r="28"/>
+  </g>
+  
+  <!-- 装饰性压力符号 -->
+  <g fill="url(#gaugeGrad)" opacity="0.3" font-family="Arial, sans-serif" font-size="8">
+    <text x="8" y="12">P</text>
+    <text x="52" y="12">atm</text>
+    <text x="8" y="56">bar</text>
+    <text x="52" y="56">kPa</text>
+  </g>
+  
+  <!-- 警告指示器 -->
+  <g transform="translate(48, 16)">
+    <polygon points="0,0 4,0 2,4" fill="#fbbf24"/>
+    <text x="2" y="2.5" font-family="Arial, sans-serif" font-size="2" fill="white" text-anchor="middle">!</text>
+  </g>
+  
+  <!-- 数字显示屏 -->
+  <rect x="6" y="28" width="16" height="8" rx="2" fill="#1f2937"/>
+  <text x="14" y="33" font-family="monospace" font-size="6" fill="#4ade80" text-anchor="middle">75.3</text>
+</svg>

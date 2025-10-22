@@ -1,0 +1,102 @@
+[
+  {
+    "id": "2048-game",
+    "name": "2048游戏",
+    "description": "经典的2048数字合并游戏，支持触摸和键盘操作",
+    "category": "game",
+    "tags": ["游戏", "2048", "数字", "益智"],
+    "localPath": "tools/games/2048游戏.html",
+    "isOriginal": true,
+    "featured": true
+  },
+  {
+    "id": "dice-roller",
+    "name": "电子骰子工具",
+    "description": "虚拟骰子工具，支持多种骰子类型和数量",
+    "category": "game",
+    "tags": ["游戏", "骰子", "随机", "娱乐"],
+    "localPath": "tools/games/电子骰子工具.html",
+    "isOriginal": true,
+    "featured": false
+  },
+  {
+    "id": "image-compressor",
+    "name": "图片压缩工具",
+    "description": "高级图片压缩工具，支持多种格式和压缩质量调节",
+    "category": "image",
+    "tags": ["图片", "压缩", "优化", "工具"],
+    "localPath": "tools/design/图片压缩工具.html",
+    "isOriginal": true,
+    "featured": true
+  },
+  {
+    "id": "image-format-converter",
+    "name": "图片格式转换器",
+    "description": "支持多种图片格式之间的相互转换",
+    "category": "image",
+    "tags": ["图片", "格式转换", "转换器", "工具"],
+    "localPath": "tools/design/图片格式转换器.html",
+    "isOriginal": true,
+    "featured": true
+  },
+  {
+    "id": "pdf-to-image",
+    "name": "PDF转图片工具",
+    "description": "将PDF文档转换为图片格式，支持多页处理",
+    "category": "image",
+    "tags": ["PDF", "图片", "转换", "文档"],
+    "localPath": "tools/design/PDF转图片工具.html",
+    "isOriginal": true,
+    "featured": false
+  },
+  {
+    "id": "image-to-pdf",
+    "name": "图片转PDF工具",
+    "description": "将多张图片合并转换为PDF文档",
+    "category": "image",
+    "tags": ["图片", "PDF", "转换", "合并"],
+    "localPath": "tools/design/图片转PDF工具.html",
+    "isOriginal": true,
+    "featured": false
+  },
+  {
+    "id": "number-base-converter",
+    "name": "多功能进制转换器",
+    "description": "支持二进制、八进制、十进制、十六进制等多种进制转换",
+    "category": "utility",
+    "tags": ["进制", "转换", "数学", "计算"],
+    "localPath": "tools/dev/多功能进制转换器.html",
+    "isOriginal": true,
+    "featured": false
+  },
+  {
+    "id": "qr-code-generator",
+    "name": "智能二维码生成器",
+    "description": "生成各种类型的二维码，支持自定义样式和颜色",
+    "category": "data",
+    "tags": ["二维码", "生成器", "QR码", "工具"],
+    "localPath": "tools/dev/智能二维码生成器.html",
+    "isOriginal": true,
+    "featured": true
+  },
+  {
+    "id": "password-generator",
+    "name": "随机密码生成器",
+    "description": "安全的密码生成工具，支持多种字符组合和长度设置",
+    "category": "security",
+    "tags": ["密码", "生成器", "安全", "随机"],
+    "localPath": "tools/dev/随机密码生成器.html",
+    "isOriginal": true,
+    "featured": true
+  },
+  {
+    "id": "markdown-editor",
+    "name": "Markdown编辑器",
+    "description": "优化版Markdown编辑器，支持实时预览和语法高亮",
+    "category": "text",
+    "tags": ["Markdown", "编辑器", "预览", "文档"],
+    "localPath": "tools/text/Markdown编辑器.html",
+    "isOriginal": true,
+    "featured": true
+  }
+]

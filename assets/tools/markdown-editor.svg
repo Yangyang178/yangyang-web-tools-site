@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Editor window -->
+  <rect x="2" y="3" width="20" height="18" rx="2" fill="#1f2937" stroke="#374151"/>
+  
+  <!-- Window header -->
+  <rect x="2" y="3" width="20" height="3" rx="2" fill="#374151"/>
+  <circle cx="5" cy="4.5" r="0.5" fill="#ef4444"/>
+  <circle cx="7" cy="4.5" r="0.5" fill="#f59e0b"/>
+  <circle cx="9" cy="4.5" r="0.5" fill="#10b981"/>
+  
+  <!-- Split view -->
+  <line x1="12" y1="6" x2="12" y2="21" stroke="#4b5563" stroke-width="1"/>
+  
+  <!-- Left side - Markdown text -->
+  <text x="4" y="9" font-family="monospace" font-size="1.2" fill="#9ca3af"># Heading</text>
+  <text x="4" y="11" font-family="monospace" font-size="1" fill="#9ca3af">**Bold text**</text>
+  <text x="4" y="13" font-family="monospace" font-size="1" fill="#9ca3af">*Italic text*</text>
+  <text x="4" y="15" font-family="monospace" font-size="1" fill="#9ca3af">- List item</text>
+  <text x="4" y="17" font-family="monospace" font-size="1" fill="#9ca3af">[Link](url)</text>
+  <text x="4" y="19" font-family="monospace" font-size="1" fill="#9ca3af">`code`</text>
+  
+  <!-- Right side - Rendered preview -->
+  <text x="14" y="9" font-family="Arial, sans-serif" font-size="1.4" font-weight="bold" fill="#f3f4f6">Heading</text>
+  <text x="14" y="11" font-family="Arial, sans-serif" font-size="1" font-weight="bold" fill="#f3f4f6">Bold text</text>
+  <text x="14" y="13" font-family="Arial, sans-serif" font-size="1" font-style="italic" fill="#f3f4f6">Italic text</text>
+  <circle cx="14.5" cy="14.5" r="0.2" fill="#f3f4f6"/>
+  <text x="15.5" y="15" font-family="Arial, sans-serif" font-size="1" fill="#f3f4f6">List item</text>
+  <text x="14" y="17" font-family="Arial, sans-serif" font-size="1" fill="#3b82f6" text-decoration="underline">Link</text>
+  <rect x="14" y="18.2" width="2.5" height="1" rx="0.2" fill="#374151"/>
+  <text x="15.25" y="18.9" font-family="monospace" font-size="0.8" fill="#10b981">code</text>
+  
+  <!-- Markdown logo -->
+  <path d="M19 8 L20 9 L19 10 L18 9 Z" fill="#3b82f6"/>
+  <text x="19" y="7" font-family="Arial, sans-serif" font-size="1" font-weight="bold" fill="#3b82f6" text-anchor="middle">M↓</text>
+</svg>

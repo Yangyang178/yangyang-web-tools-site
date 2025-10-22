@@ -1,0 +1,97 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle with Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="brainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ee5a24;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f1f2f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#bgGradient)" stroke="#5a67d8" stroke-width="2"/>
+  
+  <!-- Central Brain Icon -->
+  <path d="M 32 12 C 28 12 25 15 25 19 C 23 19 21 21 21 23 C 21 25 23 27 25 27 C 25 31 28 34 32 34 C 36 34 39 31 39 27 C 41 27 43 25 43 23 C 43 21 41 19 39 19 C 39 15 36 12 32 12 Z" fill="url(#brainGradient)" stroke="#c44569" stroke-width="1"/>
+  
+  <!-- Brain Details -->
+  <path d="M 27 17 Q 29 15 31 17" stroke="#ffffff" stroke-width="1" fill="none"/>
+  <path d="M 33 17 Q 35 15 37 17" stroke="#ffffff" stroke-width="1" fill="none"/>
+  <circle cx="29" cy="20" r="1" fill="#ffffff"/>
+  <circle cx="35" cy="20" r="1" fill="#ffffff"/>
+  
+  <!-- MBTI Type Cards -->
+  <!-- Top Left - Analysts -->
+  <rect x="8" y="38" width="12" height="8" rx="2" fill="url(#cardGradient)" stroke="#9c88ff" stroke-width="1"/>
+  <text x="14" y="43" font-family="sans-serif" font-size="3" font-weight="bold" fill="#9c88ff" text-anchor="middle">NT</text>
+  <text x="14" y="46" font-family="sans-serif" font-size="1.5" fill="#666" text-anchor="middle">Analyst</text>
+  
+  <!-- Top Right - Diplomats -->
+  <rect x="44" y="38" width="12" height="8" rx="2" fill="url(#cardGradient)" stroke="#00d2d3" stroke-width="1"/>
+  <text x="50" y="43" font-family="sans-serif" font-size="3" font-weight="bold" fill="#00d2d3" text-anchor="middle">NF</text>
+  <text x="50" y="46" font-family="sans-serif" font-size="1.5" fill="#666" text-anchor="middle">Diplomat</text>
+  
+  <!-- Bottom Left - Sentinels -->
+  <rect x="8" y="50" width="12" height="8" rx="2" fill="url(#cardGradient)" stroke="#ff9ff3" stroke-width="1"/>
+  <text x="14" y="55" font-family="sans-serif" font-size="3" font-weight="bold" fill="#ff9ff3" text-anchor="middle">SJ</text>
+  <text x="14" y="58" font-family="sans-serif" font-size="1.5" fill="#666" text-anchor="middle">Sentinel</text>
+  
+  <!-- Bottom Right - Explorers -->
+  <rect x="44" y="50" width="12" height="8" rx="2" fill="url(#cardGradient)" stroke="#feca57" stroke-width="1"/>
+  <text x="50" y="55" font-family="sans-serif" font-size="3" font-weight="bold" fill="#feca57" text-anchor="middle">SP</text>
+  <text x="50" y="58" font-family="sans-serif" font-size="1.5" fill="#666" text-anchor="middle">Explorer</text>
+  
+  <!-- Central Test Interface -->
+  <rect x="22" y="36" width="20" height="16" rx="3" fill="#ffffff" stroke="#ddd" stroke-width="1" opacity="0.95"/>
+  
+  <!-- Question Interface -->
+  <text x="32" y="40" font-family="sans-serif" font-size="2" font-weight="bold" fill="#333" text-anchor="middle">MBTI Test</text>
+  
+  <!-- Progress Bar -->
+  <rect x="24" y="42" width="16" height="2" rx="1" fill="#e9ecef" stroke="none"/>
+  <rect x="24" y="42" width="8" height="2" rx="1" fill="#28a745" stroke="none"/>
+  
+  <!-- Question Options -->
+  <circle cx="25" cy="46" r="1.5" fill="#007bff" stroke="#ffffff" stroke-width="0.5"/>
+  <text x="28" y="47" font-family="sans-serif" font-size="1.5" fill="#333">Extrovert</text>
+  
+  <circle cx="25" cy="49" r="1.5" fill="none" stroke="#007bff" stroke-width="1"/>
+  <text x="28" y="50" font-family="sans-serif" font-size="1.5" fill="#333">Introvert</text>
+  
+  <!-- MBTI Logo -->
+  <text x="32" y="8" font-family="sans-serif" font-size="4" font-weight="bold" fill="#ffffff" text-anchor="middle">MBTI</text>
+  
+  <!-- Personality Dimensions -->
+  <!-- E/I Indicator -->
+  <rect x="6" y="28" width="8" height="3" rx="1.5" fill="#ff6b6b" opacity="0.8"/>
+  <text x="10" y="30.5" font-family="sans-serif" font-size="2" font-weight="bold" fill="#ffffff" text-anchor="middle">E/I</text>
+  
+  <!-- S/N Indicator -->
+  <rect x="50" y="28" width="8" height="3" rx="1.5" fill="#4ecdc4" opacity="0.8"/>
+  <text x="54" y="30.5" font-family="sans-serif" font-size="2" font-weight="bold" fill="#ffffff" text-anchor="middle">S/N</text>
+  
+  <!-- T/F Indicator -->
+  <rect x="6" y="32" width="8" height="3" rx="1.5" fill="#45b7d1" opacity="0.8"/>
+  <text x="10" y="34.5" font-family="sans-serif" font-size="2" font-weight="bold" fill="#ffffff" text-anchor="middle">T/F</text>
+  
+  <!-- J/P Indicator -->
+  <rect x="50" y="32" width="8" height="3" rx="1.5" fill="#f9ca24" opacity="0.8"/>
+  <text x="54" y="34.5" font-family="sans-serif" font-size="2" font-weight="bold" fill="#ffffff" text-anchor="middle">J/P</text>
+  
+  <!-- Connection Lines -->
+  <path d="M 15 30 Q 20 25 27 25" stroke="#ffffff" stroke-width="1" fill="none" opacity="0.6"/>
+  <path d="M 49 30 Q 44 25 37 25" stroke="#ffffff" stroke-width="1" fill="none" opacity="0.6"/>
+  <path d="M 15 34 Q 20 30 25 30" stroke="#ffffff" stroke-width="1" fill="none" opacity="0.6"/>
+  <path d="M 49 34 Q 44 30 39 30" stroke="#ffffff" stroke-width="1" fill="none" opacity="0.6"/>
+  
+  <!-- Psychology Symbol -->
+  <circle cx="32" cy="23" r="3" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.7"/>
+  <path d="M 32 20 L 32 26 M 29 23 L 35 23" stroke="#ffffff" stroke-width="1.5" opacity="0.7"/>
+</svg>

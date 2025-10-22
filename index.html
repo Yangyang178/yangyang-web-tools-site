@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>杨扬的工具站 - 现代化工具资源站</title>
+    <meta name="description" content="发现最新最好用的AI工具，提升工作效率">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+                <span class="logo-text">杨扬的工具站</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="#" class="nav-link active">首页</a>
+                <a href="#" class="nav-link">分类</a>
+                <a href="#" class="nav-link">收藏</a>
+                <a href="#" class="nav-link">关于</a>
+            </nav>
+            
+            <div class="header-actions">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="搜索AI工具..." id="searchInput">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                        <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </div>
+                
+                <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+                    <svg class="theme-icon sun-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+                        <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2"/>
+                        <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2"/>
+                        <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2"/>
+                        <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <svg class="theme-icon moon-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>
+                
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="菜单">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <main class="main">
+        <!-- 侧边栏 -->
+        <aside class="sidebar" id="sidebar">
+            <!-- 侧边栏切换按钮 -->
+            <button class="sidebar-toggle" id="sidebarToggle" aria-label="切换侧边栏">
+                <div class="toggle-icon-wrapper">
+                    <svg class="toggle-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="toggleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <path class="toggle-line toggle-line-1" d="M4 6h16" stroke="url(#toggleGradient)" stroke-width="2" stroke-linecap="round"/>
+                        <path class="toggle-line toggle-line-2" d="M4 12h16" stroke="url(#toggleGradient)" stroke-width="2" stroke-linecap="round"/>
+                        <path class="toggle-line toggle-line-3" d="M4 18h16" stroke="url(#toggleGradient)" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <div class="toggle-tooltip">收起侧边栏</div>
+                </div>
+            </button>
+            <div class="sidebar-content">
+                <div class="category-section">
+                    <h3 class="category-title">工具分类</h3>
+                    <ul class="category-list">
+                        <li><a href="#" class="category-link active" data-category="all">
+                            <svg class="category-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="allGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <rect x="3" y="3" width="7" height="7" rx="1" fill="url(#allGradient)" stroke="none"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1" fill="url(#allGradient)" stroke="none"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1" fill="url(#allGradient)" stroke="none"/>
+                                <rect x="14" y="14" width="7" height="7" rx="1" fill="url(#allGradient)" stroke="none"/>
+                            </svg>
+                            全部工具
+                        </a></li>
+
+                        <li><a href="#" class="category-link" data-category="image">
+                            <svg class="category-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="imageGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#fa709a;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#fee140;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" fill="url(#imageGradient)" stroke="none"/>
+                                <circle cx="8.5" cy="8.5" r="1.5" fill="#ffffff"/>
+                                <path d="M21 15L16 10L5 21" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            图片处理
+                        </a></li>
+                        <li><a href="#" class="category-link" data-category="game">
+                            <svg class="category-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="gameGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#a8edea;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#fed6e3;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <rect x="2" y="8" width="20" height="8" rx="4" ry="4" fill="url(#gameGradient)" stroke="none"/>
+                                <circle cx="6" cy="12" r="1" fill="#6366f1"/>
+                                <circle cx="18" cy="12" r="1" fill="#ec4899"/>
+                                <path d="M15 9L17 11L15 13" stroke="#6366f1" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M9 9L7 11L9 13" stroke="#ec4899" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            娱乐游戏
+                        </a></li>
+
+
+                        <li><a href="#" class="category-link" data-category="utility">
+                            <svg class="category-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <radialGradient id="utilityGradient" cx="50%" cy="50%" r="50%">
+                                        <stop offset="0%" style="stop-color:#ffeaa7;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#fab1a0;stop-opacity:1" />
+                                    </radialGradient>
+                                </defs>
+                                <circle cx="12" cy="12" r="3" fill="url(#utilityGradient)" stroke="none"/>
+                                <path d="M12 1V3" stroke="#f39c12" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M12 21V23" stroke="#f39c12" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M4.22 4.22L5.64 5.64" stroke="#f39c12" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M18.36 18.36L19.78 19.78" stroke="#f39c12" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M1 12H3" stroke="#f39c12" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M21 12H23" stroke="#f39c12" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M4.22 19.78L5.64 18.36" stroke="#f39c12" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M18.36 5.64L19.78 4.22" stroke="#f39c12" stroke-width="2.5" stroke-linecap="round"/>
+                            </svg>
+                            通用工具
+                        </a></li>
+                        <li><a href="#" class="category-link" data-category="security">
+                            <svg class="category-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="securityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#ff9a9e;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#fecfef;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="url(#securityGradient)" stroke="none"/>
+                                <circle cx="12" cy="16" r="1.5" fill="#e11d48"/>
+                                <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11" stroke="#e11d48" stroke-width="2.5" fill="none"/>
+                                <path d="M12 16V19" stroke="#e11d48" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            加密安全
+                        </a></li>
+                        <li><a href="#" class="category-link" data-category="data">
+                            <svg class="category-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="dataGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#a8e6cf;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#88d8c0;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="url(#dataGradient)" stroke="none" stroke-linejoin="round"/>
+                                <path d="M2 17L12 22L22 17" fill="#10b981" stroke="none" stroke-linejoin="round"/>
+                                <path d="M2 12L12 17L22 12" fill="#34d399" stroke="none" stroke-linejoin="round"/>
+                            </svg>
+                            数据处理
+                        </a></li>
+                        <li><a href="#" class="category-link" data-category="text">
+                            <svg class="category-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#d299c2;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#fef9d7;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" fill="url(#textGradient)" stroke="none"/>
+                                <path d="M14 2V8H20" fill="#ffffff" stroke="none" stroke-linejoin="round"/>
+                                <path d="M16 13H8" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M16 17H8" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M10 9H8" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            文本处理
+                        </a></li>
+                    </ul>
+                </div>
+                
+                <div class="filter-section">
+                    <h3 class="filter-title">筛选条件</h3>
+                    <div class="filter-group">
+                        <label class="filter-label">价格</label>
+                        <div class="filter-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="free" class="filter-checkbox">
+                                <span class="checkmark"></span>
+                                免费
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="freemium" class="filter-checkbox">
+                                <span class="checkmark"></span>
+                                免费增值
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="paid" class="filter-checkbox">
+                                <span class="checkmark"></span>
+                                付费
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 工具卡片容器 -->
+        <section class="content">
+            <div class="content-header">
+                <h1 class="page-title">发现最新AI工具</h1>
+                <p class="page-subtitle">精选优质AI工具，提升您的工作效率</p>
+                
+                <div class="content-filters">
+                    <div class="sort-options">
+                        <label for="sortSelect">排序：</label>
+                        <select id="sortSelect" class="sort-select">
+                            <option value="popular">最受欢迎</option>
+                            <option value="newest">最新发布</option>
+                            <option value="rating">评分最高</option>
+                            <option value="name">名称排序</option>
+                        </select>
+                    </div>
+                    
+                    <div class="view-options">
+                        <button class="view-btn active" data-view="grid" aria-label="网格视图">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                                <rect x="14" y="3" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                                <rect x="14" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                                <rect x="3" y="14" width="7" height="7" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 工具卡片网格 -->
+            <div class="tools-grid" id="toolsGrid">
+                <!-- 工具卡片将通过JavaScript动态生成 -->
+            </div>
+
+            <!-- 加载更多按钮 -->
+            <div class="load-more-container">
+                <button class="load-more-btn" id="loadMoreBtn">加载更多工具</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- 返回顶部按钮 -->
+    <button class="back-to-top" id="backToTop" aria-label="返回顶部">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 14L12 9L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </button>
+
+    <!-- 加载脚本 -->
+    <script src="js/script.js"></script>
+</body>
+</html>

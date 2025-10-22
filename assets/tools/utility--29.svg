@@ -1,0 +1,397 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle with Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="pickerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2c3e50;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#34495e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="wheelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff0000;stop-opacity:1" />
+      <stop offset="16.66%" style="stop-color:#ffff00;stop-opacity:1" />
+      <stop offset="33.33%" style="stop-color:#00ff00;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#00ffff;stop-opacity:1" />
+      <stop offset="66.66%" style="stop-color:#0000ff;stop-opacity:1" />
+      <stop offset="83.33%" style="stop-color:#ff00ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff0000;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="paletteGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8f9fa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e9ecef;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="displayGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="sliderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#4ecdc4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#45b7d1;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="eyedropperGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffecd2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fcb69f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="selectedColorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#4ecdc4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#45b7d1;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="glowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fee140;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fa709a;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="colorWheelGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#ffffff;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:0.8" />
+    </radialGradient>
+    <radialGradient id="buttonGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.8" />
+      <stop offset="50%" style="stop-color:#4facfe;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#667eea;stop-opacity:0.1" />
+    </radialGradient>
+    <radialGradient id="hologramGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:0.9" />
+      <stop offset="50%" style="stop-color:#00f2fe;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#667eea;stop-opacity:0.3" />
+    </radialGradient>
+    <radialGradient id="spectrumGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="30%" style="stop-color:#ff6b6b;stop-opacity:0.8" />
+      <stop offset="50%" style="stop-color:#4ecdc4;stop-opacity:0.8" />
+      <stop offset="70%" style="stop-color:#45b7d1;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#667eea;stop-opacity:0.9" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#bgGradient)" stroke="#667eea" stroke-width="2"/>
+  
+  <!-- Color Picker Interface -->
+  <g transform="translate(4, 4)">
+    <rect x="0" y="0" width="56" height="56" rx="6" fill="url(#pickerGradient)" stroke="#34495e" stroke-width="2"/>
+    
+    <!-- Interface Frame -->
+    <g transform="translate(2, 2)">
+      <rect x="0" y="0" width="52" height="52" rx="4" fill="#2c3e50" stroke="#667eea" stroke-width="1" opacity="0.95"/>
+      
+      <!-- Color Wheel -->
+      <g transform="translate(4, 4)">
+        <!-- Main Color Wheel -->
+        <g transform="translate(0, 0)">
+          <circle cx="12" cy="12" r="10" fill="url(#colorWheelGradient)" stroke="#4facfe" stroke-width="1"/>
+          
+          <!-- Color Wheel Segments -->
+          <g transform="translate(12, 12)">
+            <!-- Red -->
+            <path d="M 0 -10 A 10 10 0 0 1 8.66 -5 L 0 0 Z" fill="#ff0000" opacity="0.9"/>
+            <!-- Yellow -->
+            <path d="M 8.66 -5 A 10 10 0 0 1 8.66 5 L 0 0 Z" fill="#ffff00" opacity="0.9"/>
+            <!-- Green -->
+            <path d="M 8.66 5 A 10 10 0 0 1 0 10 L 0 0 Z" fill="#00ff00" opacity="0.9"/>
+            <!-- Cyan -->
+            <path d="M 0 10 A 10 10 0 0 1 -8.66 5 L 0 0 Z" fill="#00ffff" opacity="0.9"/>
+            <!-- Blue -->
+            <path d="M -8.66 5 A 10 10 0 0 1 -8.66 -5 L 0 0 Z" fill="#0000ff" opacity="0.9"/>
+            <!-- Magenta -->
+            <path d="M -8.66 -5 A 10 10 0 0 1 0 -10 L 0 0 Z" fill="#ff00ff" opacity="0.9"/>
+            
+            <!-- Center white area -->
+            <circle cx="0" cy="0" r="4" fill="#ffffff" stroke="#4facfe" stroke-width="0.5" opacity="0.9"/>
+            
+            <!-- Color selector -->
+            <circle cx="6" cy="-3" r="1.5" fill="#ff6b6b" stroke="#ffffff" stroke-width="1">
+              <animate attributeName="cx" values="6;3;-3;-6;-3;3;6" dur="8s" repeatCount="indefinite"/>
+              <animate attributeName="cy" values="-3;-6;-6;0;6;6;-3" dur="8s" repeatCount="indefinite"/>
+            </circle>
+          </g>
+        </g>
+        
+        <!-- Brightness/Saturation Panel -->
+        <g transform="translate(26, 0)">
+          <rect x="0" y="0" width="18" height="12" rx="1" fill="url(#spectrumGradient)" stroke="#4facfe" stroke-width="1"/>
+          
+          <!-- Brightness gradient overlay -->
+          <g transform="translate(1, 1)">
+            <rect x="0" y="0" width="16" height="10" rx="0.5" fill="url(#selectedColorGradient)" opacity="0.8"/>
+            
+            <!-- Saturation overlay -->
+            <rect x="0" y="0" width="16" height="10" rx="0.5" fill="url(#colorWheelGradient)" opacity="0.3"/>
+            
+            <!-- Selection crosshair -->
+            <g transform="translate(8, 5)">
+              <circle cx="0" cy="0" r="2" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.9">
+                <animate attributeName="cx" values="0;3;-2;1;0" dur="6s" repeatCount="indefinite"/>
+                <animate attributeName="cy" values="0;-2;2;-1;0" dur="6s" repeatCount="indefinite"/>
+              </circle>
+              <path d="M -3 0 L 3 0 M 0 -3 L 0 3" stroke="#ffffff" stroke-width="1" opacity="0.9"/>
+            </g>
+          </g>
+        </g>
+        
+        <!-- Color Sliders -->
+        <g transform="translate(0, 16)">
+          <!-- RGB Sliders -->
+          <g transform="translate(0, 0)">
+            <!-- Red Slider -->
+            <g transform="translate(0, 0)">
+              <rect x="0" y="0" width="20" height="3" rx="1.5" fill="#ff0000" stroke="#ff6b6b" stroke-width="0.5" opacity="0.8"/>
+              <rect x="0" y="0.5" width="20" height="2" rx="1" fill="url(#sliderGradient)" opacity="0.6"/>
+              <circle cx="12" cy="1.5" r="1.2" fill="#ffffff" stroke="#ff0000" stroke-width="1">
+                <animate attributeName="cx" values="12;15;8;12" dur="4s" repeatCount="indefinite"/>
+              </circle>
+              <text x="22" y="2.2" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#ff0000" text-anchor="start">R</text>
+            </g>
+            
+            <!-- Green Slider -->
+            <g transform="translate(0, 4)">
+              <rect x="0" y="0" width="20" height="3" rx="1.5" fill="#00ff00" stroke="#4ecdc4" stroke-width="0.5" opacity="0.8"/>
+              <rect x="0" y="0.5" width="20" height="2" rx="1" fill="url(#sliderGradient)" opacity="0.6"/>
+              <circle cx="8" cy="1.5" r="1.2" fill="#ffffff" stroke="#00ff00" stroke-width="1">
+                <animate attributeName="cx" values="8;12;16;8" dur="4s" repeatCount="indefinite" begin="1s"/>
+              </circle>
+              <text x="22" y="2.2" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#00ff00" text-anchor="start">G</text>
+            </g>
+            
+            <!-- Blue Slider -->
+            <g transform="translate(0, 8)">
+              <rect x="0" y="0" width="20" height="3" rx="1.5" fill="#0000ff" stroke="#45b7d1" stroke-width="0.5" opacity="0.8"/>
+              <rect x="0" y="0.5" width="20" height="2" rx="1" fill="url(#sliderGradient)" opacity="0.6"/>
+              <circle cx="16" cy="1.5" r="1.2" fill="#ffffff" stroke="#0000ff" stroke-width="1">
+                <animate attributeName="cx" values="16;10;14;16" dur="4s" repeatCount="indefinite" begin="2s"/>
+              </circle>
+              <text x="22" y="2.2" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#0000ff" text-anchor="start">B</text>
+            </g>
+          </g>
+          
+          <!-- HSV Sliders -->
+          <g transform="translate(26, 0)">
+            <!-- Hue Slider -->
+            <g transform="translate(0, 0)">
+              <rect x="0" y="0" width="18" height="3" rx="1.5" fill="url(#wheelGradient)" stroke="#4facfe" stroke-width="0.5"/>
+              <circle cx="9" cy="1.5" r="1.2" fill="#ffffff" stroke="#ff6b6b" stroke-width="1">
+                <animate attributeName="cx" values="9;12;6;9" dur="5s" repeatCount="indefinite"/>
+              </circle>
+            </g>
+            
+            <!-- Saturation Slider -->
+            <g transform="translate(0, 4)">
+              <rect x="0" y="0" width="18" height="3" rx="1.5" fill="url(#selectedColorGradient)" stroke="#4ecdc4" stroke-width="0.5" opacity="0.8"/>
+              <circle cx="14" cy="1.5" r="1.2" fill="#ffffff" stroke="#4ecdc4" stroke-width="1">
+                <animate attributeName="cx" values="14;8;16;14" dur="5s" repeatCount="indefinite" begin="1.5s"/>
+              </circle>
+            </g>
+            
+            <!-- Value/Brightness Slider -->
+            <g transform="translate(0, 8)">
+              <rect x="0" y="0" width="18" height="3" rx="1.5" fill="url(#colorWheelGradient)" stroke="#45b7d1" stroke-width="0.5"/>
+              <circle cx="11" cy="1.5" r="1.2" fill="#ffffff" stroke="#45b7d1" stroke-width="1">
+                <animate attributeName="cx" values="11;15;7;11" dur="5s" repeatCount="indefinite" begin="3s"/>
+              </circle>
+            </g>
+          </g>
+        </g>
+        
+        <!-- Color Palette -->
+        <g transform="translate(0, 30)">
+          <!-- Current Color Display -->
+          <g transform="translate(0, 0)">
+            <rect x="0" y="0" width="12" height="8" rx="1" fill="url(#paletteGradient)" stroke="#e9ecef" stroke-width="1"/>
+            <rect x="1" y="1" width="10" height="6" rx="0.5" fill="url(#selectedColorGradient)" stroke="#4facfe" stroke-width="0.5">
+              <animate attributeName="fill" values="url(#selectedColorGradient);#ff6b6b;#4ecdc4;#45b7d1;url(#selectedColorGradient)" dur="6s" repeatCount="indefinite"/>
+            </rect>
+            <text x="6" y="10" font-family="sans-serif" font-size="1" font-weight="bold" fill="#2c3e50" text-anchor="middle">当前</text>
+          </g>
+          
+          <!-- Previous Color -->
+          <g transform="translate(14, 0)">
+            <rect x="0" y="0" width="8" height="8" rx="1" fill="url(#paletteGradient)" stroke="#e9ecef" stroke-width="1"/>
+            <rect x="1" y="1" width="6" height="6" rx="0.5" fill="#667eea" stroke="#764ba2" stroke-width="0.5"/>
+            <text x="4" y="10" font-family="sans-serif" font-size="1" font-weight="bold" fill="#2c3e50" text-anchor="middle">之前</text>
+          </g>
+          
+          <!-- Color Swatches -->
+          <g transform="translate(24, 0)">
+            <!-- Swatch 1 -->
+            <g transform="translate(0, 0)">
+              <rect x="0" y="0" width="4" height="4" rx="0.5" fill="#ff0000" stroke="#ffffff" stroke-width="0.5"/>
+            </g>
+            <!-- Swatch 2 -->
+            <g transform="translate(5, 0)">
+              <rect x="0" y="0" width="4" height="4" rx="0.5" fill="#00ff00" stroke="#ffffff" stroke-width="0.5"/>
+            </g>
+            <!-- Swatch 3 -->
+            <g transform="translate(10, 0)">
+              <rect x="0" y="0" width="4" height="4" rx="0.5" fill="#0000ff" stroke="#ffffff" stroke-width="0.5"/>
+            </g>
+            <!-- Swatch 4 -->
+            <g transform="translate(15, 0)">
+              <rect x="0" y="0" width="4" height="4" rx="0.5" fill="#ffff00" stroke="#ffffff" stroke-width="0.5"/>
+            </g>
+            
+            <!-- Second row -->
+            <g transform="translate(0, 5)">
+              <!-- Swatch 5 -->
+              <g transform="translate(0, 0)">
+                <rect x="0" y="0" width="4" height="4" rx="0.5" fill="#ff00ff" stroke="#ffffff" stroke-width="0.5"/>
+              </g>
+              <!-- Swatch 6 -->
+              <g transform="translate(5, 0)">
+                <rect x="0" y="0" width="4" height="4" rx="0.5" fill="#00ffff" stroke="#ffffff" stroke-width="0.5"/>
+              </g>
+              <!-- Swatch 7 -->
+              <g transform="translate(10, 0)">
+                <rect x="0" y="0" width="4" height="4" rx="0.5" fill="#ffffff" stroke="#2c3e50" stroke-width="0.5"/>
+              </g>
+              <!-- Swatch 8 -->
+              <g transform="translate(15, 0)">
+                <rect x="0" y="0" width="4" height="4" rx="0.5" fill="#000000" stroke="#ffffff" stroke-width="0.5"/>
+              </g>
+            </g>
+          </g>
+        </g>
+        
+        <!-- Eyedropper Tool -->
+        <g transform="translate(40, 30)">
+          <g transform="rotate(45)">
+            <!-- Eyedropper handle -->
+            <rect x="-1" y="-6" width="2" height="8" rx="1" fill="url(#eyedropperGradient)" stroke="#fcb69f" stroke-width="0.5"/>
+            <!-- Eyedropper tip -->
+            <circle cx="0" cy="3" r="1.5" fill="#4facfe" stroke="#00f2fe" stroke-width="0.5">
+              <animate attributeName="fill" values="#4facfe;#ff6b6b;#4ecdc4;#4facfe" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <!-- Eyedropper bulb -->
+            <ellipse cx="0" cy="-4" rx="1.5" ry="2" fill="url(#selectedColorGradient)" stroke="#fcb69f" stroke-width="0.5"/>
+          </g>
+          
+          <!-- Magnifying glass -->
+          <g transform="translate(4, -4)">
+            <circle cx="0" cy="0" r="3" fill="none" stroke="#4facfe" stroke-width="1"/>
+            <circle cx="0" cy="0" r="2" fill="url(#spectrumGradient)" opacity="0.7"/>
+            <path d="M 2.1 2.1 L 4 4" stroke="#4facfe" stroke-width="1"/>
+            
+            <!-- Crosshair in magnifier -->
+            <path d="M -1.5 0 L 1.5 0 M 0 -1.5 L 0 1.5" stroke="#ffffff" stroke-width="0.5" opacity="0.8"/>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Holographic Projection -->
+  <g transform="translate(32, 32)">
+    <circle cx="0" cy="0" r="25" fill="url(#hologramGradient)" opacity="0.1">
+      <animate attributeName="opacity" values="0.1;0.3;0.1" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="r" values="20;30;20" dur="4s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Floating Color Elements -->
+  <g transform="translate(8, 2)">
+    <g opacity="0.8">
+      <animateTransform attributeName="transform" type="translate" values="8 2;12 0;8 2" dur="6s" repeatCount="indefinite"/>
+      <circle cx="0" cy="0" r="1.5" fill="#ff6b6b" opacity="0.9">
+        <animate attributeName="fill" values="#ff6b6b;#4ecdc4;#45b7d1;#ff6b6b" dur="4s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+  </g>
+  
+  <g transform="translate(56, 2)">
+    <g opacity="0.8">
+      <animateTransform attributeName="transform" type="translate" values="56 2;52 0;56 2" dur="6s" repeatCount="indefinite" begin="3s"/>
+      <circle cx="0" cy="0" r="1.2" fill="#4ecdc4" opacity="0.9">
+        <animate attributeName="fill" values="#4ecdc4;#45b7d1;#ff6b6b;#4ecdc4" dur="4s" repeatCount="indefinite" begin="2s"/>
+      </circle>
+    </g>
+  </g>
+  
+  <g transform="translate(4, 32)">
+    <g opacity="0.7">
+      <animateTransform attributeName="transform" type="translate" values="4 32;2 28;4 32" dur="5s" repeatCount="indefinite" begin="1s"/>
+      <rect x="-1" y="-1" width="2" height="2" rx="0.5" fill="#45b7d1" opacity="0.9">
+        <animate attributeName="fill" values="#45b7d1;#ff6b6b;#4ecdc4;#45b7d1" dur="3s" repeatCount="indefinite" begin="1s"/>
+      </rect>
+    </g>
+  </g>
+  
+  <g transform="translate(60, 32)">
+    <g opacity="0.7">
+      <animateTransform attributeName="transform" type="translate" values="60 32;62 28;60 32" dur="5s" repeatCount="indefinite" begin="2.5s"/>
+      <polygon points="0,-1.5 1.3,0.75 -1.3,0.75" fill="#667eea" opacity="0.9">
+        <animate attributeName="fill" values="#667eea;#4ecdc4;#ff6b6b;#667eea" dur="3s" repeatCount="indefinite" begin="2s"/>
+      </polygon>
+    </g>
+  </g>
+  
+  <!-- Sparkle Effects -->
+  <g transform="translate(16, 1)">
+    <path d="M 0 0 L 0.8 -1.6 L 1.6 0 L 0.8 1.6 Z" fill="url(#displayGradient)" opacity="0.9">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.3;0.5" dur="3s" repeatCount="indefinite" begin="0s"/>
+    </path>
+  </g>
+  
+  <g transform="translate(48, 1)">
+    <path d="M 0 0 L 0.8 -1.6 L 1.6 0 L 0.8 1.6 Z" fill="url(#selectedColorGradient)" opacity="0.7">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.3;0.5" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+    </path>
+  </g>
+  
+  <!-- Tool Category Label -->
+  <g transform="translate(32, 1)">
+    <rect x="-12" y="0" width="24" height="3" rx="1.5" fill="url(#displayGradient)" stroke="#00f2fe" stroke-width="0.5"/>
+    <text x="0" y="2.2" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">颜色选择器</text>
+  </g>
+  
+  <!-- Status Displays -->
+  <g transform="translate(2, 1)">
+    <rect x="0" y="0" width="6" height="2.5" rx="1.25" fill="#45b7d1" stroke="#96c93d" stroke-width="0.5"/>
+    <text x="3" y="1.7" font-family="sans-serif" font-size="0.7" font-weight="bold" fill="#ffffff" text-anchor="middle">就绪</text>
+  </g>
+  
+  <g transform="translate(2, 4)">
+    <rect x="0" y="0" width="8" height="2.5" rx="1.25" fill="#4ecdc4" stroke="#44a08d" stroke-width="0.5"/>
+    <text x="4" y="1.7" font-family="sans-serif" font-size="0.7" font-weight="bold" fill="#ffffff" text-anchor="middle">颜色模式</text>
+  </g>
+  
+  <g transform="translate(54, 1)">
+    <rect x="0" y="0" width="6" height="2.5" rx="1.25" fill="#f093fb" stroke="#f5576c" stroke-width="0.5"/>
+    <text x="3" y="1.7" font-family="sans-serif" font-size="0.7" font-weight="bold" fill="#ffffff" text-anchor="middle">精确</text>
+  </g>
+  
+  <g transform="translate(54, 4)">
+    <rect x="0" y="0" width="6" height="2.5" rx="1.25" fill="#ffecd2" stroke="#fcb69f" stroke-width="0.5"/>
+    <text x="3" y="1.7" font-family="sans-serif" font-size="0.7" font-weight="bold" fill="#667eea" text-anchor="middle">专业</text>
+  </g>
+  
+  <!-- Color Values Display -->
+  <g transform="translate(4, 58)">
+    <rect x="0" y="0" width="16" height="2" rx="1" fill="url(#selectedColorGradient)" stroke="#4facfe" stroke-width="0.5"/>
+    <text x="8" y="1.4" font-family="monospace" font-size="0.7" font-weight="bold" fill="#ffffff" text-anchor="middle">#FF6B6B</text>
+  </g>
+  
+  <g transform="translate(22, 58)">
+    <rect x="0" y="0" width="20" height="2" rx="1" fill="url(#sliderGradient)" stroke="#4ecdc4" stroke-width="0.5"/>
+    <text x="10" y="1.4" font-family="monospace" font-size="0.7" font-weight="bold" fill="#ffffff" text-anchor="middle">RGB(255,107,107)</text>
+  </g>
+  
+  <g transform="translate(44, 58)">
+    <rect x="0" y="0" width="16" height="2" rx="1" fill="url(#eyedropperGradient)" stroke="#fcb69f" stroke-width="0.5"/>
+    <text x="8" y="1.4" font-family="monospace" font-size="0.7" font-weight="bold" fill="#667eea" text-anchor="middle">HSV(0,58,100)</text>
+  </g>
+  
+  <!-- Performance Indicator -->
+  <g transform="translate(32, 62)">
+    <rect x="-10" y="0" width="20" height="2" rx="1" fill="url(#displayGradient)" stroke="#00f2fe" stroke-width="0.5"/>
+    <text x="0" y="1.4" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">颜色: 真彩色</text>
+  </g>
+  
+  <!-- Version Info -->
+  <g transform="translate(4, 62)">
+    <rect x="0" y="0" width="6" height="2" rx="1" fill="url(#pickerGradient)" stroke="#34495e" stroke-width="0.5"/>
+    <text x="3" y="1.4" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">v3.2</text>
+  </g>
+</svg>
