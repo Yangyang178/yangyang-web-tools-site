@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级番茄钟</title>
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --secondary-color: #4ecdc4;
+            --tertiary-color: #ffe66d;
+            --dark-color: #292f36;
+            --light-color: #f7fff7;
+            --gray-color: #e0e0e0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .app-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .timer-section {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            grid-column: 1 / -1;
+        }
+        
+        .stats-section {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        .history-section {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        h2 {
+            color: var(--dark-color);
+            margin-bottom: 15px;
+            font-weight: 500;
+            font-size: 1.3rem;
+        }
+        
+        .timer-display {
+            font-size: 6rem;
+            font-weight: 300;
+            margin: 30px 0;
+            color: var(--dark-color);
+            font-feature-settings: "tnum";
+            text-align: center;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 100px;
+        }
+        
+        .primary-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .primary-btn:hover {
+            background-color: #ff5252;
+            transform: translateY(-2px);
+        }
+        
+        .secondary-btn {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .secondary-btn:hover {
+            background-color: #3dbeb6;
+            transform: translateY(-2px);
+        }
+        
+        .tertiary-btn {
+            background-color: var(--tertiary-color);
+            color: var(--dark-color);
+        }
+        
+        .tertiary-btn:hover {
+            background-color: #ffde40;
+            transform: translateY(-2px);
+        }
+        
+        .settings {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gray-color);
+        }
+        
+        .setting-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        label {
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 120px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .mode-indicator {
+            margin: 20px 0;
+            font-size: 1.5rem;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        .work-mode {
+            color: var(--primary-color);
+        }
+        
+        .break-mode {
+            color: var(--secondary-color);
+        }
+        
+        .scene-selector {
+            margin-bottom: 20px;
+        }
+        
+        .scene-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .scene-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background-color: var(--gray-color);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .scene-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .stat-card {
+            background-color: var(--light-color);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 5px 0;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--gray-color);
+        }
+        
+        .history-time {
+            font-weight: 500;
+        }
+        
+        .history-type {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+        
+        .work-history {
+            background-color: rgba(255, 107, 107, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .break-history {
+            background-color: rgba(78, 205, 196, 0.1);
+            color: var(--secondary-color);
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .blinking {
+            animation: blink 1s infinite;
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .timer-display {
+                font-size: 4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="timer-section">
+            <h1>高级番茄钟</h1>
+            
+            <div class="scene-selector">
+                <h2>使用场景</h2>
+                <div class="scene-buttons">
+                    <button class="scene-btn active" data-work="25" data-break="5">标准工作</button>
+                    <button class="scene-btn" data-work="50" data-break="10">深度学习</button>
+                    <button class="scene-btn" data-work="90" data-break="15">创意工作</button>
+                    <button class="scene-btn" data-work="20" data-break="20">运动训练</button>
+                    <button class="scene-btn" data-work="15" data-break="3">快速任务</button>
+                </div>
+            </div>
+            
+            <div class="timer-display" id="timer">25:00</div>
+            
+            <div class="mode-indicator" id="modeIndicator">
+                <span class="work-mode">工作时间</span>
+            </div>
+            
+            <div class="controls">
+                <button class="primary-btn" id="startBtn">开始</button>
+                <button class="secondary-btn" id="pauseBtn" disabled>暂停</button>
+                <button class="tertiary-btn" id="resetBtn">重置</button>
+                <button class="secondary-btn" id="skipBtn">跳过</button>
+            </div>
+            
+            <div class="settings">
+                <h2>自定义设置</h2>
+                <div class="setting-group">
+                    <label for="workTime">工作时间 (分钟):</label>
+                    <input type="number" id="workTime" min="1" max="120" value="25">
+                </div>
+                <div class="setting-group">
+                    <label for="breakTime">休息时间 (分钟):</label>
+                    <input type="number" id="breakTime" min="1" max="30" value="5">
+                </div>
+                <div class="setting-group">
+                    <label for="taskName">任务名称:</label>
+                    <input type="text" id="taskName" placeholder="输入任务名称">
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-section">
+            <h2>今日统计</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="todayPomodoros">0</div>
+                    <div class="stat-label">完成番茄</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="todayWorkTime">0</div>
+                    <div class="stat-label">工作时间</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="todayBreakTime">0</div>
+                    <div class="stat-label">休息时间</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="todayTasks">0</div>
+                    <div class="stat-label">完成任务</div>
+                </div>
+            </div>
+            
+            <h2 style="margin-top: 20px;">本周统计</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="weekPomodoros">0</div>
+                    <div class="stat-label">完成番茄</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="weekWorkTime">0</div>
+                    <div class="stat-label">工作时间</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="history-section">
+            <h2>历史记录</h2>
+            <div class="history-list" id="historyList">
+                <!-- 历史记录将在这里动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM元素
+        const timerDisplay = document.getElementById('timer');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        const modeIndicator = document.getElementById('modeIndicator');
+        const workTimeInput = document.getElementById('workTime');
+        const breakTimeInput = document.getElementById('breakTime');
+        const taskNameInput = document.getElementById('taskName');
+        const sceneButtons = document.querySelectorAll('.scene-btn');
+        const historyList = document.getElementById('historyList');
+        
+        // 统计元素
+        const todayPomodoros = document.getElementById('todayPomodoros');
+        const todayWorkTime = document.getElementById('todayWorkTime');
+        const todayBreakTime = document.getElementById('todayBreakTime');
+        const todayTasks = document.getElementById('todayTasks');
+        const weekPomodoros = document.getElementById('weekPomodoros');
+        const weekWorkTime = document.getElementById('weekWorkTime');
+        
+        // 计时器变量
+        let timer;
+        let timeLeft;
+        let isRunning = false;
+        let isWorkTime = true;
+        let workDuration = 25 * 60;
+        let breakDuration = 5 * 60;
+        let currentTask = "";
+        
+        // 统计数据
+        let stats = {
+            today: {
+                pomodoros: 0,
+                workTime: 0,
+                breakTime: 0,
+                tasks: new Set()
+            },
+            week: {
+                pomodoros: 0,
+                workTime: 0
+            },
+            history: []
+        };
+        
+        // 初始化
+        loadData();
+        updateDisplay();
+        updateStats();
+        renderHistory();
+        
+        // 事件监听器
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        skipBtn.addEventListener('click', skipTimer);
+        workTimeInput.addEventListener('change', updateDurations);
+        breakTimeInput.addEventListener('change', updateDurations);
+        taskNameInput.addEventListener('change', updateTask);
+        
+        sceneButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                sceneButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                workTimeInput.value = btn.dataset.work;
+                breakTimeInput.value = btn.dataset.break;
+                updateDurations();
+            });
+        });
+        
+        // 更新持续时间
+        function updateDurations() {
+            workDuration = parseInt(workTimeInput.value) * 60;
+            breakDuration = parseInt(breakTimeInput.value) * 60;
+            resetTimer();
+        }
+        
+        // 更新任务名称
+        function updateTask() {
+            currentTask = taskNameInput.value.trim();
+        }
+        
+        // 开始计时
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                timer = setInterval(updateTimer, 1000);
+                
+                // 如果是新的工作时间，记录任务
+                if (isWorkTime && currentTask) {
+                    stats.today.tasks.add(currentTask);
+                    todayTasks.textContent = stats.today.tasks.size;
+                }
+            }
+        }
+        
+        // 暂停计时
+        function pauseTimer() {
+            clearInterval(timer);
+            isRunning = false;
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+        }
+        
+        // 重置计时器
+        function resetTimer() {
+            pauseTimer();
+            isWorkTime = true;
+            timeLeft = workDuration;
+            updateDisplay();
+            updateModeIndicator();
+        }
+        
+        // 跳过当前阶段
+        function skipTimer() {
+            clearInterval(timer);
+            isRunning = false;
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            
+            isWorkTime = !isWorkTime;
+            timeLeft = isWorkTime ? workDuration : breakDuration;
+            updateDisplay();
+            updateModeIndicator();
+            
+            // 如果是跳过工作时间，不算完成一个番茄
+            if (!isWorkTime) {
+                playAlarm();
+            }
+        }
+        
+        // 更新计时器显示
+        function updateTimer() {
+            timeLeft--;
+            updateDisplay();
+            
+            if (timeLeft <= 0) {
+                timerComplete();
+            }
+        }
+        
+        // 计时完成处理
+        function timerComplete() {
+            clearInterval(timer);
+            isRunning = false;
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            
+            playAlarm();
+            
+            // 更新统计
+            if (isWorkTime) {
+                stats.today.pomodoros++;
+                stats.today.workTime += workDuration;
+                stats.week.pomodoros++;
+                stats.week.workTime += workDuration;
+            } else {
+                stats.today.breakTime += breakDuration;
+            }
+            
+            // 添加历史记录
+            const now = new Date();
+            const historyItem = {
+                type: isWorkTime ? 'work' : 'break',
+                duration: isWorkTime ? workDuration : breakDuration,
+                task: currentTask,
+                timestamp: now.getTime(),
+                timeString: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            };
+            stats.history.unshift(historyItem);
+            
+            // 切换到下一阶段
+            isWorkTime = !isWorkTime;
+            timeLeft = isWorkTime ? workDuration : breakDuration;
+            
+            // 更新显示
+            updateDisplay();
+            updateModeIndicator();
+            updateStats();
+            renderHistory();
+            saveData();
+            
+            // 显示通知
+            if (Notification.permission === 'granted') {
+                new Notification('番茄钟', {
+                    body: isWorkTime 
+                        ? (currentTask ? `休息结束，开始工作: ${currentTask}` : '休息结束，开始工作！')
+                        : '工作时间到，该休息了！',
+                    icon: 'https://cdn-icons-png.flaticon.com/512/2917/2917637.png'
+                });
+            }
+        }
+        
+        // 更新显示时间
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // 最后10秒闪烁效果
+            if (timeLeft <= 10) {
+                timerDisplay.classList.add('blinking');
+            } else {
+                timerDisplay.classList.remove('blinking');
+            }
+        }
+        
+        // 更新模式指示器
+        function updateModeIndicator() {
+            if (isWorkTime) {
+                modeIndicator.innerHTML = currentTask 
+                    ? `<span class="work-mode">工作: ${currentTask}</span>`
+                    : '<span class="work-mode">工作时间</span>';
+                timerDisplay.style.color = 'var(--dark-color)';
+            } else {
+                modeIndicator.innerHTML = '<span class="break-mode">休息时间</span>';
+                timerDisplay.style.color = 'var(--secondary-color)';
+            }
+        }
+        
+        // 更新统计显示
+        function updateStats() {
+            todayPomodoros.textContent = stats.today.pomodoros;
+            todayWorkTime.textContent = formatTime(stats.today.workTime);
+            todayBreakTime.textContent = formatTime(stats.today.breakTime);
+            weekPomodoros.textContent = stats.week.pomodoros;
+            weekWorkTime.textContent = formatTime(stats.week.workTime);
+        }
+        
+        // 渲染历史记录
+        function renderHistory() {
+            historyList.innerHTML = stats.history.map(item => `
+                <div class="history-item">
+                    <div class="history-time">${item.timeString}</div>
+                    <div>
+                        ${item.task ? `<span>${item.task} - </span>` : ''}
+                        <span class="history-type ${item.type}-history">
+                            ${item.type === 'work' ? '工作' : '休息'} 
+                            (${Math.floor(item.duration / 60)}分钟)
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 格式化时间显示
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+        }
+        
+        // 播放提示音
+        function playAlarm() {
+            const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3');
+            audio.play().catch(e => console.log('无法播放声音:', e));
+        }
+        
+        // 保存数据到localStorage
+        function saveData() {
+            // 检查是否是同一天
+            const today = new Date().toDateString();
+            const lastSaveDay = localStorage.getItem('lastSaveDay');
+            
+            if (today !== lastSaveDay) {
+                // 新的一天，重置今日统计
+                stats.today = {
+                    pomodoros: 0,
+                    workTime: 0,
+                    breakTime: 0,
+                    tasks: new Set()
+                };
+                localStorage.setItem('lastSaveDay', today);
+            }
+            
+            localStorage.setItem('pomodoroStats', JSON.stringify(stats));
+        }
+        
+        // 从localStorage加载数据
+        function loadData() {
+            const today = new Date().toDateString();
+            const lastSaveDay = localStorage.getItem('lastSaveDay');
+            
+            if (today !== lastSaveDay) {
+                // 新的一天，重置今日统计
+                stats.today = {
+                    pomodoros: 0,
+                    workTime: 0,
+                    breakTime: 0,
+                    tasks: new Set()
+                };
+                localStorage.setItem('lastSaveDay', today);
+            } else {
+                const savedStats = localStorage.getItem('pomodoroStats');
+                if (savedStats) {
+                    const parsed = JSON.parse(savedStats);
+                    // 恢复Set对象
+                    parsed.today.tasks = new Set(parsed.today.tasks);
+                    stats = parsed;
+                }
+            }
+        }
+        
+        // 请求通知权限
+        if (Notification.permission !== 'granted') {
+            Notification.requestPermission().then(permission => {
+                console.log('通知权限:', permission);
+            });
+        }
+        
+        // 初始化时间
+        timeLeft = workDuration;
+    </script>
+</body>
+</html>

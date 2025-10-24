@@ -1,6 +1,9 @@
 // AI工具数据
 let aiTools = [];
 
+// 收藏功能相关变量
+let favorites = JSON.parse(localStorage.getItem('toolFavorites') || '[]');
+
 // 工具数据（直接嵌入，避免fetch加载问题）
 let toolsData = [
   {
@@ -102,13 +105,123 @@ let toolsData = [
     "localPath": "tools/text/Markdown编辑器.html",
     "isOriginal": true,
     "featured": true
+  },
+  {
+    "id": "bmi-calculator",
+    "name": "BMI计算器",
+    "description": "计算体重指数BMI，支持身高体重输入",
+    "category": "utility",
+    "tags": ["健康", "BMI", "体重指数", "计算器"],
+    "localPath": "tools/utilities/BMI计算器.html",
+    "isOriginal": true,
+    "featured": false,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "multi-calculator",
+    "name": "多功能计算器",
+    "description": "四则运算与常用函数计算",
+    "category": "utility",
+    "tags": ["计算器", "数学", "四则运算", "工具"],
+    "localPath": "tools/utilities/多功能计算器.html",
+    "isOriginal": true,
+    "featured": false,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "math-practice",
+    "name": "小学生加减乘除练习器",
+    "description": "小学算术练习，随机题目与计时",
+    "category": "utility",
+    "tags": ["学习", "算术", "练习", "教育"],
+    "localPath": "tools/games/小学生加减乘除练习器.html",
+    "isOriginal": true,
+    "featured": false,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "word-count",
+    "name": "文字字数统计器",
+    "description": "统计字数、字符数与空格等",
+    "category": "text",
+    "tags": ["文本", "统计", "字数", "字符"],
+    "localPath": "tools/text/文字字数统计器.html",
+    "isOriginal": true,
+    "featured": false,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "timezone-table",
+    "name": "时区转换对照表",
+    "description": "快速查询并转换各地时区",
+    "category": "utility",
+    "tags": ["时区", "转换", "时间", "对照表"],
+    "localPath": "tools/utilities/时区转换对照表.html",
+    "isOriginal": true,
+    "featured": false,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "steps-distance",
+    "name": "步数换算距离工具",
+    "description": "将步数换算为行走距离",
+    "category": "utility",
+    "tags": ["健康", "步数", "距离", "换算"],
+    "localPath": "tools/utilities/步数换算距离工具.html",
+    "isOriginal": true,
+    "featured": false,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "pomodoro-timer",
+    "name": "番茄钟",
+    "description": "专注计时法工具，番茄工作法",
+    "category": "utility",
+    "tags": ["专注", "计时", "效率", "番茄钟"],
+    "localPath": "tools/utilities/番茄钟.html",
+    "isOriginal": true,
+    "featured": true,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "simple-gantt-generator",
+    "name": "简易甘特图生成器",
+    "description": "创建简单甘特图，任务时间轴",
+    "category": "data",
+    "tags": ["项目", "甘特图", "时间轴", "可视化"],
+    "localPath": "tools/generators/简易甘特图生成器.html",
+    "isOriginal": true,
+    "featured": false,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "xiaohongshu-cover-generator",
+    "name": "自动生成小红书封面工具",
+    "description": "生成小红书封面模板与文字排版",
+    "category": "image",
+    "tags": ["图片", "封面", "模板", "小红书"],
+    "localPath": "tools/design/自动生成小红书封面工具.html",
+    "isOriginal": true,
+    "featured": true,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "calorie-calculator",
+    "name": "食物热量计算器",
+    "description": "根据食物估算热量与营养",
+    "category": "utility",
+    "tags": ["健康", "热量", "食物", "营养"],
+    "localPath": "tools/utilities/食物热量计算器.html",
+    "isOriginal": true,
+    "featured": false,
+    "dateAdded": "2025-10-24"
   }
 ];
 
 // 当前显示的工具
 let currentTools = [];
 let currentPage = 1;
-const toolsPerPage = 12;
+const toolsPerPage = 24;
 
 // 搜索和筛选状态
 let currentCategory = 'all';
@@ -116,7 +229,7 @@ let currentFilters = {
     price: [],
     rating: null
 };
-let currentSort = 'popular';
+let currentSort = 'newest';
 let searchQuery = '';
 
 // DOM元素
@@ -150,12 +263,92 @@ function loadToolsData() {
         aiTools = [];
         
         // 合并所有工具
-        currentTools = [...toolsData, ...aiTools];
+        let allTools = [...toolsData, ...aiTools];
         
-        renderTools();
-        updateLoadMoreButton();
+        // 去重逻辑：基于localPath去重，优先保留中文版本
+        const uniqueTools = [];
+        const seenPaths = new Set();
+        const pathMapping = new Map(); // 用于存储路径映射关系
         
-        console.log('工具数据加载成功，共', currentTools.length, '个工具');
+        // 首先建立路径映射，识别重复的工具
+        allTools.forEach(tool => {
+            if (tool.localPath) {
+                const normalizedPath = tool.localPath.toLowerCase();
+                const fileName = normalizedPath.split('/').pop().replace('.html', '');
+                
+                // 检查是否是同一个工具的不同版本
+                const existingTool = uniqueTools.find(existing => {
+                    const existingFileName = existing.localPath.toLowerCase().split('/').pop().replace('.html', '');
+                    
+                    // 检查文件名相似性（去除语言差异）
+                    return (
+                        fileName === existingFileName || // 完全相同
+                        fileName.includes(existingFileName) || // 包含关系
+                        existingFileName.includes(fileName) || // 反向包含关系
+                        // 特殊情况：2048游戏
+                        (fileName.includes('2048') && existingFileName.includes('2048')) ||
+                        // 特殊情况：骰子工具
+                        (fileName.includes('dice') && existingFileName.includes('骰子')) ||
+                        (fileName.includes('骰子') && existingFileName.includes('dice')) ||
+                        // 特殊情况：密码生成器
+                        (fileName.includes('password') && existingFileName.includes('密码')) ||
+                        (fileName.includes('密码') && existingFileName.includes('password')) ||
+                        // 特殊情况：二维码生成器
+                        (fileName.includes('qr') && existingFileName.includes('二维码')) ||
+                        (fileName.includes('二维码') && existingFileName.includes('qr')) ||
+                        // 特殊情况：图片压缩
+                        (fileName.includes('image-compressor') && existingFileName.includes('图片压缩')) ||
+                        (fileName.includes('图片压缩') && existingFileName.includes('image-compressor')) ||
+                        // 特殊情况：Markdown编辑器
+                        (fileName.includes('markdown') && existingFileName.includes('markdown')) ||
+                        // 特殊情况：进制转换器
+                        (fileName.includes('base-converter') && existingFileName.includes('进制转换')) ||
+                        (fileName.includes('进制转换') && existingFileName.includes('base-converter')) ||
+                        // 特殊情况：格式转换器
+                        (fileName.includes('format-converter') && existingFileName.includes('格式转换')) ||
+                        (fileName.includes('格式转换') && existingFileName.includes('format-converter')) ||
+                        // 特殊情况：PDF转图片
+                        (fileName.includes('pdf-to-image') && existingFileName.includes('pdf转图片')) ||
+                        (fileName.includes('pdf转图片') && existingFileName.includes('pdf-to-image')) ||
+                        // 特殊情况：图片转PDF
+                        (fileName.includes('image-to-pdf') && existingFileName.includes('图片转pdf')) ||
+                        (fileName.includes('图片转pdf') && existingFileName.includes('image-to-pdf'))
+                    );
+                });
+                
+                if (existingTool) {
+                    // 如果找到重复工具，优先保留中文版本
+                    const currentIsChinese = /[\u4e00-\u9fff]/.test(tool.name) || /[\u4e00-\u9fff]/.test(tool.localPath);
+                    const existingIsChinese = /[\u4e00-\u9fff]/.test(existingTool.name) || /[\u4e00-\u9fff]/.test(existingTool.localPath);
+                    
+                    if (currentIsChinese && !existingIsChinese) {
+                        // 当前是中文版，替换现有的英文版
+                        const index = uniqueTools.indexOf(existingTool);
+                        uniqueTools[index] = tool;
+                        console.log(`替换工具: ${existingTool.name} -> ${tool.name}`);
+                    } else if (!currentIsChinese && existingIsChinese) {
+                        // 当前是英文版，保留现有的中文版
+                        console.log(`跳过重复工具: ${tool.name} (保留中文版: ${existingTool.name})`);
+                    } else {
+                        // 都是中文或都是英文，保留第一个
+                        console.log(`跳过重复工具: ${tool.name} (已存在: ${existingTool.name})`);
+                    }
+                } else {
+                    // 没有重复，直接添加
+                    uniqueTools.push(tool);
+                }
+            } else {
+                // 没有localPath的工具直接添加
+                uniqueTools.push(tool);
+            }
+        });
+        
+        currentTools = uniqueTools;
+        
+        // 默认排序为最新发布，加载时自动应用筛选与排序
+        applyFilters();
+        
+        console.log('工具数据加载成功，原始工具数:', allTools.length, '去重后工具数:', currentTools.length);
         
     } catch (error) {
         console.error('加载工具数据失败:', error);
@@ -180,15 +373,21 @@ function loadToolsData() {
 }
 
 // 渲染工具卡片
-function renderTools() {
-    if (!toolsGrid) {
+function renderTools(toolsToRender = null) {
+    console.log('renderTools called with:', toolsToRender ? toolsToRender.length : 'default tools'); // 调试日志
+    
+    const targetGrid = document.getElementById('toolsGrid');
+    if (!targetGrid) {
         console.error('toolsGrid 元素未找到！');
         return;
     }
     
+    // 使用传入的工具列表或默认的currentTools
+    const toolsToShow = toolsToRender || currentTools;
+    
     // 如果没有工具，显示空状态
-    if (currentTools.length === 0) {
-        toolsGrid.innerHTML = `
+    if (toolsToShow.length === 0) {
+        targetGrid.innerHTML = `
             <div class="empty-state">
                 <div class="empty-icon">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -204,19 +403,16 @@ function renderTools() {
         return;
     }
     
-    // 获取要显示的工具
-    const startIndex = 0;
-    const endIndex = currentPage * toolsPerPage;
-    const toolsToShow = currentTools.slice(startIndex, endIndex);
-    
     // 清空现有内容
-    toolsGrid.innerHTML = '';
+    targetGrid.innerHTML = '';
     
     // 渲染工具卡片
     toolsToShow.forEach((tool, index) => {
         const toolCard = createToolCard(tool);
-        toolsGrid.appendChild(toolCard);
+        targetGrid.appendChild(toolCard);
     });
+    
+    console.log('Rendered', toolsToShow.length, 'tools'); // 调试日志
 }
 
 // 创建工具卡片
@@ -244,6 +440,11 @@ function createToolCard(tool) {
                     </div>
                 </div>
             </div>
+            <button class="favorite-btn ${favorites.includes(tool.id) ? 'favorited' : ''}" onclick="toggleFavorite('${tool.id}', event)" data-tool-id="${tool.id}">
+                <svg class="favorite-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69364 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69364 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.5783 8.50903 2.9987 7.05 2.9987C5.59096 2.9987 4.19169 3.5783 3.16 4.61C2.1283 5.6417 1.5487 7.041 1.5487 8.5C1.5487 9.959 2.1283 11.3583 3.16 12.39L12 21.23L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6053C22.3095 9.93789 22.4518 9.22248 22.4518 8.5C22.4518 7.77752 22.3095 7.06211 22.0329 6.39467C21.7563 5.72723 21.351 5.1208 20.84 4.61V4.61Z" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
         </div>
         
         <div class="tool-content">
@@ -253,21 +454,6 @@ function createToolCard(tool) {
         </div>
         
         <div class="tool-card-footer">
-            <div class="tool-stats">
-                <div class="tool-stat">
-                    <svg class="tool-stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" stroke-width="2"/>
-                        <path d="M2.458 12C3.732 7.943 7.523 5 12 5C16.478 5 20.268 7.943 21.542 12C20.268 16.057 16.478 19 12 19C7.523 19 3.732 16.057 2.458 12Z" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                    <span>${usageCount}</span>
-                </div>
-                <div class="tool-stat">
-                    <svg class="tool-stat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69364 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69364 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.5783 8.50903 2.9987 7.05 2.9987C5.59096 2.9987 4.19169 3.5783 3.16 4.61C2.1283 5.6417 1.5487 7.041 1.5487 8.5C1.5487 9.959 2.1283 11.3583 3.16 12.39L12 21.23L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6053C22.3095 9.93789 22.4518 9.22248 22.4518 8.5C22.4518 7.77752 22.3095 7.06211 22.0329 6.39467C21.7563 5.72723 21.351 5.1208 20.84 4.61V4.61Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span>${popularity}%</span>
-                </div>
-            </div>
             
             <button class="tool-action-btn" onclick="openTool('${tool.localPath || '#'}', '${tool.name}')">
                 <span>使用工具</span>
@@ -595,4 +781,229 @@ function checkScrollPosition() {
             backToTop.classList.remove('visible');
         }
     }
+}
+
+// 移除可能的自检UI元素
+function removeSelfCheckUI() {
+    try {
+        // 查找并隐藏包含自检相关文本的元素（不删除，只隐藏）
+        const textSelectors = [
+            '开启链接自检',
+            '链接自检',
+            '自检模式',
+            'link check',
+            'self check'
+        ];
+        
+        textSelectors.forEach(text => {
+            // 只查找可能的UI元素，避免查找所有元素
+            const possibleElements = document.querySelectorAll('div, span, button, input, label, p');
+            possibleElements.forEach(el => {
+                if (el.textContent && el.textContent.trim() === text) {
+                    el.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important;';
+                }
+            });
+        });
+        
+        // 隐藏可能的调试面板（不删除，只隐藏）
+        const debugSelectors = [
+            '[data-testid*="link-check"]',
+            '[class*="link-check"]',
+            '[id*="link-check"]',
+            '[class*="self-check"]',
+            '[id*="self-check"]',
+            '.debug-panel',
+            '.developer-tools',
+            '.link-checker',
+            '.self-check-panel'
+        ];
+        
+        debugSelectors.forEach(selector => {
+            try {
+                const elements = document.querySelectorAll(selector);
+                elements.forEach(el => {
+                    el.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important;';
+                });
+            } catch (e) {
+                // 忽略选择器错误
+            }
+        });
+    } catch (error) {
+        // 静默处理错误，避免影响页面功能
+        console.debug('removeSelfCheckUI error:', error);
+    }
+}
+
+// 定期检查并移除自检UI（降低频率）
+let selfCheckInterval = setInterval(removeSelfCheckUI, 5000);
+
+// 页面加载完成后立即执行
+document.addEventListener('DOMContentLoaded', function() {
+    removeSelfCheckUI();
+    // 5秒后停止定期检查，避免持续影响性能
+    setTimeout(() => {
+        if (selfCheckInterval) {
+            clearInterval(selfCheckInterval);
+            selfCheckInterval = null;
+        }
+    }, 30000);
+});
+
+// 收藏功能相关函数
+function toggleFavorite(toolId, event) {
+    console.log('toggleFavorite called with toolId:', toolId); // 调试日志
+    event.stopPropagation(); // 阻止事件冒泡
+    
+    const index = favorites.indexOf(toolId);
+    if (index > -1) {
+        // 移除收藏
+        favorites.splice(index, 1);
+        console.log('Removed from favorites:', toolId);
+    } else {
+        // 添加收藏
+        favorites.push(toolId);
+        console.log('Added to favorites:', toolId);
+    }
+    
+    // 保存到本地存储
+    localStorage.setItem('toolFavorites', JSON.stringify(favorites));
+    console.log('Current favorites:', favorites);
+    
+    // 更新按钮状态
+    updateFavoriteButton(toolId);
+    
+    // 如果当前在收藏页面，需要刷新显示
+    if (window.location.hash === '#favorites') {
+        showFavorites();
+    }
+}
+
+function updateFavoriteButton(toolId) {
+    const button = document.querySelector(`[data-tool-id="${toolId}"]`);
+    console.log('Updating button for toolId:', toolId, 'Button found:', !!button);
+    if (button) {
+        const isFavorited = favorites.includes(toolId);
+        if (isFavorited) {
+            button.classList.add('favorited');
+        } else {
+            button.classList.remove('favorited');
+        }
+        console.log('Button updated, favorited:', isFavorited);
+    }
+}
+
+function getFavoriteTools() {
+    console.log('getFavoriteTools called, favorites:', favorites); // 调试日志
+    const allTools = [...toolsData, ...aiTools];
+    console.log('All tools count:', allTools.length); // 调试日志
+    const favoriteTools = allTools.filter(tool => favorites.includes(tool.id));
+    console.log('Filtered favorite tools:', favoriteTools); // 调试日志
+    return favoriteTools;
+}
+
+function showFavorites() {
+    console.log('showFavorites called'); // 调试日志
+    const favoriteTools = getFavoriteTools();
+    console.log('Favorite tools found:', favoriteTools.length); // 调试日志
+    const toolsGrid = document.getElementById('toolsGrid'); // 修正ID
+    const searchInput = document.getElementById('search-input');
+    const categoryFilter = document.getElementById('category-filter');
+    
+    console.log('toolsGrid element:', toolsGrid); // 调试日志
+    
+    // 清空搜索和筛选
+    if (searchInput) searchInput.value = '';
+    if (categoryFilter) categoryFilter.value = 'all';
+    
+    if (favoriteTools.length === 0) {
+        toolsGrid.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">💝</div>
+                <h3>还没有收藏的工具</h3>
+                <p>点击工具卡片右上角的心形图标来收藏你喜欢的工具吧！</p>
+            </div>
+        `;
+    } else {
+        renderTools(favoriteTools);
+    }
+    
+    // 更新页面标题
+    updatePageTitle('我的收藏');
+    
+    // 更新导航状态
+    updateNavigation('favorites');
+}
+
+function updatePageTitle(title) {
+    const pageTitle = document.querySelector('.page-title');
+    if (pageTitle) {
+        pageTitle.textContent = title;
+    }
+}
+
+function showAllTools() {
+    // 显示所有工具
+    const searchInput = document.getElementById('search-input');
+    const categoryFilter = document.getElementById('category-filter');
+    
+    // 清空搜索和筛选
+    if (searchInput) searchInput.value = '';
+    if (categoryFilter) categoryFilter.value = 'all';
+    
+    // 重新渲染所有工具
+    const allTools = [...toolsData, ...aiTools];
+    renderTools(allTools);
+    
+    // 更新页面标题
+    updatePageTitle('杨扬的工具站');
+    
+    // 更新导航状态
+    updateNavigation('home');
+}
+
+function updateNavigation(activeSection) {
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+    });
+    
+    if (activeSection === 'home') {
+        navLinks[0].classList.add('active');
+    } else if (activeSection === 'favorites') {
+        navLinks[2].classList.add('active');
+    }
+}
+
+// 监听DOM变化（使用节流）
+if (typeof MutationObserver !== 'undefined') {
+    let mutationTimeout;
+    const observer = new MutationObserver(function(mutations) {
+        // 节流处理，避免频繁执行
+        if (mutationTimeout) return;
+        
+        mutationTimeout = setTimeout(() => {
+            let hasRelevantChanges = false;
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    // 只在有新增节点时才检查
+                    for (let node of mutation.addedNodes) {
+                        if (node.nodeType === 1) { // 元素节点
+                            hasRelevantChanges = true;
+                            break;
+                        }
+                    }
+                }
+            });
+            
+            if (hasRelevantChanges) {
+                removeSelfCheckUI();
+            }
+            mutationTimeout = null;
+        }, 1000);
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
 }

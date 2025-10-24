@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小学生数学练习工具</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --gray-color: #95a5a6;
+            --text-color: #333;
+            --bg-color: #f9f9f9;
+            --card-bg: #fff;
+            --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Microsoft YaHei', sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+        
+        h1 {
+            color: var(--dark-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-color);
+        }
+        
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            background-color: var(--card-bg);
+            box-shadow: var(--card-shadow);
+            border: 1px solid #eee;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .section:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 20px;
+            background: linear-gradient(to bottom, var(--primary-color), var(--success-color));
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+        
+        .difficulty-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .difficulty-option {
+            padding: 8px 18px;
+            background-color: var(--light-color);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+        
+        .difficulty-option:hover {
+            background-color: #d5dbdb;
+            transform: translateY(-2px);
+        }
+        
+        .difficulty-option.selected {
+            background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+            color: white;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .settings-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .setting-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 180px;
+        }
+        
+        .setting-group label {
+            font-weight: 500;
+            color: var(--dark-color);
+            white-space: nowrap;
+        }
+        
+        input[type="number"], input[type="text"] {
+            width: 70px;
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        input[type="number"]:focus, input[type="text"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 120px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+            opacity: 0.9;
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        button.secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        }
+        
+        button.danger {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+        }
+        
+        button.warning {
+            background: linear-gradient(135deg, var(--warning-color), #e67e22);
+        }
+        
+        button.reset {
+            background: linear-gradient(135deg, var(--warning-color), #e67e22);
+        }
+        
+        .quiz-area {
+            display: none;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .timer-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(52, 152, 219, 0.1);
+            border-radius: 8px;
+        }
+        
+        .timer-display.final-countdown {
+            color: var(--danger-color);
+            animation: pulse 1s infinite;
+        }
+        
+        .question {
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .question:hover {
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .question input {
+            width: 100px;
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .question input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .result {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            border-left: 5px solid var(--success-color);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .result h3 {
+            margin-top: 0;
+            color: var(--dark-color);
+            font-size: 1.3rem;
+        }
+        
+        .result-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .history {
+            margin-top: 40px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .history h2 {
+            color: var(--dark-color);
+            font-size: 1.5rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .history h2::before {
+            content: "📚";
+        }
+        
+        .history-item {
+            margin-bottom: 15px;
+            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+        }
+        
+        .history-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .history-item-date {
+            font-weight: bold;
+            color: var(--dark-color);
+            font-size: 1.1rem;
+        }
+        
+        .history-item-type {
+            background-color: var(--light-color);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .history-item-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .history-item-level {
+            color: var(--gray-color);
+            font-size: 0.9rem;
+        }
+        
+        .history-item-score {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--success-color);
+        }
+        
+        .history-item-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), #27ae60);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .correct {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        
+        .incorrect {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+        
+        .question-details {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #eee;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .question-detail-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .question-detail-item span:first-child {
+            flex: 1;
+        }
+        
+        .empty-history {
+            text-align: center;
+            padding: 30px;
+            color: var(--gray-color);
+        }
+        
+        .empty-history i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+            color: var(--light-color);
+        }
+        
+        .theme-selector {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .theme-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .theme-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .theme-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .theme-option.selected {
+            border-color: var(--dark-color);
+            transform: scale(1.1);
+        }
+        
+        .bg-theme-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .bg-theme-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .bg-theme-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .bg-theme-option.selected {
+            border-color: var(--dark-color);
+            transform: scale(1.1);
+        }
+        
+        .mixed-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .mixed-option {
+            padding: 8px 18px;
+            background-color: var(--light-color);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+        
+        .mixed-option:hover {
+            background-color: #d5dbdb;
+            transform: translateY(-2px);
+        }
+        
+        .mixed-option.selected {
+            background: linear-gradient(135deg, var(--primary-color), var(--success-color));
+            color: white;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .bg-intensity {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .bg-intensity input[type="range"] {
+            width: 150px;
+        }
+        
+        .custom-settings {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px dashed #ddd;
+        }
+        
+        .custom-settings.active {
+            display: block;
+        }
+        
+        .custom-setting-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .custom-setting-group label {
+            min-width: 100px;
+            font-weight: 500;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .section {
+                padding: 15px;
+            }
+            
+            .difficulty-options, .mixed-options {
+                flex-direction: column;
+            }
+            
+            .settings-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .history-item-header, .history-item-body {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .button-group, .result-actions, .history-item-actions {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+            
+            .custom-setting-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .custom-setting-group label {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>小学生数学练习工具</h1>
+        
+        <div class="theme-selector">
+            <div class="section-title">选择主题颜色</div>
+            <div class="theme-options">
+                <div class="theme-option selected" style="background: linear-gradient(135deg, #3498db, #2ecc71);" onclick="setTheme('#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#ecf0f1', '#2c3e50', '#333')"></div>
+                <div class="theme-option" style="background: linear-gradient(135deg, #9b59b6, #e74c3c);" onclick="setTheme('#9b59b6', '#e74c3c', '#f39c12', '#3498db', '#ecf0f1', '#2c3e50', '#333')"></div>
+                <div class="theme-option" style="background: linear-gradient(135deg, #f39c12, #e74c3c);" onclick="setTheme('#f39c12', '#e74c3c', '#9b59b6', '#3498db', '#ecf0f1', '#2c3e50', '#333')"></div>
+                <div class="theme-option" style="background: linear-gradient(135deg, #1abc9c, #3498db);" onclick="setTheme('#1abc9c', '#3498db', '#e74c3c', '#f39c12', '#ecf0f1', '#2c3e50', '#333')"></div>
+                <div class="theme-option" style="background: linear-gradient(135deg, #e74c3c, #f39c12);" onclick="setTheme('#e74c3c', '#f39c12', '#3498db', '#2ecc71', '#ecf0f1', '#2c3e50', '#333')"></div>
+            </div>
+            <div class="section-title" style="margin-top: 15px;">选择背景颜色</div>
+            <div class="bg-theme-options">
+                <div class="bg-theme-option selected" style="background: #f9f9f9;" onclick="setBgTheme('#f9f9f9', '#fff', 100)"></div>
+                <div class="bg-theme-option" style="background: #f0f8ff;" onclick="setBgTheme('#f0f8ff', '#fff', 100)"></div>
+                <div class="bg-theme-option" style="background: #fff0f5;" onclick="setBgTheme('#fff0f5', '#fff', 100)"></div>
+                <div class="bg-theme-option" style="background: #f0fff0;" onclick="setBgTheme('#f0fff0', '#fff', 100)"></div>
+                <div class="bg-theme-option" style="background: #fffaf0;" onclick="setBgTheme('#fffaf0', '#fff', 100)"></div>
+            </div>
+            <div class="bg-intensity">
+                <label for="bg-intensity">背景深浅:</label>
+                <input type="range" id="bg-intensity" min="20" max="100" value="100" oninput="changeBgIntensity(this.value)">
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">加法练习</div>
+            <div class="difficulty-options">
+                <div class="difficulty-option" data-type="addition" data-level="1">简单 (1位数)</div>
+                <div class="difficulty-option" data-type="addition" data-level="2">中等 (2位数)</div>
+                <div class="difficulty-option" data-type="addition" data-level="3">困难 (3位数)</div>
+                <div class="difficulty-option" data-type="addition" data-level="custom" onclick="toggleCustomSettings('addition')">自定义</div>
+            </div>
+            <div class="custom-settings" id="addition-custom-settings">
+                <div class="custom-setting-group">
+                    <label for="addition-min-a">第一个数最小值:</label>
+                    <input type="number" id="addition-min-a" min="1" value="1">
+                </div>
+                <div class="custom-setting-group">
+                    <label for="addition-max-a">第一个数最大值:</label>
+                    <input type="number" id="addition-max-a" min="1" value="9">
+                </div>
+                <div class="custom-setting-group">
+                    <label for="addition-min-b">第二个数最小值:</label>
+                    <input type="number" id="addition-min-b" min="1" value="1">
+                </div>
+                <div class="custom-setting-group">
+                    <label for="addition-max-b">第二个数最大值:</label>
+                    <input type="number" id="addition-max-b" min="1" value="9">
+                </div>
+            </div>
+            <div class="settings-row">
+                <div class="setting-group">
+                    <label for="addition-count">题目数量:</label>
+                    <input type="number" id="addition-count" min="1" max="50" value="10">
+                </div>
+                <div class="setting-group">
+                    <label for="addition-timer">倒计时(秒):</label>
+                    <input type="number" id="addition-timer" min="0" max="3600" value="0" placeholder="0表示不限时">
+                </div>
+            </div>
+            <div class="button-group">
+                <button onclick="startQuiz('addition')">🎯 开始练习</button>
+                <button class="reset" onclick="resetQuiz('addition')">🔄 重置</button>
+            </div>
+            <div id="addition-quiz" class="quiz-area"></div>
+            <div id="addition-result" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">减法练习</div>
+            <div class="difficulty-options">
+                <div class="difficulty-option" data-type="subtraction" data-level="1">简单 (1位数)</div>
+                <div class="difficulty-option" data-type="subtraction" data-level="2">中等 (2位数)</div>
+                <div class="difficulty-option" data-type="subtraction" data-level="3">困难 (3位数)</div>
+                <div class="difficulty-option" data-type="subtraction" data-level="custom" onclick="toggleCustomSettings('subtraction')">自定义</div>
+            </div>
+            <div class="custom-settings" id="subtraction-custom-settings">
+                <div class="custom-setting-group">
+                    <label for="subtraction-min-a">被减数最小值:</label>
+                    <input type="number" id="subtraction-min-a" min="1" value="1">
+                </div>
+                <div class="custom-setting-group">
+                    <label for="subtraction-max-a">被减数最大值:</label>
+                    <input type="number" id="subtraction-max-a" min="1" value="9">
+                </div>
+                <div class="custom-setting-group">
+                    <label for="subtraction-min-b">减数最小值:</label>
+                    <input type="number" id="subtraction-min-b" min="1" value="1">
+                </div>
+                <div class="custom-setting-group">
+                    <label for="subtraction-max-b">减数最大值:</label>
+                    <input type="number" id="subtraction-max-b" min="1" value="9">
+                </div>
+            </div>
+            <div class="settings-row">
+                <div class="setting-group">
+                    <label for="subtraction-count">题目数量:</label>
+                    <input type="number" id="subtraction-count" min="1" max="50" value="10">
+                </div>
+                <div class="setting-group">
+                    <label for="subtraction-timer">倒计时(秒):</label>
+                    <input type="number" id="subtraction-timer" min="0" max="3600" value="0" placeholder="0表示不限时">
+                </div>
+            </div>
+            <div class="button-group">
+                <button onclick="startQuiz('subtraction')">🎯 开始练习</button>
+                <button class="reset" onclick="resetQuiz('subtraction')">🔄 重置</button>
+            </div>
+            <div id="subtraction-quiz" class="quiz-area"></div>
+            <div id="subtraction-result" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">乘法练习</div>
+            <div class="difficulty-options">
+                <div class="difficulty-option" data-type="multiplication" data-level="1">简单 (1位数×1位数)</div>
+                <div class="difficulty-option" data-type="multiplication" data-level="2">中等 (2位数×1位数)</div>
+                <div class="difficulty-option" data-type="multiplication" data-level="3">困难 (2位数×2位数)</div>
+                <div class="difficulty-option" data-type="multiplication" data-level="custom" onclick="toggleCustomSettings('multiplication')">自定义</div>
+            </div>
+            <div class="custom-settings" id="multiplication-custom-settings">
+                <div class="custom-setting-group">
+                    <label for="multiplication-min-a">第一个数最小值:</label>
+                    <input type="number" id="multiplication-min-a" min="1" value="1">
+                </div>
+                <div class="custom-setting-group">
+                    <label for="multiplication-max-a">第一个数最大值:</label>
+                    <input type="number" id="multiplication-max-a" min="1" value="9">
+                </div>
+                <div class="custom-setting-group">
+                    <label for="multiplication-min-b">第二个数最小值:</label>
+                    <input type="number" id="multiplication-min-b" min="1" value="1">
+                </div>
+                <div class="custom-setting-group">
+                    <label for="multiplication-max-b">第二个数最大值:</label>
+                    <input type="number" id="multiplication-max-b" min="1" value="9">
+                </div>
+            </div>
+            <div class="settings-row">
+                <div class="setting-group">
+                    <label for="multiplication-count">题目数量:</label>
+                    <input type="number" id="multiplication-count" min="1" max="50" value="10">
+                </div>
+                <div class="setting-group">
+                    <label for="multiplication-timer">倒计时(秒):</label>
+                    <input type="number" id="multiplication-timer" min="0" max="3600" value="0" placeholder="0表示不限时">
+                </div>
+            </div>
+            <div class="button-group">
+                <button onclick="startQuiz('multiplication')">🎯 开始练习</button>
+                <button class="reset" onclick="resetQuiz('multiplication')">🔄 重置</button>
+            </div>
+            <div id="multiplication-quiz" class="quiz-area"></div>
+            <div id="multiplication-result" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">除法练习</div>
+            <div class="difficulty-options">
+                <div class="difficulty-option" data-type="division" data-level="1">简单 (1位数÷1位数)</div>
+                <div class="difficulty-option" data-type="division" data-level="2">中等 (2位数÷1位数)</div>
+                <div class="difficulty-option" data-type="division" data-level="3">困难 (2位数÷2位数)</div>
+                <div class="difficulty-option" data-type="division" data-level="custom" onclick="toggleCustomSettings('division')">自定义</div>
+            </div>
+            <div class="custom-settings" id="division-custom-settings">
+                <div class="custom-setting-group">
+                    <label for="division-min-a">被除数最小值:</label>
+                    <input type="number" id="division-min-a" min="1" value="1">
+                </div>
+                <div class="custom-setting-group">
+                    <label for="division-max-a">被除数最大值:</label>
+                    <input type="number" id="division-max-a" min="1" value="9">
+                </div>
+                <div class="custom-setting-group">
+                    <label for="division-min-b">除数最小值:</label>
+                    <input type="number" id="division-min-b" min="1" value="1">
+                </div>
+                <div class="custom-setting-group">
+                    <label for="division-max-b">除数最大值:</label>
+                    <input type="number" id="division-max-b" min="1" value="9">
+                </div>
+            </div>
+            <div class="settings-row">
+                <div class="setting-group">
+                    <label for="division-count">题目数量:</label>
+                    <input type="number" id="division-count" min="1" max="50" value="10">
+                </div>
+                <div class="setting-group">
+                    <label for="division-timer">倒计时(秒):</label>
+                    <input type="number" id="division-timer" min="0" max="3600" value="0" placeholder="0表示不限时">
+                </div>
+            </div>
+            <div class="button-group">
+                <button onclick="startQuiz('division')">🎯 开始练习</button>
+                <button class="reset" onclick="resetQuiz('division')">🔄 重置</button>
+            </div>
+            <div id="division-quiz" class="quiz-area"></div>
+            <div id="division-result" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">混合运算练习</div>
+            <div class="mixed-options">
+                <div class="mixed-option" data-type="mixed" data-count="2">两种运算混合</div>
+                <div class="mixed-option" data-type="mixed" data-count="3">三种运算混合</div>
+                <div class="mixed-option" data-type="mixed" data-count="4">四种运算混合</div>
+            </div>
+            <div class="difficulty-options">
+                <div class="difficulty-option" data-type="mixed" data-level="1">简单 (1位数)</div>
+                <div class="difficulty-option" data-type="mixed" data-level="2">中等 (2位数)</div>
+                <div class="difficulty-option" data-type="mixed" data-level="3">困难 (3位数)</div>
+            </div>
+            <div class="settings-row">
+                <div class="setting-group">
+                    <label for="mixed-count">题目数量:</label>
+                    <input type="number" id="mixed-count" min="1" max="50" value="10">
+                </div>
+                <div class="setting-group">
+                    <label for="mixed-timer">倒计时(秒):</label>
+                    <input type="number" id="mixed-timer" min="0" max="3600" value="0" placeholder="0表示不限时">
+                </div>
+            </div>
+            <div class="button-group">
+                <button onclick="startQuiz('mixed')">🎯 开始练习</button>
+                <button class="reset" onclick="resetQuiz('mixed')">🔄 重置</button>
+            </div>
+            <div id="mixed-quiz" class="quiz-area"></div>
+            <div id="mixed-result" class="result"></div>
+        </div>
+        
+        <div class="history">
+            <div class="history-header">
+                <h2>练习历史记录</h2>
+                <div>
+                    <button class="danger" onclick="clearAllHistory()">🗑️ 清空全部</button>
+                </div>
+            </div>
+            <div id="history-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentQuiz = null;
+        let selectedLevels = {
+            addition: 1,
+            subtraction: 1,
+            multiplication: 1,
+            division: 1,
+            mixed: 1
+        };
+        let selectedMixedCount = 2;
+        let history = JSON.parse(localStorage.getItem('mathQuizHistory')) || [];
+        let timerInterval = null;
+        let timeLeft = 0;
+        let currentBgColor = '#f9f9f9';
+        let currentCardBg = '#fff';
+        let bgIntensity = 100;
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置难度选择点击事件
+            document.querySelectorAll('.difficulty-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const type = this.getAttribute('data-type');
+                    const level = this.getAttribute('data-level');
+                    
+                    // 如果是自定义难度，不更新selectedLevels
+                    if (level !== 'custom') {
+                        selectedLevels[type] = parseInt(level);
+                    }
+                    
+                    // 移除同类型的所有选中状态
+                    document.querySelectorAll(`.difficulty-option[data-type="${type}"]`).forEach(el => {
+                        el.classList.remove('selected');
+                    });
+                    
+                    // 添加当前选中状态
+                    this.classList.add('selected');
+                });
+                
+                // 默认选中第一个选项
+                if (option.getAttribute('data-level') === "1") {
+                    option.classList.add('selected');
+                }
+            });
+            
+            // 设置混合运算选择点击事件
+            document.querySelectorAll('.mixed-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const count = parseInt(this.getAttribute('data-count'));
+                    
+                    // 移除同类型的所有选中状态
+                    document.querySelectorAll('.mixed-option').forEach(el => {
+                        el.classList.remove('selected');
+                    });
+                    
+                    // 添加当前选中状态
+                    this.classList.add('selected');
+                    
+                    // 更新选中的混合运算数量
+                    selectedMixedCount = count;
+                });
+                
+                // 默认选中第一个选项
+                if (option.getAttribute('data-count') === "2") {
+                    option.classList.add('selected');
+                }
+            });
+            
+            // 加载历史记录
+            renderHistory();
+            
+            // 加载保存的主题
+            loadTheme();
+            
+            // 禁用所有开始练习按钮以外的按钮
+            disableOtherButtons();
+            
+            // 初始化自定义设置
+            initializeCustomSettings();
+        });
+        
+        // 初始化自定义设置
+        function initializeCustomSettings() {
+            // 设置加法自定义范围的默认值
+            document.getElementById('addition-min-a').value = 1;
+            document.getElementById('addition-max-a').value = 9;
+            document.getElementById('addition-min-b').value = 1;
+            document.getElementById('addition-max-b').value = 9;
+            
+            // 设置减法自定义范围的默认值
+            document.getElementById('subtraction-min-a').value = 1;
+            document.getElementById('subtraction-max-a').value = 9;
+            document.getElementById('subtraction-min-b').value = 1;
+            document.getElementById('subtraction-max-b').value = 9;
+            
+            // 设置乘法自定义范围的默认值
+            document.getElementById('multiplication-min-a').value = 1;
+            document.getElementById('multiplication-max-a').value = 9;
+            document.getElementById('multiplication-min-b').value = 1;
+            document.getElementById('multiplication-max-b').value = 9;
+            
+            // 设置除法自定义范围的默认值
+            document.getElementById('division-min-a').value = 1;
+            document.getElementById('division-max-a').value = 9;
+            document.getElementById('division-min-b').value = 1;
+            document.getElementById('division-max-b').value = 9;
+        }
+        
+        // 切换自定义设置显示
+        function toggleCustomSettings(type) {
+            const customSettings = document.getElementById(`${type}-custom-settings`);
+            customSettings.classList.toggle('active');
+            
+            // 确保自定义选项被选中
+            document.querySelectorAll(`.difficulty-option[data-type="${type}"]`).forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.querySelector(`.difficulty-option[data-type="${type}"][data-level="custom"]`).classList.add('selected');
+            
+            // 更新选中的难度级别为自定义
+            selectedLevels[type] = 'custom';
+        }
+        
+        // 设置主题颜色
+        function setTheme(primary, success, danger, warning, light, dark, text) {
+            document.documentElement.style.setProperty('--primary-color', primary);
+            document.documentElement.style.setProperty('--success-color', success);
+            document.documentElement.style.setProperty('--danger-color', danger);
+            document.documentElement.style.setProperty('--warning-color', warning);
+            document.documentElement.style.setProperty('--light-color', light);
+            document.documentElement.style.setProperty('--dark-color', dark);
+            document.documentElement.style.setProperty('--text-color', text);
+            
+            // 更新主题选项选中状态
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            
+            // 保存主题
+            localStorage.setItem('mathQuizTheme', JSON.stringify({
+                primary, success, danger, warning, light, dark, text,
+                bgColor: currentBgColor,
+                cardBg: currentCardBg,
+                bgIntensity: bgIntensity
+            }));
+        }
+        
+        // 设置背景颜色
+        function setBgTheme(bg, cardBg, intensity) {
+            currentBgColor = bg;
+            currentCardBg = cardBg;
+            bgIntensity = intensity;
+            
+            // 计算实际颜色值
+            const actualBgColor = adjustColorIntensity(bg, intensity);
+            const actualCardBg = adjustColorIntensity(cardBg, intensity);
+            
+            document.documentElement.style.setProperty('--bg-color', actualBgColor);
+            document.documentElement.style.setProperty('--card-bg', actualCardBg);
+            
+            // 更新背景主题选项选中状态
+            document.querySelectorAll('.bg-theme-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            
+            // 更新滑块值
+            document.getElementById('bg-intensity').value = intensity;
+            
+            // 保存背景主题
+            const savedTheme = JSON.parse(localStorage.getItem('mathQuizTheme')) || {};
+            savedTheme.bgColor = bg;
+            savedTheme.cardBg = cardBg;
+            savedTheme.bgIntensity = intensity;
+            localStorage.setItem('mathQuizTheme', JSON.stringify(savedTheme));
+        }
+        
+        // 调整颜色深浅
+        function changeBgIntensity(intensity) {
+            bgIntensity = parseInt(intensity);
+            const actualBgColor = adjustColorIntensity(currentBgColor, bgIntensity);
+            const actualCardBg = adjustColorIntensity(currentCardBg, bgIntensity);
+            
+            document.documentElement.style.setProperty('--bg-color', actualBgColor);
+            document.documentElement.style.setProperty('--card-bg', actualCardBg);
+            
+            // 保存背景深浅
+            const savedTheme = JSON.parse(localStorage.getItem('mathQuizTheme')) || {};
+            savedTheme.bgIntensity = bgIntensity;
+            localStorage.setItem('mathQuizTheme', JSON.stringify(savedTheme));
+        }
+        
+        // 调整颜色强度
+        function adjustColorIntensity(color, intensity) {
+            if (color === '#fff' || color === '#ffffff') return color;
+            
+            // 将十六进制颜色转换为RGB
+            let r = parseInt(color.substr(1, 2), 16);
+            let g = parseInt(color.substr(3, 2), 16);
+            let b = parseInt(color.substr(5, 2), 16);
+            
+            // 计算中间值
+            const midR = 128;
+            const midG = 128;
+            const midB = 128;
+            
+            // 调整强度
+            r = Math.round(midR + (r - midR) * (intensity / 100));
+            g = Math.round(midG + (g - midG) * (intensity / 100));
+            b = Math.round(midB + (b - midB) * (intensity / 100));
+            
+            // 确保值在0-255范围内
+            r = Math.max(0, Math.min(255, r));
+            g = Math.max(0, Math.min(255, g));
+            b = Math.max(0, Math.min(255, b));
+            
+            // 转换回十六进制
+            return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+        }
+        
+        // 加载保存的主题
+        function loadTheme() {
+            const savedTheme = JSON.parse(localStorage.getItem('mathQuizTheme'));
+            if (savedTheme) {
+                setTheme(
+                    savedTheme.primary,
+                    savedTheme.success,
+                    savedTheme.danger,
+                    savedTheme.warning,
+                    savedTheme.light,
+                    savedTheme.dark,
+                    savedTheme.text
+                );
+                
+                // 设置背景颜色
+                if (savedTheme.bgColor) {
+                    currentBgColor = savedTheme.bgColor;
+                    currentCardBg = savedTheme.cardBg || '#fff';
+                    bgIntensity = savedTheme.bgIntensity || 100;
+                    
+                    const bgOption = Array.from(document.querySelectorAll('.bg-theme-option')).find(
+                        option => option.style.backgroundColor === savedTheme.bgColor
+                    );
+                    if (bgOption) {
+                        bgOption.classList.add('selected');
+                    }
+                    
+                    // 应用背景颜色和强度
+                    const actualBgColor = adjustColorIntensity(savedTheme.bgColor, bgIntensity);
+                    const actualCardBg = adjustColorIntensity(savedTheme.cardBg || '#fff', bgIntensity);
+                    
+                    document.documentElement.style.setProperty('--bg-color', actualBgColor);
+                    document.documentElement.style.setProperty('--card-bg', actualCardBg);
+                    
+                    // 设置滑块值
+                    document.getElementById('bg-intensity').value = bgIntensity;
+                }
+            }
+        }
+        
+        // 禁用其他按钮
+        function disableOtherButtons() {
+            if (currentQuiz) {
+                // 禁用所有开始练习按钮
+                document.querySelectorAll('button:not(.reset)').forEach(btn => {
+                    if (!btn.closest(`#${currentQuiz}-quiz`) && !btn.closest(`#${currentQuiz}-result`) && 
+                        !btn.closest('.history-header') && !btn.closest('.theme-selector')) {
+                        btn.disabled = true;
+                    }
+                });
+                
+                // 禁用所有输入框
+                document.querySelectorAll('input[type="number"]').forEach(input => {
+                    if (!input.closest(`#${currentQuiz}-quiz`)) {
+                        input.disabled = true;
+                    }
+                });
+                
+                // 禁用所有难度选项
+                document.querySelectorAll('.difficulty-option, .mixed-option').forEach(option => {
+                    option.style.pointerEvents = 'none';
+                    option.style.opacity = '0.6';
+                });
+            } else {
+                // 启用所有按钮
+                document.querySelectorAll('button').forEach(btn => {
+                    btn.disabled = false;
+                });
+                
+                // 启用所有输入框
+                document.querySelectorAll('input[type="number"]').forEach(input => {
+                    input.disabled = false;
+                });
+                
+                // 启用所有难度选项
+                document.querySelectorAll('.difficulty-option, .mixed-option').forEach(option => {
+                    option.style.pointerEvents = 'auto';
+                    option.style.opacity = '1';
+                });
+            }
+        }
+        
+        // 开始练习
+        function startQuiz(type) {
+            const count = parseInt(document.getElementById(`${type}-count`).value);
+            const level = selectedLevels[type];
+            const timerSeconds = parseInt(document.getElementById(`${type}-timer`).value) || 0;
+            
+            // 验证题目数量
+            if (isNaN(count) || count < 1 || count > 50) {
+                alert('请输入1-50之间的题目数量！');
+                return;
+            }
+            
+            // 清除之前的计时器
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            // 设置当前练习类型
+            currentQuiz = type;
+            disableOtherButtons();
+            
+            // 生成题目
+            const questions = type === 'mixed' 
+                ? generateMixedQuestions(selectedMixedCount, level, count)
+                : generateQuestions(type, level, count);
+            
+            // 显示练习区域
+            const quizArea = document.getElementById(`${type}-quiz`);
+            quizArea.style.display = 'block';
+            quizArea.innerHTML = '';
+            
+            // 设置倒计时
+            if (timerSeconds > 0) {
+                timeLeft = timerSeconds;
+                updateTimerDisplay(type);
+                
+                const timerDisplay = document.createElement('div');
+                timerDisplay.className = 'timer-display';
+                timerDisplay.id = `${type}-timer-display`;
+                timerDisplay.textContent = `剩余时间: ${formatTime(timeLeft)}`;
+                quizArea.appendChild(timerDisplay);
+                
+                // 启动计时器
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    updateTimerDisplay(type);
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                        document.getElementById(`${type}-timer-display`).textContent = '时间到！';
+                        document.getElementById(`${type}-timer-display`).className = 'timer-display final-countdown';
+                        setTimeout(() => {
+                            checkAnswers(type, questions, true);
+                        }, 1000);
+                    }
+                }, 1000);
+            }
+            
+            // 显示进度条
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress-bar';
+            const progress = document.createElement('div');
+            progress.className = 'progress';
+            progress.style.width = '0%';
+            progressBar.appendChild(progress);
+            quizArea.appendChild(progressBar);
+            
+            // 添加题目
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <span>${index + 1}. ${q.expression} = </span>
+                    <input type="number" id="${type}-answer-${index}" data-answer="${q.answer}" step="any">
+                    <span id="${type}-feedback-${index}" style="margin-left: 10px;"></span>
+                `;
+                quizArea.appendChild(questionDiv);
+            });
+            
+            // 添加提交按钮
+            const submitButton = document.createElement('button');
+            submitButton.textContent = '✅ 提交答案';
+            submitButton.onclick = function() {
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                checkAnswers(type, questions, false);
+            };
+            quizArea.appendChild(submitButton);
+            
+            // 隐藏结果区域
+            document.getElementById(`${type}-result`).style.display = 'none';
+        }
+        
+        // 重置练习
+        function resetQuiz(type) {
+            // 清除计时器
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            // 隐藏练习区域和结果区域
+            document.getElementById(`${type}-quiz`).style.display = 'none';
+            document.getElementById(`${type}-result`).style.display = 'none';
+            
+            // 重置当前练习
+            currentQuiz = null;
+            disableOtherButtons();
+        }
+        
+        // 生成混合运算题目
+        function generateMixedQuestions(count, level, total) {
+            const questions = [];
+            const operations = [];
+            
+            // 根据选择的混合数量确定包含哪些运算
+            if (count >= 1) operations.push('addition');
+            if (count >= 2) operations.push('subtraction');
+            if (count >= 3) operations.push('multiplication');
+            if (count >= 4) operations.push('division');
+            
+            for (let i = 0; i < total; i++) {
+                // 随机选择一种运算
+                const type = operations[Math.floor(Math.random() * operations.length)];
+                
+                let a, b, answer, expression;
+                
+                switch (type) {
+                    case 'addition':
+                        if (level === 1) {
+                            a = Math.floor(Math.random() * 9) + 1;
+                            b = Math.floor(Math.random() * 9) + 1;
+                        } else if (level === 2) {
+                            a = Math.floor(Math.random() * 90) + 10;
+                            b = Math.floor(Math.random() * 90) + 10;
+                        } else if (level === 3) {
+                            a = Math.floor(Math.random() * 900) + 100;
+                            b = Math.floor(Math.random() * 900) + 100;
+                        } else if (level === 'custom') {
+                            const minA = parseInt(document.getElementById('addition-min-a').value) || 1;
+                            const maxA = parseInt(document.getElementById('addition-max-a').value) || 9;
+                            const minB = parseInt(document.getElementById('addition-min-b').value) || 1;
+                            const maxB = parseInt(document.getElementById('addition-max-b').value) || 9;
+                            a = Math.floor(Math.random() * (maxA - minA + 1)) + minA;
+                            b = Math.floor(Math.random() * (maxB - minB + 1)) + minB;
+                        }
+                        answer = a + b;
+                        expression = `${a} + ${b}`;
+                        break;
+                    
+                    case 'subtraction':
+                        if (level === 1) {
+                            a = Math.floor(Math.random() * 9) + 1;
+                            b = Math.floor(Math.random() * a) + 1;
+                        } else if (level === 2) {
+                            a = Math.floor(Math.random() * 90) + 10;
+                            b = Math.floor(Math.random() * a) + 1;
+                        } else if (level === 3) {
+                            a = Math.floor(Math.random() * 900) + 100;
+                            b = Math.floor(Math.random() * a) + 1;
+                        } else if (level === 'custom') {
+                            const minA = parseInt(document.getElementById('subtraction-min-a').value) || 1;
+                            const maxA = parseInt(document.getElementById('subtraction-max-a').value) || 9;
+                            const minB = parseInt(document.getElementById('subtraction-min-b').value) || 1;
+                            const maxB = parseInt(document.getElementById('subtraction-max-b').value) || 9;
+                            a = Math.floor(Math.random() * (maxA - minA + 1)) + minA;
+                            b = Math.floor(Math.random() * (Math.min(a, maxB) - minB + 1)) + minB;
+                        }
+                        answer = a - b;
+                        expression = `${a} - ${b}`;
+                        break;
+                    
+                    case 'multiplication':
+                        if (level === 1) {
+                            a = Math.floor(Math.random() * 9) + 1;
+                            b = Math.floor(Math.random() * 9) + 1;
+                        } else if (level === 2) {
+                            a = Math.floor(Math.random() * 90) + 10;
+                            b = Math.floor(Math.random() * 9) + 1;
+                        } else if (level === 3) {
+                            a = Math.floor(Math.random() * 90) + 10;
+                            b = Math.floor(Math.random() * 90) + 10;
+                        } else if (level === 'custom') {
+                            const minA = parseInt(document.getElementById('multiplication-min-a').value) || 1;
+                            const maxA = parseInt(document.getElementById('multiplication-max-a').value) || 9;
+                            const minB = parseInt(document.getElementById('multiplication-min-b').value) || 1;
+                            const maxB = parseInt(document.getElementById('multiplication-max-b').value) || 9;
+                            a = Math.floor(Math.random() * (maxA - minA + 1)) + minA;
+                            b = Math.floor(Math.random() * (maxB - minB + 1)) + minB;
+                        }
+                        answer = a * b;
+                        expression = `${a} × ${b}`;
+                        break;
+                    
+                    case 'division':
+                        if (level === 1) {
+                            b = Math.floor(Math.random() * 8) + 2;
+                            a = b * (Math.floor(Math.random() * 8) + 1);
+                        } else if (level === 2) {
+                            b = Math.floor(Math.random() * 9) + 1;
+                            a = b * (Math.floor(Math.random() * 90) + 10);
+                        } else if (level === 3) {
+                            b = Math.floor(Math.random() * 90) + 10;
+                            a = b * (Math.floor(Math.random() * 9) + 1);
+                        } else if (level === 'custom') {
+                            const minB = parseInt(document.getElementById('division-min-b').value) || 1;
+                            const maxB = parseInt(document.getElementById('division-max-b').value) || 9;
+                            const minA = parseInt(document.getElementById('division-min-a').value) || 1;
+                            const maxA = parseInt(document.getElementById('division-max-a').value) || 9;
+                            
+                            b = Math.floor(Math.random() * (maxB - minB + 1)) + minB;
+                            if (b === 0) b = 1; // 避免除数为0
+                            
+                            // 确保a是b的倍数
+                            const minMultiplier = Math.ceil(minA / b);
+                            const maxMultiplier = Math.floor(maxA / b);
+                            
+                            if (minMultiplier > maxMultiplier) {
+                                // 如果范围无效，使用默认值
+                                b = Math.floor(Math.random() * 8) + 2;
+                                a = b * (Math.floor(Math.random() * 8) + 1);
+                            } else {
+                                const multiplier = Math.floor(Math.random() * (maxMultiplier - minMultiplier + 1)) + minMultiplier;
+                                a = b * multiplier;
+                            }
+                        }
+                        answer = a / b;
+                        expression = `${a} ÷ ${b}`;
+                        break;
+                }
+                
+                questions.push({
+                    type: type,
+                    expression: expression,
+                    answer: answer,
+                    userAnswer: null,
+                    isCorrect: false
+                });
+            }
+            
+            return questions;
+        }
+        
+        // 更新计时器显示
+        function updateTimerDisplay(type) {
+            const timerDisplay = document.getElementById(`${type}-timer-display`);
+            if (timerDisplay) {
+                timerDisplay.textContent = `剩余时间: ${formatTime(timeLeft)}`;
+                
+                if (timeLeft <= 30) {
+                    timerDisplay.className = 'timer-display final-countdown';
+                }
+            }
+        }
+        
+        // 格式化时间显示
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // 生成题目
+        function generateQuestions(type, level, count) {
+            const questions = [];
+            
+            for (let i = 0; i < count; i++) {
+                let a, b, answer, expression;
+                
+                switch (type) {
+                    case 'addition':
+                        if (level === 1) {
+                            a = Math.floor(Math.random() * 9) + 1;
+                            b = Math.floor(Math.random() * 9) + 1;
+                        } else if (level === 2) {
+                            a = Math.floor(Math.random() * 90) + 10;
+                            b = Math.floor(Math.random() * 90) + 10;
+                        } else if (level === 3) {
+                            a = Math.floor(Math.random() * 900) + 100;
+                            b = Math.floor(Math.random() * 900) + 100;
+                        } else if (level === 'custom') {
+                            const minA = parseInt(document.getElementById('addition-min-a').value) || 1;
+                            const maxA = parseInt(document.getElementById('addition-max-a').value) || 9;
+                            const minB = parseInt(document.getElementById('addition-min-b').value) || 1;
+                            const maxB = parseInt(document.getElementById('addition-max-b').value) || 9;
+                            a = Math.floor(Math.random() * (maxA - minA + 1)) + minA;
+                            b = Math.floor(Math.random() * (maxB - minB + 1)) + minB;
+                        }
+                        answer = a + b;
+                        expression = `${a} + ${b}`;
+                        break;
+                    
+                    case 'subtraction':
+                        if (level === 1) {
+                            a = Math.floor(Math.random() * 9) + 1;
+                            b = Math.floor(Math.random() * a) + 1;
+                        } else if (level === 2) {
+                            a = Math.floor(Math.random() * 90) + 10;
+                            b = Math.floor(Math.random() * a) + 1;
+                        } else if (level === 3) {
+                            a = Math.floor(Math.random() * 900) + 100;
+                            b = Math.floor(Math.random() * a) + 1;
+                        } else if (level === 'custom') {
+                            const minA = parseInt(document.getElementById('subtraction-min-a').value) || 1;
+                            const maxA = parseInt(document.getElementById('subtraction-max-a').value) || 9;
+                            const minB = parseInt(document.getElementById('subtraction-min-b').value) || 1;
+                            const maxB = parseInt(document.getElementById('subtraction-max-b').value) || 9;
+                            a = Math.floor(Math.random() * (maxA - minA + 1)) + minA;
+                            b = Math.floor(Math.random() * (Math.min(a, maxB) - minB + 1)) + minB;
+                        }
+                        answer = a - b;
+                        expression = `${a} - ${b}`;
+                        break;
+                    
+                    case 'multiplication':
+                        if (level === 1) {
+                            a = Math.floor(Math.random() * 9) + 1;
+                            b = Math.floor(Math.random() * 9) + 1;
+                        } else if (level === 2) {
+                            a = Math.floor(Math.random() * 90) + 10;
+                            b = Math.floor(Math.random() * 9) + 1;
+                        } else if (level === 3) {
+                            a = Math.floor(Math.random() * 90) + 10;
+                            b = Math.floor(Math.random() * 90) + 10;
+                        } else if (level === 'custom') {
+                            const minA = parseInt(document.getElementById('multiplication-min-a').value) || 1;
+                            const maxA = parseInt(document.getElementById('multiplication-max-a').value) || 9;
+                            const minB = parseInt(document.getElementById('multiplication-min-b').value) || 1;
+                            const maxB = parseInt(document.getElementById('multiplication-max-b').value) || 9;
+                            a = Math.floor(Math.random() * (maxA - minA + 1)) + minA;
+                            b = Math.floor(Math.random() * (maxB - minB + 1)) + minB;
+                        }
+                        answer = a * b;
+                        expression = `${a} × ${b}`;
+                        break;
+                    
+                    case 'division':
+                        if (level === 1) {
+                            b = Math.floor(Math.random() * 8) + 2;
+                            a = b * (Math.floor(Math.random() * 8) + 1);
+                        } else if (level === 2) {
+                            b = Math.floor(Math.random() * 9) + 1;
+                            a = b * (Math.floor(Math.random() * 90) + 10);
+                        } else if (level === 3) {
+                            b = Math.floor(Math.random() * 90) + 10;
+                            a = b * (Math.floor(Math.random() * 9) + 1);
+                        } else if (level === 'custom') {
+                            const minB = parseInt(document.getElementById('division-min-b').value) || 1;
+                            const maxB = parseInt(document.getElementById('division-max-b').value) || 9;
+                            const minA = parseInt(document.getElementById('division-min-a').value) || 1;
+                            const maxA = parseInt(document.getElementById('division-max-a').value) || 9;
+                            
+                            b = Math.floor(Math.random() * (maxB - minB + 1)) + minB;
+                            if (b === 0) b = 1; // 避免除数为0
+                            
+                            // 确保a是b的倍数
+                            const minMultiplier = Math.ceil(minA / b);
+                            const maxMultiplier = Math.floor(maxA / b);
+                            
+                            if (minMultiplier > maxMultiplier) {
+                                // 如果范围无效，使用默认值
+                                b = Math.floor(Math.random() * 8) + 2;
+                                a = b * (Math.floor(Math.random() * 8) + 1);
+                            } else {
+                                const multiplier = Math.floor(Math.random() * (maxMultiplier - minMultiplier + 1)) + minMultiplier;
+                                a = b * multiplier;
+                            }
+                        }
+                        answer = a / b;
+                        expression = `${a} ÷ ${b}`;
+                        break;
+                }
+                
+                questions.push({
+                    type: type,
+                    expression: expression,
+                    answer: answer,
+                    userAnswer: null,
+                    isCorrect: false
+                });
+            }
+            
+            return questions;
+        }
+        
+        // 检查答案
+        function checkAnswers(type, questions, isTimeUp) {
+            let answeredCount = 0;
+            let correctCount = 0;
+            
+            // 计算得分
+            questions.forEach((q, index) => {
+                const answerInput = document.getElementById(`${type}-answer-${index}`);
+                const feedbackSpan = document.getElementById(`${type}-feedback-${index}`);
+                
+                const userAnswer = parseFloat(answerInput.value);
+                q.userAnswer = isNaN(userAnswer) ? null : userAnswer;
+                
+                if (q.userAnswer !== null) {
+                    answeredCount++;
+                }
+                
+                // 检查答案是否正确（允许小数除法有微小误差）
+                const isCorrect = q.userAnswer !== null && 
+                                (q.type === 'division' 
+                                    ? Math.abs(userAnswer - q.answer) < 0.001 
+                                    : userAnswer === q.answer);
+                
+                q.isCorrect = isCorrect;
+                
+                if (isCorrect) {
+                    correctCount++;
+                    feedbackSpan.textContent = '✓ 正确';
+                    feedbackSpan.className = 'correct';
+                } else if (q.userAnswer !== null) {
+                    feedbackSpan.textContent = `✗ 错误 (正确答案: ${q.answer})`;
+                    feedbackSpan.className = 'incorrect';
+                } else {
+                    feedbackSpan.textContent = `未作答 (正确答案: ${q.answer})`;
+                    feedbackSpan.className = 'incorrect';
+                }
+            });
+            
+            // 计算得分（满分100分，每题分值均分）
+            const score = Math.round((correctCount / questions.length) * 100);
+            
+            // 显示结果
+            const resultDiv = document.getElementById(`${type}-result`);
+            resultDiv.style.display = 'block';
+            
+            let timeInfo = '';
+            if (parseInt(document.getElementById(`${type}-timer`).value) > 0) {
+                const timeUsed = timeLeft > 0 ? (parseInt(document.getElementById(`${type}-timer`).value) - timeLeft) : parseInt(document.getElementById(`${type}-timer`).value);
+                timeInfo = `<p>用时: ${formatTime(timeUsed)} / ${formatTime(parseInt(document.getElementById(`${type}-timer`).value))}</p>`;
+            }
+            
+            resultDiv.innerHTML = `
+                <h3>练习结果</h3>
+                ${isTimeUp ? '<p class="incorrect">时间到！</p>' : ''}
+                <p>共 ${questions.length} 题，答对 ${correctCount} 题，得分: <strong>${score}分</strong></p>
+                ${timeInfo}
+                <div class="progress-bar"><div class="progress" style="width: ${score}%"></div></div>
+                <div class="result-actions">
+                    <button onclick="saveResult('${type}', ${score}, ${questions.length}, ${timeLeft})">💾 保存成绩</button>
+                    <button class="secondary" onclick="location.reload()">🔄 返回</button>
+                </div>
+            `;
+            
+            // 更新进度条
+            const progress = document.querySelector(`#${type}-quiz .progress`);
+            progress.style.width = `${score}%`;
+            
+            // 重置当前练习
+            currentQuiz = null;
+            disableOtherButtons();
+        }
+        
+        // 保存成绩到历史记录
+        function saveResult(type, score, totalQuestions, timeUsed = 0) {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+            
+            let typeName = '';
+            let levelName = '';
+            
+            switch (type) {
+                case 'addition':
+                    typeName = '加法';
+                    break;
+                case 'subtraction':
+                    typeName = '减法';
+                    break;
+                case 'multiplication':
+                    typeName = '乘法';
+                    break;
+                case 'division':
+                    typeName = '除法';
+                    break;
+                case 'mixed':
+                    typeName = `${selectedMixedCount}种混合运算`;
+                    break;
+            }
+            
+            switch (selectedLevels[type]) {
+                case 1:
+                    levelName = '简单';
+                    break;
+                case 2:
+                    levelName = '中等';
+                    break;
+                case 3:
+                    levelName = '困难';
+                    break;
+                case 'custom':
+                    levelName = '自定义';
+                    break;
+            }
+            
+            const record = {
+                id: Date.now(),
+                date: dateStr,
+                type: typeName,
+                level: levelName,
+                score: score,
+                total: totalQuestions,
+                timeUsed: timeUsed,
+                timerSet: parseInt(document.getElementById(`${type}-timer`).value) || 0,
+                details: []
+            };
+            
+            // 获取题目详情
+            const quizArea = document.getElementById(`${type}-quiz`);
+            const questionInputs = quizArea.querySelectorAll('input[type="number"]');
+            
+            questionInputs.forEach((input, index) => {
+                const answer = parseFloat(input.getAttribute('data-answer'));
+                const userAnswer = parseFloat(input.value) || null;
+                const questionText = input.previousSibling.textContent.trim();
+                const isCorrect = userAnswer !== null && 
+                                 (type === 'division' 
+                                     ? Math.abs(userAnswer - answer) < 0.001 
+                                     : userAnswer === answer);
+                
+                record.details.push({
+                    question: `${index + 1}. ${questionText}`,
+                    expression: questionText.replace(/^\d+\.\s/, '').replace(/\s=\s$/, ''),
+                    answer: answer,
+                    userAnswer: userAnswer,
+                    isCorrect: isCorrect
+                });
+            });
+            
+            // 添加到历史记录
+            history.unshift(record);
+            
+            // 保存到本地存储
+            localStorage.setItem('mathQuizHistory', JSON.stringify(history));
+            
+            // 更新历史记录显示
+            renderHistory();
+            
+            alert('成绩已保存到历史记录！');
+        }
+        
+        // 渲染历史记录
+        function renderHistory() {
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            
+            if (history.length === 0) {
+                historyList.innerHTML = `
+                    <div class="empty-history">
+                        <i>📚</i>
+                        <p>暂无练习历史记录</p>
+                        <p>开始练习后，你的成绩将在这里显示</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            history.forEach(record => {
+                const recordDiv = document.createElement('div');
+                recordDiv.className = 'history-item';
+                
+                const correctRate = Math.round((record.score / 100) * record.total);
+                const incorrectRate = record.total - correctRate;
+                const timeInfo = record.timerSet > 0 
+                    ? `用时: ${formatTime(record.timeUsed)} / ${formatTime(record.timerSet)}` 
+                    : '不限时';
+                
+                recordDiv.innerHTML = `
+                    <div class="history-item-header">
+                        <div class="history-item-date">${record.date}</div>
+                        <div class="history-item-type">${record.type}练习</div>
+                    </div>
+                    <div class="history-item-body">
+                        <div>
+                            <span class="history-item-level">${record.level}难度</span>
+                            <div>${timeInfo}</div>
+                        </div>
+                        <div class="history-item-score">${record.score}分</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: ${record.score}%"></div>
+                    </div>
+                    <div>正确: ${correctRate}题 | 错误: ${incorrectRate}题</div>
+                    <div class="history-item-actions">
+                        <button onclick="showDetails(${record.id})">🔍 查看详情</button>
+                        <button class="warning" onclick="deleteRecord(${record.id})">🗑️ 删除记录</button>
+                    </div>
+                    <div id="details-${record.id}" class="question-details"></div>
+                `;
+                
+                historyList.appendChild(recordDiv);
+            });
+        }
+        
+        // 显示历史记录详情
+        function showDetails(id) {
+            const detailsDiv = document.getElementById(`details-${id}`);
+            const record = history.find(r => r.id === id);
+            
+            if (detailsDiv.style.display === 'none' || !detailsDiv.style.display) {
+                detailsDiv.style.display = 'block';
+                let detailsHtml = '<h4>题目详情:</h4>';
+                
+                record.details.forEach(detail => {
+                    const answerText = detail.isCorrect 
+                        ? '<span class="correct">✓ 正确</span>' 
+                        : `<span class="incorrect">✗ 错误 (你的答案: ${detail.userAnswer || "未作答"}, 正确答案: ${detail.answer})</span>`;
+                    
+                    detailsHtml += `
+                        <div class="question-detail-item">
+                            <span>${detail.question.replace(/=\s*$/, '')}</span>
+                            ${answerText}
+                        </div>
+                    `;
+                });
+                
+                detailsDiv.innerHTML = detailsHtml;
+            } else {
+                detailsDiv.style.display = 'none';
+                detailsDiv.innerHTML = '';
+            }
+        }
+        
+        // 删除单个历史记录
+        function deleteRecord(id) {
+            if (confirm('确定要删除这条记录吗？')) {
+                history = history.filter(record => record.id !== id);
+                localStorage.setItem('mathQuizHistory', JSON.stringify(history));
+                renderHistory();
+            }
+        }
+        
+        // 清空所有历史记录
+        function clearAllHistory() {
+            if (history.length === 0) {
+                alert('没有可清除的历史记录！');
+                return;
+            }
+            
+            if (confirm('确定要清空所有历史记录吗？此操作不可恢复！')) {
+                history = [];
+                localStorage.removeItem('mathQuizHistory');
+                renderHistory();
+            }
+        }
+    </script>
+</body>
+</html>
