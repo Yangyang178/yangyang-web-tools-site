@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于我们 - 杨扬的工具站</title>
+    <meta name="description" content="了解杨扬的工具站，一个专注于提供实用在线工具的现代化平台">
+    <link rel="stylesheet" href="css/styles.css?v=1.1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .about-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 6rem 2rem 2rem;
+            line-height: 1.8;
+        }
+        
+        .about-hero {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2.5rem 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            color: white;
+            margin-top: 0.5rem;
+        }
+        
+        .about-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .about-hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .about-section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+        
+        .about-section h2 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .about-section h2::before {
+            content: '';
+            width: 4px;
+            height: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .feature-card {
+            padding: 1.5rem;
+            background: var(--bg-color);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .contact-card {
+            padding: 2rem;
+            background: var(--bg-color);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .contact-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .contact-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+        }
+        
+        .contact-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .contact-card p {
+            color: var(--text-color);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        .back-home {
+            text-align: center;
+            margin-top: 3rem;
+        }
+        
+        .back-home a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .back-home a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* 导航链接间距调整 */
+        .nav {
+            display: flex;
+            gap: 4rem;
+        }
+        
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+        
+        @media (max-width: 768px) {
+            .about-container {
+                padding: 1rem;
+            }
+            
+            .about-hero h1 {
+                font-size: 2rem;
+            }
+            
+            .about-section {
+                padding: 1.5rem;
+            }
+            
+            .contact-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+                <span class="logo-text">杨扬的工具站</span>
+            </div>
+            
+            <nav class="nav">
+                <a href="index.html" class="nav-link">首页</a>
+                <a href="about.html" class="nav-link active">关于</a>
+            </nav>
+            
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+                    <svg class="theme-icon sun-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <svg class="theme-icon moon-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="about-container">
+        <!-- 关于页面标题 -->
+        <div class="about-hero">
+            <h1>关于杨扬的工具站</h1>
+            <p>致力于为用户提供高效、实用、免费的在线工具集合</p>
+        </div>
+
+        <!-- 网站介绍 -->
+        <section class="about-section">
+            <h2>🚀 网站简介</h2>
+            <p>杨扬的工具站是一个专注于提供各类实用在线工具的现代化平台。我们的目标是帮助用户提高工作效率，简化日常任务，让复杂的操作变得简单易用。</p>
+            <p>无论您是开发者、设计师、学生还是普通用户，都能在这里找到适合的工具。我们提供的所有工具都是免费的，无需注册，即开即用。</p>
+        </section>
+
+        <!-- 功能特色 -->
+        <section class="about-section">
+            <h2>✨ 功能特色</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>精选工具</h3>
+                    <p>精心挑选实用性强的工具，涵盖开发、设计、文本处理等多个领域</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>快速响应</h3>
+                    <p>优化的界面设计和高效的算法，确保工具运行流畅快速</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>现代设计</h3>
+                    <p>采用现代化的UI设计，支持深色模式，提供舒适的使用体验</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>响应式布局</h3>
+                    <p>完美适配各种设备，无论是电脑、平板还是手机都能正常使用</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>隐私保护</h3>
+                    <p>所有数据处理都在本地进行，不会上传到服务器，保护您的隐私</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🆓</div>
+                    <h3>完全免费</h3>
+                    <p>所有工具都是免费提供，无需注册账号，打开即用</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 工具分类 -->
+        <section class="about-section">
+            <h2>🛠️ 工具分类</h2>
+            <p>我们的工具按照功能进行了详细分类，方便您快速找到所需的工具：</p>
+            <ul style="margin-top: 1rem; padding-left: 2rem;">
+                <li><strong>开发工具：</strong>代码格式化、进制转换、密码生成、二维码生成等</li>
+                <li><strong>设计工具：</strong>图片压缩、格式转换、PDF处理等</li>
+                <li><strong>文本工具：</strong>Markdown编辑器、字数统计、文本处理等</li>
+                <li><strong>实用工具：</strong>计算器、BMI计算、时区转换、番茄钟等</li>
+                <li><strong>娱乐游戏：</strong>2048游戏、骰子工具、数学练习等</li>
+            </ul>
+        </section>
+
+        <!-- 联系方式 -->
+        <section class="about-section">
+            <h2>📞 联系我们</h2>
+            <p>如果您有任何建议、问题或合作意向，欢迎通过以下方式联系我们：</p>
+            <div class="contact-info">
+                <div class="contact-card">
+                    <div class="contact-icon">💬</div>
+                    <h3>微信</h3>
+                    <p>y8849112640</p>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-icon">📧</div>
+                    <h3>QQ邮箱</h3>
+                    <p>1990909398@qq.com</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 返回首页 -->
+        <div class="back-home">
+            <a href="index.html">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2"/>
+                    <polyline points="9,22 9,12 15,12 15,22" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                返回首页
+            </a>
+        </div>
+    </main>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
