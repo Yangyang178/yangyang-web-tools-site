@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时区转换器</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--dark-color);
+            margin-bottom: 30px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        select, input {
+            padding: 12px 15px;
+            margin: 8px 0;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        select:focus, input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.2);
+            outline: none;
+        }
+        
+        button {
+            padding: 12px 20px;
+            margin: 8px 0;
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .timezone-icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            vertical-align: middle;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌍 时区转换器</h1>
+    <div class="container">
+        <div>
+            <h3>📌 原始时区</h3>
+            <select id="from-timezone">
+                <option value="Asia/Shanghai">上海 (UTC+8)</option>
+                <option value="America/New_York">纽约 (UTC-5/-4)</option>
+                <option value="Europe/London">伦敦 (UTC+0/+1)</option>
+                <option value="Asia/Tokyo">东京 (UTC+9)</option>
+                <option value="Australia/Sydney">悉尼 (UTC+10/+11)</option>
+                <option value="America/Los_Angeles">洛杉矶 (UTC-8/-7)</option>
+            </select>
+            <input type="datetime-local" id="from-datetime">
+            <button onclick="useCurrentTime()">使用当前时间</button>
+        </div>
+        <div>
+            <h3>🎯 目标时区</h3>
+            <select id="to-timezone">
+                <option value="America/New_York">纽约 (UTC-5/-4)</option>
+                <option value="Asia/Shanghai" selected>上海 (UTC+8)</option>
+                <option value="Europe/London">伦敦 (UTC+0/+1)</option>
+                <option value="Asia/Tokyo">东京 (UTC+9)</option>
+                <option value="Australia/Sydney">悉尼 (UTC+10/+11)</option>
+                <option value="America/Los_Angeles">洛杉矶 (UTC-8/-7)</option>
+            </select>
+        </div>
+    </div>
+    <button onclick="convertTimezone()" style="margin-top: 20px;">转换时区</button>
+        <div class="result" id="result"></div>
+        <button onclick="clearResult()" style="margin-top: 10px; background-color: #e63946;">清除结果</button>
+
+    <script>
+        function useCurrentTime() {
+            const now = new Date();
+            const localDateTime = formatDateTimeForInput(now);
+            document.getElementById('from-datetime').value = localDateTime;
+        }
+
+        function formatDateTimeForInput(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        function convertTimezone() {
+            const fromTimezone = document.getElementById('from-timezone').value;
+            const toTimezone = document.getElementById('to-timezone').value;
+            const fromDateTime = document.getElementById('from-datetime').value;
+            
+            if (!fromDateTime) {
+                alert('请先选择或输入原始时间');
+                return;
+            }
+            
+            try {
+                // 创建原始时间对象
+                const localDate = new Date(fromDateTime);
+                const fromTimeStr = localDate.toLocaleString('zh-CN', { timeZone: fromTimezone, hour12: false });
+                const toTimeStr = localDate.toLocaleString('zh-CN', { timeZone: toTimezone, hour12: false });
+                
+                // 获取时区偏移量
+                const fromOffset = getTimezoneOffset(fromTimezone, localDate);
+                const toOffset = getTimezoneOffset(toTimezone, localDate);
+                
+                document.getElementById('result').innerHTML = 
+                    `<p><strong>原始时间 (${fromTimezone}):</strong> ${fromTimeStr} (UTC${formatOffset(fromOffset)})</p>
+                    <p><strong>转换时间 (${toTimezone}):</strong> ${toTimeStr} (UTC${formatOffset(toOffset)})</p>`;
+            } catch (e) {
+                document.getElementById('result').innerHTML = `<p style="color: red;">转换失败: ${e.message}</p>`;
+            }
+        }
+        
+        function getTimezoneOffset(timezone, date) {
+            const options = { timeZone: timezone, hour12: false };
+            const timeString = date.toLocaleString('en-US', options);
+            const tzDate = new Date(timeString);
+            return (date.getTime() - tzDate.getTime()) / (60 * 1000);
+        }
+        
+        function formatOffset(offsetMinutes) {
+            const hours = Math.floor(Math.abs(offsetMinutes) / 60);
+            const minutes = Math.abs(offsetMinutes) % 60;
+            const sign = offsetMinutes >= 0 ? '+' : '-';
+            return `${sign}${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        }
+        
+        function clearResult() {
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('from-datetime').value = '';
+        }
+        
+        // 初始化时设置当前时间
+        window.onload = useCurrentTime;
+    </script>
+</body>
+</html>

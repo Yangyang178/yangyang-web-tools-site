@@ -1,0 +1,148 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle with Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="svgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ee5a24;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="optimizeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4ecdc4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#44a08d;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="codeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#feca57;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff9ff3;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#bgGradient)" stroke="#5a67d8" stroke-width="2"/>
+  
+  <!-- Main SVG Document -->
+  <rect x="18" y="12" width="28" height="20" rx="2" fill="url(#svgGradient)" stroke="#c44569" stroke-width="1"/>
+  
+  <!-- SVG Corner Fold -->
+  <path d="M 42 12 L 42 18 L 46 18 Z" fill="#c44569"/>
+  <path d="M 42 12 L 42 18 L 46 18" stroke="#ffffff" stroke-width="0.5" fill="none"/>
+  
+  <!-- SVG Logo -->
+  <text x="32" y="18" font-family="sans-serif" font-size="3" font-weight="bold" fill="#ffffff" text-anchor="middle">SVG</text>
+  
+  <!-- SVG Content - Simple Shapes -->
+  <g transform="translate(22, 22)">
+    <!-- Circle -->
+    <circle cx="4" cy="3" r="2" fill="none" stroke="#ffffff" stroke-width="0.5"/>
+    <!-- Rectangle -->
+    <rect x="8" y="1" width="4" height="4" fill="none" stroke="#ffffff" stroke-width="0.5"/>
+    <!-- Path -->
+    <path d="M 14 1 L 18 3 L 16 5 L 14 3 Z" fill="none" stroke="#ffffff" stroke-width="0.5"/>
+    <!-- Line -->
+    <path d="M 2 7 L 8 7" stroke="#ffffff" stroke-width="0.5"/>
+    <!-- Polygon -->
+    <polygon points="12,7 14,9 16,7 18,9 20,7" fill="none" stroke="#ffffff" stroke-width="0.5"/>
+  </g>
+  
+  <!-- Optimization Process Arrow -->
+  <g transform="translate(32, 38)">
+    <path d="M 0 0 L 0 8" stroke="url(#optimizeGradient)" stroke-width="3" marker-end="url(#arrowhead)"/>
+    <circle cx="0" cy="4" r="4" fill="url(#optimizeGradient)" stroke="#44a08d" stroke-width="1"/>
+    <text x="0" y="6" font-family="sans-serif" font-size="2" font-weight="bold" fill="#ffffff" text-anchor="middle">OPT</text>
+  </g>
+  
+  <!-- Arrow Marker Definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#44a08d"/>
+    </marker>
+  </defs>
+  
+  <!-- Optimized SVG Document -->
+  <rect x="18" y="48" width="28" height="12" rx="2" fill="url(#codeGradient)" stroke="#ff6b6b" stroke-width="1"/>
+  
+  <!-- Optimized SVG Corner Fold -->
+  <path d="M 42 48 L 42 52 L 46 52 Z" fill="#ff6b6b"/>
+  <path d="M 42 48 L 42 52 L 46 52" stroke="#ffffff" stroke-width="0.5" fill="none"/>
+  
+  <!-- Optimized Label -->
+  <text x="32" y="53" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Optimized</text>
+  <text x="32" y="57" font-family="sans-serif" font-size="2" font-weight="bold" fill="#ffffff" text-anchor="middle">SVG</text>
+  
+  <!-- File Size Comparison -->
+  <!-- Original Size -->
+  <g transform="translate(8, 20)">
+    <rect x="0" y="0" width="6" height="8" rx="1" fill="#e74c3c" opacity="0.8"/>
+    <text x="3" y="3" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#ffffff" text-anchor="middle">120KB</text>
+    <text x="3" y="12" font-family="sans-serif" font-size="1.5" fill="#e74c3c" text-anchor="middle">Original</text>
+  </g>
+  
+  <!-- Optimized Size -->
+  <g transform="translate(50, 20)">
+    <rect x="0" y="0" width="6" height="4" rx="1" fill="#27ae60" opacity="0.8"/>
+    <text x="3" y="2.5" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#ffffff" text-anchor="middle">45KB</text>
+    <text x="3" y="8" font-family="sans-serif" font-size="1.5" fill="#27ae60" text-anchor="middle">Optimized</text>
+  </g>
+  
+  <!-- Reduction Percentage -->
+  <g transform="translate(32, 6)">
+    <rect x="-8" y="0" width="16" height="4" rx="2" fill="#27ae60" stroke="#2ecc71" stroke-width="1"/>
+    <text x="0" y="2.5" font-family="sans-serif" font-size="2" font-weight="bold" fill="#ffffff" text-anchor="middle">-62% Size</text>
+  </g>
+  
+  <!-- Optimization Features -->
+  <!-- Remove Unused Elements -->
+  <g transform="translate(6, 40)">
+    <circle cx="0" cy="0" r="3" fill="#e74c3c" stroke="#c0392b" stroke-width="1"/>
+    <path d="M -2 -2 L 2 2 M -2 2 L 2 -2" stroke="#ffffff" stroke-width="1.5"/>
+    <text x="0" y="6" font-family="sans-serif" font-size="1" fill="#e74c3c" text-anchor="middle">Remove</text>
+  </g>
+  
+  <!-- Minify Code -->
+  <g transform="translate(58, 40)">
+    <circle cx="0" cy="0" r="3" fill="#4ecdc4" stroke="#44a08d" stroke-width="1"/>
+    <rect x="-1.5" y="-1" width="3" height="0.5" fill="#ffffff"/>
+    <rect x="-1.5" y="0" width="3" height="0.5" fill="#ffffff"/>
+    <rect x="-1.5" y="1" width="3" height="0.5" fill="#ffffff"/>
+    <text x="0" y="6" font-family="sans-serif" font-size="1" fill="#4ecdc4" text-anchor="middle">Minify</text>
+  </g>
+  
+  <!-- Compress Paths -->
+  <g transform="translate(6, 52)">
+    <circle cx="0" cy="0" r="3" fill="#f39c12" stroke="#e67e22" stroke-width="1"/>
+    <path d="M -2 0 Q 0 -2 2 0 Q 0 2 -2 0" stroke="#ffffff" stroke-width="1" fill="none"/>
+    <text x="0" y="6" font-family="sans-serif" font-size="1" fill="#f39c12" text-anchor="middle">Compress</text>
+  </g>
+  
+  <!-- Clean Attributes -->
+  <g transform="translate(58, 52)">
+    <circle cx="0" cy="0" r="3" fill="#9b59b6" stroke="#8e44ad" stroke-width="1"/>
+    <path d="M -1.5 -1.5 L 1.5 1.5 M -1.5 1.5 L 1.5 -1.5" stroke="#ffffff" stroke-width="1"/>
+    <rect x="-1" y="-0.5" width="2" height="1" fill="#ffffff"/>
+    <text x="0" y="6" font-family="sans-serif" font-size="1" fill="#9b59b6" text-anchor="middle">Clean</text>
+  </g>
+  
+  <!-- Performance Indicator -->
+  <g transform="translate(32, 28)">
+    <circle cx="0" cy="0" r="2" fill="#27ae60" stroke="#2ecc71" stroke-width="1"/>
+    <path d="M -1 0 L 0 -1 L 1 1" stroke="#ffffff" stroke-width="1" fill="none"/>
+    <text x="0" y="5" font-family="sans-serif" font-size="1.5" fill="#27ae60" text-anchor="middle">Fast</text>
+  </g>
+  
+  <!-- Code Quality Badge -->
+  <g transform="translate(48, 8)">
+    <rect x="0" y="0" width="8" height="4" rx="1" fill="#3498db" stroke="#2980b9" stroke-width="1"/>
+    <text x="4" y="2.5" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#ffffff" text-anchor="middle">A+</text>
+  </g>
+  
+  <!-- Optimization Tools -->
+  <g transform="translate(16, 8)">
+    <rect x="0" y="0" width="6" height="4" rx="1" fill="#34495e" stroke="#2c3e50" stroke-width="1"/>
+    <circle cx="1.5" cy="1.5" r="0.5" fill="#ffffff"/>
+    <circle cx="3" cy="1.5" r="0.5" fill="#ffffff"/>
+    <circle cx="4.5" cy="1.5" r="0.5" fill="#ffffff"/>
+    <rect x="1" y="2.5" width="4" height="0.5" fill="#ffffff"/>
+  </g>
+</svg>

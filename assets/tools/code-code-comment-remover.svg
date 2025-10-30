@@ -1,0 +1,266 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle with Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2c3e50;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#34495e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="codeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ecf0f1;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="commentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#95a5a6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7f8c8d;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="removeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e74c3c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c0392b;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="buttonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3498db;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2980b9;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="successGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#27ae60;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#229954;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#bgGradient)" stroke="#2c3e50" stroke-width="2"/>
+  
+  <!-- Main Code Editor Container -->
+  <g transform="translate(8, 8)">
+    <rect x="0" y="0" width="48" height="48" rx="4" fill="url(#codeGradient)" stroke="#bdc3c7" stroke-width="2"/>
+    
+    <!-- Editor Header -->
+    <rect x="0" y="0" width="48" height="8" rx="4" fill="#34495e" stroke="#2c3e50" stroke-width="1"/>
+    <circle cx="4" cy="4" r="1.5" fill="#e74c3c"/>
+    <circle cx="8" cy="4" r="1.5" fill="#f39c12"/>
+    <circle cx="12" cy="4" r="1.5" fill="#27ae60"/>
+    <text x="24" y="5.5" font-family="monospace" font-size="2" font-weight="bold" fill="#ecf0f1" text-anchor="middle">code-cleaner.js</text>
+    
+    <!-- Code Lines with Comments -->
+    <!-- Line 1: Function declaration -->
+    <g transform="translate(2, 12)">
+      <text x="0" y="3" font-family="monospace" font-size="2.5" fill="#2c3e50">function cleanCode() {</text>
+    </g>
+    
+    <!-- Line 2: Comment to be removed -->
+    <g transform="translate(2, 16)">
+      <text x="0" y="3" font-family="monospace" font-size="2.5" fill="url(#commentGradient)">  // This is a comment</text>
+      <rect x="0" y="0" width="44" height="4" fill="#e74c3c" opacity="0.2">
+        <animate attributeName="opacity" values="0.2;0.6;0.2" dur="2s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    
+    <!-- Line 3: Code -->
+    <g transform="translate(2, 20)">
+      <text x="0" y="3" font-family="monospace" font-size="2.5" fill="#2c3e50">  const data = getData();</text>
+    </g>
+    
+    <!-- Line 4: Multi-line comment start -->
+    <g transform="translate(2, 24)">
+      <text x="0" y="3" font-family="monospace" font-size="2.5" fill="url(#commentGradient)">  /* Multi-line</text>
+      <rect x="0" y="0" width="44" height="4" fill="#e74c3c" opacity="0.2">
+        <animate attributeName="opacity" values="0.2;0.6;0.2" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+      </rect>
+    </g>
+    
+    <!-- Line 5: Multi-line comment end -->
+    <g transform="translate(2, 28)">
+      <text x="0" y="3" font-family="monospace" font-size="2.5" fill="url(#commentGradient)">     comment */</text>
+      <rect x="0" y="0" width="44" height="4" fill="#e74c3c" opacity="0.2">
+        <animate attributeName="opacity" values="0.2;0.6;0.2" dur="2s" repeatCount="indefinite" begin="1s"/>
+      </rect>
+    </g>
+    
+    <!-- Line 6: Code -->
+    <g transform="translate(2, 32)">
+      <text x="0" y="3" font-family="monospace" font-size="2.5" fill="#2c3e50">  return processData(data);</text>
+    </g>
+    
+    <!-- Line 7: Inline comment -->
+    <g transform="translate(2, 36)">
+      <text x="0" y="3" font-family="monospace" font-size="2.5" fill="#2c3e50">  console.log(result); </text>
+      <text x="20" y="3" font-family="monospace" font-size="2.5" fill="url(#commentGradient)">// Debug</text>
+      <rect x="20" y="0" width="24" height="4" fill="#e74c3c" opacity="0.2">
+        <animate attributeName="opacity" values="0.2;0.6;0.2" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+      </rect>
+    </g>
+    
+    <!-- Line 8: Function end -->
+    <g transform="translate(2, 40)">
+      <text x="0" y="3" font-family="monospace" font-size="2.5" fill="#2c3e50">}</text>
+    </g>
+  </g>
+  
+  <!-- Remove Action Indicator -->
+  <g transform="translate(54, 16)">
+    <circle cx="4" cy="4" r="3" fill="url(#removeGradient)" stroke="#c0392b" stroke-width="1">
+      <animate attributeName="r" values="2.5;4;2.5" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <path d="M 2 4 L 6 4" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+    <path d="M 4 2 L 4 6" stroke="#ffffff" stroke-width="2" stroke-linecap="round">
+      <animateTransform attributeName="transform" type="rotate" values="0 4 4;90 4 4;0 4 4" dur="1s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <!-- Eraser Tool -->
+  <g transform="translate(2, 32)">
+    <rect x="0" y="0" width="4" height="8" rx="2" fill="#e74c3c" stroke="#c0392b" stroke-width="1"/>
+    <rect x="0.5" y="1" width="3" height="6" rx="1" fill="#ffffff" opacity="0.8"/>
+    <rect x="1" y="8" width="2" height="3" rx="1" fill="#f39c12" stroke="#e67e22" stroke-width="1"/>
+    <animateTransform attributeName="transform" type="translate" values="2,32; 58,32; 2,32" dur="4s" repeatCount="indefinite"/>
+  </g>
+  
+  <!-- Control Buttons -->
+  <!-- Remove Comments Button -->
+  <g transform="translate(4, 58)">
+    <rect x="0" y="0" width="20" height="4" rx="2" fill="url(#removeGradient)" stroke="#c0392b" stroke-width="1"/>
+    <text x="10" y="2.5" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#ffffff" text-anchor="middle">移除注释</text>
+  </g>
+  
+  <!-- Preview Button -->
+  <g transform="translate(26, 58)">
+    <rect x="0" y="0" width="14" height="4" rx="2" fill="url(#buttonGradient)" stroke="#2980b9" stroke-width="1"/>
+    <text x="7" y="2.5" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#ffffff" text-anchor="middle">预览</text>
+  </g>
+  
+  <!-- Download Button -->
+  <g transform="translate(42, 58)">
+    <rect x="0" y="0" width="14" height="4" rx="2" fill="url(#successGradient)" stroke="#229954" stroke-width="1"/>
+    <text x="7" y="2.5" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#ffffff" text-anchor="middle">下载</text>
+  </g>
+  
+  <!-- Language Selector -->
+  <g transform="translate(2, 2)">
+    <rect x="0" y="0" width="16" height="4" rx="2" fill="#9b59b6" stroke="#8e44ad" stroke-width="1"/>
+    <text x="8" y="2.5" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#ffffff" text-anchor="middle">JavaScript</text>
+  </g>
+  
+  <!-- Options Selector -->
+  <g transform="translate(46, 2)">
+    <rect x="0" y="0" width="14" height="4" rx="2" fill="#16a085" stroke="#138d75" stroke-width="1"/>
+    <text x="7" y="2.5" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#ffffff" text-anchor="middle">选项</text>
+  </g>
+  
+  <!-- Progress Indicator -->
+  <g transform="translate(20, 2)">
+    <rect x="0" y="0" width="24" height="4" rx="2" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1"/>
+    <rect x="1" y="1" width="8" height="2" rx="1" fill="#27ae60">
+      <animate attributeName="width" values="0;22;0" dur="3s" repeatCount="indefinite"/>
+    </rect>
+    <text x="12" y="2.5" font-family="sans-serif" font-size="1.2" font-weight="bold" fill="#2c3e50" text-anchor="middle">处理中...</text>
+  </g>
+  
+  <!-- Comment Types Indicators -->
+  <g transform="translate(58, 8)">
+    <rect x="0" y="0" width="4" height="3" rx="1" fill="#95a5a6"/>
+    <text x="2" y="2" font-family="monospace" font-size="1" fill="#ffffff" text-anchor="middle">//</text>
+  </g>
+  
+  <g transform="translate(58, 12)">
+    <rect x="0" y="0" width="4" height="3" rx="1" fill="#95a5a6"/>
+    <text x="2" y="2" font-family="monospace" font-size="1" fill="#ffffff" text-anchor="middle">/*</text>
+  </g>
+  
+  <g transform="translate(58, 16)">
+    <rect x="0" y="0" width="4" height="3" rx="1" fill="#95a5a6"/>
+    <text x="2" y="2" font-family="monospace" font-size="1" fill="#ffffff" text-anchor="middle">*/</text>
+  </g>
+  
+  <!-- Statistics Display -->
+  <g transform="translate(2, 48)">
+    <rect x="0" y="0" width="24" height="6" rx="2" fill="#34495e" stroke="#2c3e50" stroke-width="1"/>
+    <text x="2" y="2.5" font-family="sans-serif" font-size="1.2" font-weight="bold" fill="#ecf0f1">注释行数: 4</text>
+    <text x="2" y="4.5" font-family="sans-serif" font-size="1.2" font-weight="bold" fill="#ecf0f1">代码行数: 4</text>
+  </g>
+  
+  <!-- Result Display -->
+  <g transform="translate(28, 48)">
+    <rect x="0" y="0" width="28" height="6" rx="2" fill="#27ae60" stroke="#229954" stroke-width="1"/>
+    <text x="2" y="2.5" font-family="sans-serif" font-size="1.2" font-weight="bold" fill="#ffffff">清理完成!</text>
+    <text x="2" y="4.5" font-family="sans-serif" font-size="1.2" font-weight="bold" fill="#ffffff">节省空间: 35%</text>
+  </g>
+  
+  <!-- Sparkle Effects -->
+  <g transform="translate(12, 12)">
+    <path d="M 0 0 L 1 -2 L 2 0 L 1 2 Z" fill="#f39c12" opacity="0.8">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.2;0.5" dur="2s" repeatCount="indefinite" begin="0s"/>
+    </path>
+  </g>
+  
+  <g transform="translate(52, 24)">
+    <path d="M 0 0 L 1 -2 L 2 0 L 1 2 Z" fill="#e74c3c" opacity="0.6">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.2;0.5" dur="2s" repeatCount="indefinite" begin="1s"/>
+    </path>
+  </g>
+  
+  <g transform="translate(8, 44)">
+    <path d="M 0 0 L 1 -2 L 2 0 L 1 2 Z" fill="#27ae60" opacity="0.7">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.2;0.5" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+    </path>
+  </g>
+  
+  <g transform="translate(48, 44)">
+    <path d="M 0 0 L 1 -2 L 2 0 L 1 2 Z" fill="#3498db" opacity="0.6">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.2;0.5" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+    </path>
+  </g>
+  
+  <!-- Code Cleaning Animation -->
+  <g transform="translate(32, 32)">
+    <circle cx="0" cy="0" r="2" fill="#ffffff" opacity="0.8">
+      <animateTransform attributeName="transform" type="rotate" values="0;360" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="r" values="1;4;1" dur="3s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- File Type Icons -->
+  <g transform="translate(58, 24)">
+    <rect x="0" y="0" width="4" height="5" rx="1" fill="#f39c12" stroke="#e67e22" stroke-width="1"/>
+    <text x="2" y="3" font-family="monospace" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">JS</text>
+  </g>
+  
+  <g transform="translate(58, 30)">
+    <rect x="0" y="0" width="4" height="5" rx="1" fill="#e74c3c" stroke="#c0392b" stroke-width="1"/>
+    <text x="2" y="3" font-family="monospace" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">PY</text>
+  </g>
+  
+  <g transform="translate(58, 36)">
+    <rect x="0" y="0" width="4" height="5" rx="1" fill="#3498db" stroke="#2980b9" stroke-width="1"/>
+    <text x="2" y="3" font-family="monospace" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">C++</text>
+  </g>
+  
+  <!-- Processing Status -->
+  <g transform="translate(58, 42)">
+    <circle cx="2" cy="2" r="1.5" fill="#27ae60" stroke="#229954" stroke-width="1">
+      <animate attributeName="r" values="1;2;1" dur="1s" repeatCount="indefinite"/>
+    </circle>
+    <path d="M 1 2 L 1.5 2.5 L 3 1.5" stroke="#ffffff" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Floating Code Elements -->
+  <g transform="translate(16, 8)">
+    <text x="0" y="0" font-family="monospace" font-size="1.5" fill="#95a5a6" opacity="0.6">//</text>
+    <animateTransform attributeName="transform" type="translate" values="16,8; 48,8; 16,8" dur="6s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.6;0.2;0.6" dur="6s" repeatCount="indefinite"/>
+  </g>
+  
+  <g transform="translate(40, 12)">
+    <text x="0" y="0" font-family="monospace" font-size="1.5" fill="#95a5a6" opacity="0.5">/*</text>
+    <animateTransform attributeName="transform" type="translate" values="40,12; 8,12; 40,12" dur="8s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.5;0.1;0.5" dur="8s" repeatCount="indefinite"/>
+  </g>
+  
+  <!-- Clean Code Indicator -->
+  <g transform="translate(28, 40)">
+    <rect x="0" y="0" width="8" height="4" rx="2" fill="#27ae60" stroke="#229954" stroke-width="1"/>
+    <text x="4" y="2.5" font-family="sans-serif" font-size="1.2" font-weight="bold" fill="#ffffff" text-anchor="middle">清洁</text>
+    <circle cx="4" cy="2" r="1" fill="#ffffff" opacity="0.8">
+      <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>

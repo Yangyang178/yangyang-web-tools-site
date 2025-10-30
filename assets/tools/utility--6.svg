@@ -1,0 +1,206 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle with Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="notepadGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f8f9fa;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="penGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3498db;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2980b9;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="tempGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e74c3c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c0392b;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="clockGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f39c12;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e67e22;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#bgGradient)" stroke="#667eea" stroke-width="2"/>
+  
+  <!-- Notepad Body -->
+  <g transform="translate(12, 6)">
+    <rect x="0" y="0" width="32" height="44" rx="4" fill="url(#notepadGradient)" stroke="#dee2e6" stroke-width="2"/>
+    
+    <!-- Spiral Binding -->
+    <g transform="translate(2, 0)">
+      <circle cx="0" cy="4" r="1.5" fill="none" stroke="#95a5a6" stroke-width="1"/>
+      <circle cx="0" cy="10" r="1.5" fill="none" stroke="#95a5a6" stroke-width="1"/>
+      <circle cx="0" cy="16" r="1.5" fill="none" stroke="#95a5a6" stroke-width="1"/>
+      <circle cx="0" cy="22" r="1.5" fill="none" stroke="#95a5a6" stroke-width="1"/>
+      <circle cx="0" cy="28" r="1.5" fill="none" stroke="#95a5a6" stroke-width="1"/>
+      <circle cx="0" cy="34" r="1.5" fill="none" stroke="#95a5a6" stroke-width="1"/>
+      <circle cx="0" cy="40" r="1.5" fill="none" stroke="#95a5a6" stroke-width="1"/>
+    </g>
+    
+    <!-- Notepad Lines -->
+    <g transform="translate(6, 8)">
+      <line x1="0" y1="0" x2="22" y2="0" stroke="#e9ecef" stroke-width="1"/>
+      <line x1="0" y1="4" x2="22" y2="4" stroke="#e9ecef" stroke-width="1"/>
+      <line x1="0" y1="8" x2="22" y2="8" stroke="#e9ecef" stroke-width="1"/>
+      <line x1="0" y1="12" x2="22" y2="12" stroke="#e9ecef" stroke-width="1"/>
+      <line x1="0" y1="16" x2="22" y2="16" stroke="#e9ecef" stroke-width="1"/>
+      <line x1="0" y1="20" x2="22" y2="20" stroke="#e9ecef" stroke-width="1"/>
+      <line x1="0" y1="24" x2="22" y2="24" stroke="#e9ecef" stroke-width="1"/>
+      <line x1="0" y1="28" x2="22" y2="28" stroke="#e9ecef" stroke-width="1"/>
+      <line x1="0" y1="32" x2="22" y2="32" stroke="#e9ecef" stroke-width="1"/>
+    </g>
+    
+    <!-- Written Text -->
+    <g transform="translate(6, 10)">
+      <text x="0" y="0" font-family="cursive" font-size="2" fill="#495057">临时笔记</text>
+      <text x="0" y="4" font-family="cursive" font-size="1.5" fill="#6c757d">• 待办事项</text>
+      <text x="0" y="8" font-family="cursive" font-size="1.5" fill="#6c757d">• 重要提醒</text>
+      <text x="0" y="12" font-family="cursive" font-size="1.5" fill="#6c757d">• 灵感记录</text>
+      <text x="0" y="16" font-family="cursive" font-size="1.5" fill="#6c757d">• 会议要点</text>
+      <text x="0" y="20" font-family="cursive" font-size="1.5" fill="#6c757d">• 随手记录</text>
+      <text x="0" y="24" font-family="cursive" font-size="1.5" fill="#6c757d">• 快速备忘</text>
+      <text x="0" y="28" font-family="cursive" font-size="1.5" fill="#6c757d">• 临时想法</text>
+      <text x="0" y="32" font-family="cursive" font-size="1.5" fill="#6c757d">• 即时记录</text>
+    </g>
+    
+    <!-- Torn Edge Effect -->
+    <path d="M 0 44 L 2 42 L 4 44 L 6 42 L 8 44 L 10 42 L 12 44 L 14 42 L 16 44 L 18 42 L 20 44 L 22 42 L 24 44 L 26 42 L 28 44 L 30 42 L 32 44" 
+          fill="none" stroke="#dee2e6" stroke-width="1"/>
+  </g>
+  
+  <!-- Pen -->
+  <g transform="translate(48, 16) rotate(45)">
+    <!-- Pen Body -->
+    <rect x="0" y="0" width="3" height="20" rx="1.5" fill="url(#penGradient)" stroke="#2980b9" stroke-width="1"/>
+    
+    <!-- Pen Tip -->
+    <polygon points="1.5,20 0,22 3,22" fill="#2c3e50"/>
+    
+    <!-- Pen Clip -->
+    <rect x="0.5" y="2" width="2" height="6" rx="1" fill="#34495e" stroke="#2c3e50" stroke-width="0.5"/>
+    
+    <!-- Pen Cap -->
+    <rect x="0" y="0" width="3" height="4" rx="1.5" fill="#34495e" stroke="#2c3e50" stroke-width="1"/>
+    
+    <!-- Pen Brand -->
+    <rect x="0.5" y="8" width="2" height="1" fill="#ffffff" opacity="0.8"/>
+  </g>
+  
+  <!-- Temporary Badge -->
+  <g transform="translate(4, 4)">
+    <rect x="0" y="0" width="16" height="8" rx="4" fill="url(#tempGradient)" stroke="#c0392b" stroke-width="1"/>
+    <text x="8" y="5.5" font-family="sans-serif" font-size="2.5" font-weight="bold" fill="#ffffff" text-anchor="middle">临时</text>
+  </g>
+  
+  <!-- Clock Icon -->
+  <g transform="translate(48, 4)">
+    <circle cx="0" cy="0" r="6" fill="url(#clockGradient)" stroke="#e67e22" stroke-width="2"/>
+    <circle cx="0" cy="0" r="4" fill="#ffffff" stroke="#f39c12" stroke-width="1"/>
+    
+    <!-- Clock Hands -->
+    <line x1="0" y1="0" x2="0" y2="-2" stroke="#2c3e50" stroke-width="1.5" stroke-linecap="round">
+      <animateTransform attributeName="transform" type="rotate" values="0;360" dur="12s" repeatCount="indefinite"/>
+    </line>
+    <line x1="0" y1="0" x2="1.5" y2="0" stroke="#2c3e50" stroke-width="1" stroke-linecap="round">
+      <animateTransform attributeName="transform" type="rotate" values="0;360" dur="60s" repeatCount="indefinite"/>
+    </line>
+    
+    <!-- Clock Center -->
+    <circle cx="0" cy="0" r="0.5" fill="#2c3e50"/>
+    
+    <!-- Clock Numbers -->
+    <text x="0" y="-2.5" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#2c3e50" text-anchor="middle">12</text>
+    <text x="2.5" y="0.5" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#2c3e50" text-anchor="middle">3</text>
+    <text x="0" y="3" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#2c3e50" text-anchor="middle">6</text>
+    <text x="-2.5" y="0.5" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#2c3e50" text-anchor="middle">9</text>
+  </g>
+  
+  <!-- Quick Access Buttons -->
+  <g transform="translate(6, 52)">
+    <rect x="0" y="0" width="12" height="6" rx="3" fill="#27ae60" stroke="#229954" stroke-width="1"/>
+    <text x="6" y="4" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#ffffff" text-anchor="middle">新建</text>
+  </g>
+  
+  <g transform="translate(20, 52)">
+    <rect x="0" y="0" width="12" height="6" rx="3" fill="#3498db" stroke="#2980b9" stroke-width="1"/>
+    <text x="6" y="4" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#ffffff" text-anchor="middle">保存</text>
+  </g>
+  
+  <g transform="translate(34, 52)">
+    <rect x="0" y="0" width="12" height="6" rx="3" fill="#e74c3c" stroke="#c0392b" stroke-width="1"/>
+    <text x="6" y="4" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#ffffff" text-anchor="middle">删除</text>
+  </g>
+  
+  <g transform="translate(48, 52)">
+    <rect x="0" y="0" width="12" height="6" rx="3" fill="#9b59b6" stroke="#8e44ad" stroke-width="1"/>
+    <text x="6" y="4" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#ffffff" text-anchor="middle">分享</text>
+  </g>
+  
+  <!-- Auto-Delete Timer -->
+  <g transform="translate(32, 2)">
+    <rect x="-8" y="0" width="16" height="4" rx="2" fill="#f39c12" stroke="#e67e22" stroke-width="1"/>
+    <text x="0" y="2.5" font-family="sans-serif" font-size="1.5" font-weight="bold" fill="#ffffff" text-anchor="middle">自动删除: 24h</text>
+  </g>
+  
+  <!-- Note Categories -->
+  <g transform="translate(4, 24)">
+    <rect x="0" y="0" width="6" height="3" rx="1.5" fill="#17a2b8" stroke="#138496" stroke-width="0.5"/>
+    <text x="3" y="2" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">想法</text>
+  </g>
+  
+  <g transform="translate(4, 28)">
+    <rect x="0" y="0" width="6" height="3" rx="1.5" fill="#28a745" stroke="#1e7e34" stroke-width="0.5"/>
+    <text x="3" y="2" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">待办</text>
+  </g>
+  
+  <g transform="translate(4, 32)">
+    <rect x="0" y="0" width="6" height="3" rx="1.5" fill="#dc3545" stroke="#bd2130" stroke-width="0.5"/>
+    <text x="3" y="2" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">重要</text>
+  </g>
+  
+  <g transform="translate(4, 36)">
+    <rect x="0" y="0" width="6" height="3" rx="1.5" fill="#6f42c1" stroke="#59359a" stroke-width="0.5"/>
+    <text x="3" y="2" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">备忘</text>
+  </g>
+  
+  <!-- Floating Notes -->
+  <g transform="translate(52, 28)">
+    <rect x="0" y="0" width="8" height="6" rx="2" fill="#fff3cd" stroke="#ffeaa7" stroke-width="1" opacity="0.9">
+      <animateTransform attributeName="transform" type="translate" values="0,0; 2,1; 0,0" dur="4s" repeatCount="indefinite"/>
+    </rect>
+    <text x="4" y="2.5" font-family="sans-serif" font-size="1" fill="#856404" text-anchor="middle">便签</text>
+    <text x="4" y="4.5" font-family="sans-serif" font-size="0.8" fill="#856404" text-anchor="middle">提醒</text>
+  </g>
+  
+  <g transform="translate(52, 36)">
+    <rect x="0" y="0" width="8" height="6" rx="2" fill="#d1ecf1" stroke="#bee5eb" stroke-width="1" opacity="0.9">
+      <animateTransform attributeName="transform" type="translate" values="0,0; -1,2; 0,0" dur="5s" repeatCount="indefinite"/>
+    </rect>
+    <text x="4" y="2.5" font-family="sans-serif" font-size="1" fill="#0c5460" text-anchor="middle">笔记</text>
+    <text x="4" y="4.5" font-family="sans-serif" font-size="0.8" fill="#0c5460" text-anchor="middle">记录</text>
+  </g>
+  
+  <!-- Sparkle Effects -->
+  <g transform="translate(16, 12)">
+    <path d="M 0 0 L 1 -2 L 2 0 L 1 2 Z" fill="#f39c12" opacity="0.8">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.2;0.5" dur="2s" repeatCount="indefinite" begin="0s"/>
+    </path>
+  </g>
+  
+  <g transform="translate(40, 20)">
+    <path d="M 0 0 L 1 -2 L 2 0 L 1 2 Z" fill="#3498db" opacity="0.6">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.2;0.5" dur="2s" repeatCount="indefinite" begin="1s"/>
+    </path>
+  </g>
+  
+  <!-- Writing Animation -->
+  <g transform="translate(20, 30)">
+    <path d="M 0 0 Q 2 -1 4 0 Q 6 1 8 0" stroke="#3498db" stroke-width="1" fill="none" opacity="0.7">
+      <animate attributeName="stroke-dasharray" values="0,12;12,0;0,12" dur="3s" repeatCount="indefinite"/>
+    </path>
+  </g>
+</svg>

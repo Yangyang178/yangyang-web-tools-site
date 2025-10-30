@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Images -->
+  <rect x="2" y="2" width="6" height="4" rx="1" fill="#3b82f6" stroke="#2563eb"/>
+  <circle cx="4" cy="3.5" r="0.5" fill="#fbbf24"/>
+  <polygon points="2,4.5 3.5,3.5 5,4.5 6.5,4 8,5.5 8,6 2,6" fill="#60a5fa"/>
+  
+  <rect x="2" y="7" width="6" height="4" rx="1" fill="#10b981" stroke="#059669"/>
+  <circle cx="4" cy="8.5" r="0.5" fill="#fbbf24"/>
+  <polygon points="2,9.5 3.5,8.5 5,9.5 6.5,9 8,10.5 8,11 2,11" fill="#34d399"/>
+  
+  <rect x="2" y="12" width="6" height="4" rx="1" fill="#f59e0b" stroke="#d97706"/>
+  <circle cx="4" cy="13.5" r="0.5" fill="#fbbf24"/>
+  <polygon points="2,14.5 3.5,13.5 5,14.5 6.5,14 8,15.5 8,16 2,16" fill="#fbbf24"/>
+  
+  <text x="5" y="19" font-family="Arial, sans-serif" font-size="1.5" font-weight="bold" fill="#6b7280" text-anchor="middle">JPG</text>
+  
+  <!-- Arrow -->
+  <path d="M9 9 L11 9" stroke="#10b981" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- PDF document -->
+  <rect x="12" y="3" width="9" height="14" rx="1" fill="#ef4444" stroke="#dc2626"/>
+  <rect x="13" y="4" width="7" height="2" fill="#fca5a5"/>
+  <rect x="13" y="7" width="7" height="1" fill="#fca5a5"/>
+  <rect x="13" y="9" width="5" height="1" fill="#fca5a5"/>
+  <rect x="13" y="11" width="6" height="1" fill="#fca5a5"/>
+  <rect x="13" y="13" width="4" height="1" fill="#fca5a5"/>
+  <text x="16.5" y="20" font-family="Arial, sans-serif" font-size="2" font-weight="bold" fill="#ef4444" text-anchor="middle">PDF</text>
+  
+  <!-- Arrow marker -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#10b981"/>
+    </marker>
+  </defs>
+</svg>

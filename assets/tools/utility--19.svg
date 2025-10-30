@@ -1,0 +1,275 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle with Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="toolboxGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff9a9e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fecfef;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="handleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a8edea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fed6e3;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gearGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="panelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#43e97b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#38f9d7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="toolGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fa709a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fee140;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="specialGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffecd2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fcb69f;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#bgGradient)" stroke="#667eea" stroke-width="2"/>
+  
+  <!-- Main Toolbox -->
+  <g transform="translate(8, 12)">
+    <rect x="0" y="0" width="48" height="32" rx="4" fill="url(#toolboxGradient)" stroke="#ff9a9e" stroke-width="2"/>
+    
+    <!-- Toolbox Handle -->
+    <g transform="translate(20, -4)">
+      <rect x="0" y="0" width="8" height="6" rx="3" fill="url(#handleGradient)" stroke="#fed6e3" stroke-width="1"/>
+      <rect x="1" y="1" width="6" height="4" rx="2" fill="#ffffff" opacity="0.3"/>
+    </g>
+    
+    <!-- Toolbox Compartments -->
+    <g transform="translate(2, 2)">
+      <!-- Left Compartment -->
+      <rect x="0" y="0" width="20" height="28" rx="2" fill="#ffffff" stroke="#ff9a9e" stroke-width="1" opacity="0.8"/>
+      
+      <!-- Right Compartment -->
+      <rect x="24" y="0" width="20" height="28" rx="2" fill="#ffffff" stroke="#ff9a9e" stroke-width="1" opacity="0.8"/>
+      
+      <!-- Center Divider -->
+      <rect x="20" y="0" width="4" height="28" rx="1" fill="url(#handleGradient)" stroke="#fed6e3" stroke-width="1"/>
+    </g>
+    
+    <!-- Tool Icons in Left Compartment -->
+    <g transform="translate(4, 4)">
+      <!-- Wrench -->
+      <g transform="translate(2, 2)">
+        <rect x="0" y="0" width="8" height="2" rx="1" fill="url(#toolGradient)" stroke="#fee140" stroke-width="0.5">
+          <animate attributeName="fill" values="url(#toolGradient);#fa709a;url(#toolGradient)" dur="3s" repeatCount="indefinite"/>
+        </rect>
+        <circle cx="8" cy="1" r="1.5" fill="url(#toolGradient)" stroke="#fee140" stroke-width="0.5"/>
+        <text x="4" y="5" font-family="sans-serif" font-size="1" fill="#667eea" text-anchor="middle">扳手</text>
+      </g>
+      
+      <!-- Screwdriver -->
+      <g transform="translate(2, 8)">
+        <rect x="0" y="0" width="1" height="8" rx="0.5" fill="url(#toolGradient)" stroke="#fee140" stroke-width="0.5"/>
+        <rect x="0" y="0" width="2" height="2" rx="1" fill="url(#handleGradient)" stroke="#fed6e3" stroke-width="0.5"/>
+        <text x="5" y="5" font-family="sans-serif" font-size="1" fill="#667eea" text-anchor="middle">螺丝刀</text>
+      </g>
+      
+      <!-- Hammer -->
+      <g transform="translate(2, 16)">
+        <rect x="0" y="0" width="6" height="3" rx="1" fill="url(#toolGradient)" stroke="#fee140" stroke-width="0.5"/>
+        <rect x="6" y="1" width="1" height="6" rx="0.5" fill="url(#handleGradient)" stroke="#fed6e3" stroke-width="0.5"/>
+        <text x="4" y="9" font-family="sans-serif" font-size="1" fill="#667eea" text-anchor="middle">锤子</text>
+      </g>
+    </g>
+    
+    <!-- Tool Icons in Right Compartment -->
+    <g transform="translate(26, 4)">
+      <!-- Pliers -->
+      <g transform="translate(2, 2)">
+        <ellipse cx="3" cy="1" rx="3" ry="1" fill="url(#toolGradient)" stroke="#fee140" stroke-width="0.5"/>
+        <rect x="6" y="0" width="1" height="4" rx="0.5" fill="url(#handleGradient)" stroke="#fed6e3" stroke-width="0.5"/>
+        <text x="4" y="7" font-family="sans-serif" font-size="1" fill="#667eea" text-anchor="middle">钳子</text>
+      </g>
+      
+      <!-- Ruler -->
+      <g transform="translate(2, 10)">
+        <rect x="0" y="0" width="8" height="1" rx="0.5" fill="url(#toolGradient)" stroke="#fee140" stroke-width="0.5"/>
+        <line x1="0" y1="0" x2="0" y2="1" stroke="#fee140" stroke-width="0.3"/>
+        <line x1="2" y1="0" x2="2" y2="1" stroke="#fee140" stroke-width="0.3"/>
+        <line x1="4" y1="0" x2="4" y2="1" stroke="#fee140" stroke-width="0.3"/>
+        <line x1="6" y1="0" x2="6" y2="1" stroke="#fee140" stroke-width="0.3"/>
+        <line x1="8" y1="0" x2="8" y2="1" stroke="#fee140" stroke-width="0.3"/>
+        <text x="4" y="4" font-family="sans-serif" font-size="1" fill="#667eea" text-anchor="middle">尺子</text>
+      </g>
+      
+      <!-- Scissors -->
+      <g transform="translate(2, 18)">
+        <path d="M 0 0 L 3 2 L 6 0 L 3 4 Z" fill="url(#toolGradient)" stroke="#fee140" stroke-width="0.5"/>
+        <circle cx="0" cy="0" r="1" fill="url(#handleGradient)" stroke="#fed6e3" stroke-width="0.5"/>
+        <circle cx="6" cy="0" r="1" fill="url(#handleGradient)" stroke="#fed6e3" stroke-width="0.5"/>
+        <text x="3" y="7" font-family="sans-serif" font-size="1" fill="#667eea" text-anchor="middle">剪刀</text>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Rotating Gear Mechanism -->
+  <g transform="translate(52, 20)">
+    <g>
+      <animateTransform attributeName="transform" type="rotate" values="0 0 0;360 0 0" dur="4s" repeatCount="indefinite"/>
+      <!-- Main Gear -->
+      <circle cx="0" cy="0" r="6" fill="url(#gearGradient)" stroke="#00f2fe" stroke-width="1"/>
+      
+      <!-- Gear Teeth -->
+      <g>
+        <rect x="-1" y="-7" width="2" height="2" rx="0.5" fill="url(#gearGradient)"/>
+        <rect x="-1" y="5" width="2" height="2" rx="0.5" fill="url(#gearGradient)"/>
+        <rect x="-7" y="-1" width="2" height="2" rx="0.5" fill="url(#gearGradient)"/>
+        <rect x="5" y="-1" width="2" height="2" rx="0.5" fill="url(#gearGradient)"/>
+        
+        <rect x="-5" y="-5" width="2" height="2" rx="0.5" fill="url(#gearGradient)" transform="rotate(45)"/>
+        <rect x="3" y="-5" width="2" height="2" rx="0.5" fill="url(#gearGradient)" transform="rotate(45)"/>
+        <rect x="-5" y="3" width="2" height="2" rx="0.5" fill="url(#gearGradient)" transform="rotate(45)"/>
+        <rect x="3" y="3" width="2" height="2" rx="0.5" fill="url(#gearGradient)" transform="rotate(45)"/>
+      </g>
+      
+      <!-- Center Hub -->
+      <circle cx="0" cy="0" r="2" fill="#ffffff" stroke="#4facfe" stroke-width="1"/>
+    </g>
+  </g>
+  
+  <!-- Control Panel -->
+  <g transform="translate(4, 48)">
+    <rect x="0" y="0" width="56" height="12" rx="3" fill="url(#panelGradient)" stroke="#38f9d7" stroke-width="1"/>
+    
+    <!-- Status Lights -->
+    <g transform="translate(4, 2)">
+      <circle cx="0" cy="0" r="1.5" fill="#43e97b">
+        <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <text x="0" y="4" font-family="sans-serif" font-size="0.8" fill="#ffffff" text-anchor="middle">就绪</text>
+      
+      <circle cx="8" cy="0" r="1.5" fill="#fee140">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+      </circle>
+      <text x="8" y="4" font-family="sans-serif" font-size="0.8" fill="#ffffff" text-anchor="middle">智能</text>
+      
+      <circle cx="16" cy="0" r="1.5" fill="#f5576c">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" begin="1s"/>
+      </circle>
+      <text x="16" y="4" font-family="sans-serif" font-size="0.8" fill="#ffffff" text-anchor="middle">高效</text>
+    </g>
+    
+    <!-- Control Buttons -->
+    <g transform="translate(28, 2)">
+      <rect x="0" y="0" width="6" height="3" rx="1.5" fill="url(#specialGradient)" stroke="#fcb69f" stroke-width="1">
+        <animate attributeName="fill" values="url(#specialGradient);#ffecd2;url(#specialGradient)" dur="3s" repeatCount="indefinite"/>
+      </rect>
+      <text x="3" y="2" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#667eea" text-anchor="middle">ON</text>
+      
+      <rect x="8" y="0" width="6" height="3" rx="1.5" fill="url(#specialGradient)" stroke="#fcb69f" stroke-width="1"/>
+      <text x="11" y="2" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#667eea" text-anchor="middle">SET</text>
+      
+      <rect x="16" y="0" width="8" height="3" rx="1.5" fill="url(#specialGradient)" stroke="#fcb69f" stroke-width="1"/>
+      <text x="20" y="2" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#667eea" text-anchor="middle">AUTO</text>
+    </g>
+    
+    <!-- Progress Bar -->
+    <g transform="translate(4, 7)">
+      <rect x="0" y="0" width="48" height="2" rx="1" fill="#ffffff" stroke="#38f9d7" stroke-width="0.5" opacity="0.3"/>
+      <rect x="0" y="0" width="32" height="2" rx="1" fill="url(#toolGradient)" stroke="#fee140" stroke-width="0.5">
+        <animate attributeName="width" values="0;48;0" dur="6s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+  </g>
+  
+  <!-- Floating Tool Elements -->
+  <g transform="translate(12, 8)">
+    <g opacity="0.7">
+      <animateTransform attributeName="transform" type="translate" values="12 8;16 4;12 8" dur="4s" repeatCount="indefinite"/>
+      <path d="M 0 0 L 2 -1 L 4 0 L 2 1 Z" fill="url(#toolGradient)" stroke="#fee140" stroke-width="0.5"/>
+    </g>
+  </g>
+  
+  <g transform="translate(44, 8)">
+    <g opacity="0.7">
+      <animateTransform attributeName="transform" type="translate" values="44 8;40 4;44 8" dur="4s" repeatCount="indefinite" begin="2s"/>
+      <circle cx="0" cy="0" r="1.5" fill="url(#gearGradient)" stroke="#00f2fe" stroke-width="0.5"/>
+    </g>
+  </g>
+  
+  <!-- Sparkle Effects -->
+  <g transform="translate(20, 6)">
+    <path d="M 0 0 L 1 -2 L 2 0 L 1 2 Z" fill="url(#toolGradient)" opacity="0.8">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.2;0.5" dur="2s" repeatCount="indefinite" begin="0s"/>
+    </path>
+  </g>
+  
+  <g transform="translate(44, 6)">
+    <path d="M 0 0 L 1 -2 L 2 0 L 1 2 Z" fill="url(#toolGradient)" opacity="0.6">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.2;0.5" dur="2s" repeatCount="indefinite" begin="1s"/>
+    </path>
+  </g>
+  
+  <!-- Tool Category Labels -->
+  <g transform="translate(32, 2)">
+    <rect x="-8" y="0" width="16" height="4" rx="2" fill="url(#panelGradient)" stroke="#38f9d7" stroke-width="1"/>
+    <text x="0" y="2.5" font-family="sans-serif" font-size="1.2" font-weight="bold" fill="#ffffff" text-anchor="middle">实用工具</text>
+  </g>
+  
+  <g transform="translate(32, 8)">
+    <rect x="-6" y="0" width="12" height="3" rx="1.5" fill="url(#toolGradient)" stroke="#fee140" stroke-width="1"/>
+    <text x="0" y="2" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">多功能</text>
+  </g>
+  
+  <!-- Status Displays -->
+  <g transform="translate(2, 2)">
+    <rect x="0" y="0" width="8" height="3" rx="1.5" fill="#43e97b" stroke="#38f9d7" stroke-width="1"/>
+    <text x="4" y="2" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">就绪</text>
+  </g>
+  
+  <g transform="translate(2, 6)">
+    <rect x="0" y="0" width="10" height="3" rx="1.5" fill="#fee140" stroke="#fa709a" stroke-width="1"/>
+    <text x="5" y="2" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#667eea" text-anchor="middle">智能模式</text>
+  </g>
+  
+  <g transform="translate(54, 2)">
+    <rect x="0" y="0" width="8" height="3" rx="1.5" fill="#f5576c" stroke="#f093fb" stroke-width="1"/>
+    <text x="4" y="2" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">高效</text>
+  </g>
+  
+  <g transform="translate(54, 6)">
+    <rect x="0" y="0" width="8" height="3" rx="1.5" fill="#4facfe" stroke="#00f2fe" stroke-width="1"/>
+    <text x="4" y="2" font-family="sans-serif" font-size="0.8" font-weight="bold" fill="#ffffff" text-anchor="middle">专业版</text>
+  </g>
+  
+  <!-- Energy Flow Animation -->
+  <g transform="translate(32, 32)">
+    <circle cx="0" cy="0" r="25" fill="none" stroke="url(#panelGradient)" stroke-width="1" opacity="0.1">
+      <animate attributeName="r" values="20;30;20" dur="5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.1;0.03;0.1" dur="5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Toolbox Type Icon -->
+  <g transform="translate(32, 24)">
+    <rect x="-4" y="0" width="8" height="4" rx="2" fill="url(#handleGradient)" stroke="#fed6e3" stroke-width="1"/>
+    <text x="0" y="2.5" font-family="sans-serif" font-size="1" font-weight="bold" fill="#667eea" text-anchor="middle">工具箱</text>
+  </g>
+  
+  <!-- Performance Indicator -->
+  <g transform="translate(32, 56)">
+    <rect x="-8" y="0" width="16" height="4" rx="2" fill="url(#specialGradient)" stroke="#fcb69f" stroke-width="1"/>
+    <text x="0" y="2.5" font-family="sans-serif" font-size="1" font-weight="bold" fill="#667eea" text-anchor="middle">性能: A+</text>
+  </g>
+  
+  <g transform="translate(48, 56)">
+    <rect x="0" y="0" width="12" height="4" rx="2" fill="url(#panelGradient)" stroke="#38f9d7" stroke-width="1"/>
+    <text x="6" y="2.5" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">优化完成</text>
+  </g>
+  
+  <!-- Version Info -->
+  <g transform="translate(4, 56)">
+    <rect x="0" y="0" width="8" height="4" rx="2" fill="url(#toolGradient)" stroke="#fee140" stroke-width="1"/>
+    <text x="4" y="2.5" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">v2.0</text>
+  </g>
+</svg>

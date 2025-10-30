@@ -1,0 +1,312 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle with Gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="factoryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff9a9e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fecfef;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="conveyorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a8edea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fed6e3;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="machineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="productGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#43e97b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#38f9d7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="sparkleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fa709a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fee140;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="steamGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffecd2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fcb69f;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#bgGradient)" stroke="#667eea" stroke-width="2"/>
+  
+  <!-- Factory Building -->
+  <g transform="translate(4, 12)">
+    <!-- Main Factory Structure -->
+    <rect x="0" y="0" width="56" height="40" rx="4" fill="url(#factoryGradient)" stroke="#ff9a9e" stroke-width="2"/>
+    
+    <!-- Factory Roof -->
+    <path d="M -2 0 L 28 -8 L 58 0 Z" fill="#667eea" stroke="#764ba2" stroke-width="1"/>
+    
+    <!-- Chimney -->
+    <g transform="translate(44, -12)">
+      <rect x="0" y="0" width="6" height="12" rx="1" fill="#667eea" stroke="#764ba2" stroke-width="1"/>
+      
+      <!-- Steam/Smoke -->
+      <g transform="translate(3, -2)">
+        <circle cx="0" cy="0" r="2" fill="url(#steamGradient)" opacity="0.7">
+          <animate attributeName="cy" values="0;-8;-16" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.7;0.3;0" dur="3s" repeatCount="indefinite"/>
+        </circle>
+        
+        <circle cx="2" cy="0" r="1.5" fill="url(#steamGradient)" opacity="0.6">
+          <animate attributeName="cy" values="0;-6;-12" dur="2.5s" repeatCount="indefinite" begin="0.5s"/>
+          <animate attributeName="opacity" values="0.6;0.2;0" dur="2.5s" repeatCount="indefinite" begin="0.5s"/>
+        </circle>
+        
+        <circle cx="-2" cy="0" r="1.5" fill="url(#steamGradient)" opacity="0.5">
+          <animate attributeName="cy" values="0;-7;-14" dur="2.8s" repeatCount="indefinite" begin="1s"/>
+          <animate attributeName="opacity" values="0.5;0.2;0" dur="2.8s" repeatCount="indefinite" begin="1s"/>
+        </circle>
+      </g>
+    </g>
+    
+    <!-- Conveyor Belt System -->
+    <g transform="translate(4, 32)">
+      <!-- Belt Base -->
+      <rect x="0" y="0" width="48" height="6" rx="3" fill="url(#conveyorGradient)" stroke="#fed6e3" stroke-width="1"/>
+      
+      <!-- Belt Movement Lines -->
+      <g>
+        <rect x="2" y="2" width="2" height="2" rx="1" fill="#a8edea">
+          <animateTransform attributeName="transform" type="translate" values="0,0; 44,0; 0,0" dur="4s" repeatCount="indefinite"/>
+        </rect>
+        
+        <rect x="8" y="2" width="2" height="2" rx="1" fill="#fed6e3">
+          <animateTransform attributeName="transform" type="translate" values="0,0; 44,0; 0,0" dur="4s" repeatCount="indefinite" begin="1s"/>
+        </rect>
+        
+        <rect x="14" y="2" width="2" height="2" rx="1" fill="#a8edea">
+          <animateTransform attributeName="transform" type="translate" values="0,0; 44,0; 0,0" dur="4s" repeatCount="indefinite" begin="2s"/>
+        </rect>
+        
+        <rect x="20" y="2" width="2" height="2" rx="1" fill="#fed6e3">
+          <animateTransform attributeName="transform" type="translate" values="0,0; 44,0; 0,0" dur="4s" repeatCount="indefinite" begin="3s"/>
+        </rect>
+      </g>
+      
+      <!-- Belt Rollers -->
+      <circle cx="3" cy="3" r="3" fill="#667eea" stroke="#764ba2" stroke-width="1">
+        <animateTransform attributeName="transform" type="rotate" values="0;360" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      
+      <circle cx="45" cy="3" r="3" fill="#667eea" stroke="#764ba2" stroke-width="1">
+        <animateTransform attributeName="transform" type="rotate" values="0;360" dur="2s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+    
+    <!-- Production Machines -->
+    <g transform="translate(8, 8)">
+      <!-- Machine 1 -->
+      <rect x="0" y="0" width="12" height="20" rx="2" fill="url(#machineGradient)" stroke="#00f2fe" stroke-width="1"/>
+      
+      <!-- Machine Display -->
+      <rect x="2" y="2" width="8" height="6" rx="1" fill="#ffffff" stroke="#4facfe" stroke-width="1"/>
+      <text x="6" y="5.5" font-family="sans-serif" font-size="1.2" font-weight="bold" fill="#4facfe" text-anchor="middle">生产中</text>
+      
+      <!-- Machine Controls -->
+      <circle cx="4" cy="12" r="1.5" fill="#43e97b">
+        <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="8" cy="12" r="1.5" fill="#fee140">
+        <animate attributeName="opacity" values="1;0.3;1" dur="1.2s" repeatCount="indefinite"/>
+      </circle>
+      
+      <!-- Machine Arm -->
+      <g transform="translate(6, 16)">
+        <rect x="-1" y="0" width="2" height="8" rx="1" fill="#667eea">
+          <animateTransform attributeName="transform" type="rotate" values="0;15;-15;0" dur="3s" repeatCount="indefinite"/>
+        </rect>
+        
+        <!-- Arm Tool -->
+        <g transform="translate(0, 8)">
+          <circle cx="0" cy="0" r="2" fill="#f5576c" stroke="#f093fb" stroke-width="1">
+            <animateTransform attributeName="transform" type="rotate" values="0;15;-15;0" dur="3s" repeatCount="indefinite"/>
+          </circle>
+        </g>
+      </g>
+    </g>
+    
+    <!-- Machine 2 -->
+    <g transform="translate(24, 8)">
+      <rect x="0" y="0" width="12" height="20" rx="2" fill="url(#machineGradient)" stroke="#00f2fe" stroke-width="1"/>
+      
+      <!-- Processing Chamber -->
+      <rect x="2" y="2" width="8" height="8" rx="1" fill="#ffffff" stroke="#4facfe" stroke-width="1" opacity="0.9"/>
+      
+      <!-- Processing Animation -->
+      <g transform="translate(6, 6)">
+        <circle cx="0" cy="0" r="2" fill="url(#productGradient)" opacity="0.8">
+          <animate attributeName="r" values="1;3;1" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite"/>
+        </circle>
+      </g>
+      
+      <!-- Status Lights -->
+      <rect x="2" y="12" width="8" height="2" rx="1" fill="#43e97b">
+        <animate attributeName="fill" values="#43e97b;#fee140;#f5576c;#43e97b" dur="3s" repeatCount="indefinite"/>
+      </rect>
+      
+      <!-- Output Chute -->
+      <path d="M 6 20 L 10 24 L 2 24 Z" fill="#667eea" stroke="#764ba2" stroke-width="1"/>
+    </g>
+    
+    <!-- Machine 3 -->
+    <g transform="translate(40, 8)">
+      <rect x="0" y="0" width="12" height="20" rx="2" fill="url(#machineGradient)" stroke="#00f2fe" stroke-width="1"/>
+      
+      <!-- Quality Control Scanner -->
+      <rect x="2" y="2" width="8" height="4" rx="1" fill="#ffffff" stroke="#4facfe" stroke-width="1"/>
+      <text x="6" y="4.5" font-family="sans-serif" font-size="1" font-weight="bold" fill="#4facfe" text-anchor="middle">质检</text>
+      
+      <!-- Scanner Beam -->
+      <g transform="translate(6, 6)">
+        <rect x="-4" y="0" width="8" height="1" fill="#43e97b" opacity="0.6">
+          <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite"/>
+        </rect>
+        
+        <rect x="-4" y="2" width="8" height="1" fill="#fee140" opacity="0.5">
+          <animate attributeName="opacity" values="0.5;0.9;0.5" dur="1.5s" repeatCount="indefinite" begin="0.3s"/>
+        </rect>
+        
+        <rect x="-4" y="4" width="8" height="1" fill="#f5576c" opacity="0.4">
+          <animate attributeName="opacity" values="0.4;0.8;0.4" dur="1.5s" repeatCount="indefinite" begin="0.6s"/>
+        </rect>
+      </g>
+      
+      <!-- Approval Stamp -->
+      <g transform="translate(6, 14)">
+        <circle cx="0" cy="0" r="2" fill="#43e97b" stroke="#38f9d7" stroke-width="1">
+          <animate attributeName="r" values="1.5;2.5;1.5" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <text x="0" y="0.5" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">✓</text>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Moving Products on Conveyor -->
+  <g transform="translate(8, 44)">
+    <!-- Product 1 -->
+    <g>
+      <rect x="0" y="0" width="4" height="4" rx="2" fill="url(#productGradient)" stroke="#38f9d7" stroke-width="1">
+        <animateTransform attributeName="transform" type="translate" values="0,0; 44,0; 0,0" dur="6s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    
+    <!-- Product 2 -->
+    <g>
+      <rect x="0" y="0" width="4" height="4" rx="2" fill="url(#sparkleGradient)" stroke="#fee140" stroke-width="1">
+        <animateTransform attributeName="transform" type="translate" values="0,0; 44,0; 0,0" dur="6s" repeatCount="indefinite" begin="2s"/>
+      </rect>
+    </g>
+    
+    <!-- Product 3 -->
+    <g>
+      <rect x="0" y="0" width="4" height="4" rx="2" fill="url(#machineGradient)" stroke="#00f2fe" stroke-width="1">
+        <animateTransform attributeName="transform" type="translate" values="0,0; 44,0; 0,0" dur="6s" repeatCount="indefinite" begin="4s"/>
+      </rect>
+    </g>
+  </g>
+  
+  <!-- Control Panel -->
+  <g transform="translate(2, 2)">
+    <rect x="0" y="0" width="12" height="6" rx="2" fill="url(#conveyorGradient)" stroke="#fed6e3" stroke-width="1"/>
+    <text x="6" y="3.5" font-family="sans-serif" font-size="1.2" font-weight="bold" fill="#667eea" text-anchor="middle">生产控制</text>
+  </g>
+  
+  <!-- Production Stats -->
+  <g transform="translate(16, 2)">
+    <rect x="0" y="0" width="10" height="6" rx="2" fill="#43e97b" stroke="#38f9d7" stroke-width="1"/>
+    <text x="5" y="2.5" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">产量: 95%</text>
+    <text x="5" y="4.5" font-family="sans-serif" font-size="0.8" fill="#ffffff" text-anchor="middle">效率优秀</text>
+  </g>
+  
+  <!-- Quality Indicator -->
+  <g transform="translate(28, 2)">
+    <rect x="0" y="0" width="10" height="6" rx="2" fill="#fee140" stroke="#fa709a" stroke-width="1"/>
+    <text x="5" y="2.5" font-family="sans-serif" font-size="1" font-weight="bold" fill="#667eea" text-anchor="middle">质量: A+</text>
+    <text x="5" y="4.5" font-family="sans-serif" font-size="0.8" fill="#667eea" text-anchor="middle">零缺陷</text>
+  </g>
+  
+  <!-- Status Display -->
+  <g transform="translate(40, 2)">
+    <rect x="0" y="0" width="12" height="6" rx="2" fill="#f5576c" stroke="#f093fb" stroke-width="1"/>
+    <text x="6" y="2.5" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">自动生产</text>
+    <text x="6" y="4.5" font-family="sans-serif" font-size="0.8" fill="#ffffff" text-anchor="middle">24/7运行</text>
+  </g>
+  
+  <!-- AI Generator Label -->
+  <g transform="translate(54, 2)">
+    <rect x="0" y="0" width="8" height="6" rx="2" fill="#667eea" stroke="#764ba2" stroke-width="1"/>
+    <text x="4" y="3" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">AI</text>
+    <text x="4" y="5" font-family="sans-serif" font-size="0.8" fill="#ffffff" text-anchor="middle">智能</text>
+  </g>
+  
+  <!-- Sparkle Effects -->
+  <g transform="translate(8, 8)">
+    <path d="M 0 0 L 1 -2 L 2 0 L 1 2 Z" fill="url(#sparkleGradient)" opacity="0.8">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.2;0.5" dur="2s" repeatCount="indefinite" begin="0s"/>
+    </path>
+  </g>
+  
+  <g transform="translate(56, 8)">
+    <path d="M 0 0 L 1 -2 L 2 0 L 1 2 Z" fill="url(#sparkleGradient)" opacity="0.6">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.2;0.5" dur="2s" repeatCount="indefinite" begin="1s"/>
+    </path>
+  </g>
+  
+  <g transform="translate(8, 56)">
+    <path d="M 0 0 L 1 -2 L 2 0 L 1 2 Z" fill="url(#sparkleGradient)" opacity="0.7">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.2;0.5" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+    </path>
+  </g>
+  
+  <g transform="translate(56, 56)">
+    <path d="M 0 0 L 1 -2 L 2 0 L 1 2 Z" fill="url(#sparkleGradient)" opacity="0.6">
+      <animateTransform attributeName="transform" type="scale" values="0.5;1.2;0.5" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+    </path>
+  </g>
+  
+  <!-- Production Line Indicators -->
+  <g transform="translate(2, 54)">
+    <rect x="0" y="0" width="8" height="4" rx="2" fill="#43e97b" stroke="#38f9d7" stroke-width="1"/>
+    <text x="4" y="2.5" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">生产线1</text>
+  </g>
+  
+  <g transform="translate(12, 54)">
+    <rect x="0" y="0" width="8" height="4" rx="2" fill="#fee140" stroke="#fa709a" stroke-width="1"/>
+    <text x="4" y="2.5" font-family="sans-serif" font-size="1" font-weight="bold" fill="#667eea" text-anchor="middle">生产线2</text>
+  </g>
+  
+  <g transform="translate(22, 54)">
+    <rect x="0" y="0" width="8" height="4" rx="2" fill="#f5576c" stroke="#f093fb" stroke-width="1"/>
+    <text x="4" y="2.5" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">生产线3</text>
+  </g>
+  
+  <g transform="translate(32, 54)">
+    <rect x="0" y="0" width="8" height="4" rx="2" fill="#4facfe" stroke="#00f2fe" stroke-width="1"/>
+    <text x="4" y="2.5" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">质检线</text>
+  </g>
+  
+  <g transform="translate(42, 54)">
+    <rect x="0" y="0" width="8" height="4" rx="2" fill="#ff9a9e" stroke="#fecfef" stroke-width="1"/>
+    <text x="4" y="2.5" font-family="sans-serif" font-size="1" font-weight="bold" fill="#ffffff" text-anchor="middle">包装线</text>
+  </g>
+  
+  <g transform="translate(52, 54)">
+    <rect x="0" y="0" width="10" height="4" rx="2" fill="#a8edea" stroke="#fed6e3" stroke-width="1"/>
+    <text x="5" y="2.5" font-family="sans-serif" font-size="1" font-weight="bold" fill="#667eea" text-anchor="middle">智能工厂</text>
+  </g>
+  
+  <!-- Energy Flow Animation -->
+  <g transform="translate(32, 32)">
+    <circle cx="0" cy="0" r="20" fill="none" stroke="url(#productGradient)" stroke-width="1" opacity="0.2">
+      <animate attributeName="r" values="16;24;16" dur="5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.2;0.05;0.2" dur="5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>

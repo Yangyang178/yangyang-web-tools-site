@@ -1,0 +1,161 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="taxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#059669;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#047857;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="calculatorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f3f4f6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="screenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1f2937;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#374151;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="moneyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="url(#taxGrad)" filter="url(#shadow)"/>
+  
+  <!-- Calculator Body -->
+  <rect x="60" y="50" width="80" height="100" rx="8" fill="url(#calculatorGrad)" filter="url(#shadow)"/>
+  
+  <!-- Calculator Screen -->
+  <rect x="70" y="60" width="60" height="25" rx="4" fill="url(#screenGrad)"/>
+  
+  <!-- Screen Display -->
+  <text x="125" y="77" text-anchor="end" font-family="monospace" font-size="12" font-weight="bold" fill="#10b981">¥12,580</text>
+  
+  <!-- Calculator Buttons -->
+  <g fill="#e5e7eb" stroke="#d1d5db" stroke-width="1">
+    <!-- Row 1 -->
+    <rect x="72" y="90" width="12" height="10" rx="2"/>
+    <rect x="87" y="90" width="12" height="10" rx="2"/>
+    <rect x="102" y="90" width="12" height="10" rx="2"/>
+    <rect x="117" y="90" width="12" height="10" rx="2"/>
+    
+    <!-- Row 2 -->
+    <rect x="72" y="103" width="12" height="10" rx="2"/>
+    <rect x="87" y="103" width="12" height="10" rx="2"/>
+    <rect x="102" y="103" width="12" height="10" rx="2"/>
+    <rect x="117" y="103" width="12" height="10" rx="2"/>
+    
+    <!-- Row 3 -->
+    <rect x="72" y="116" width="12" height="10" rx="2"/>
+    <rect x="87" y="116" width="12" height="10" rx="2"/>
+    <rect x="102" y="116" width="12" height="10" rx="2"/>
+    <rect x="117" y="116" width="12" height="10" rx="2"/>
+    
+    <!-- Row 4 -->
+    <rect x="72" y="129" width="27" height="10" rx="2"/>
+    <rect x="102" y="129" width="12" height="10" rx="2"/>
+    <rect x="117" y="129" width="12" height="10" rx="2" fill="#10b981"/>
+  </g>
+  
+  <!-- Button Labels -->
+  <g font-family="Arial, sans-serif" font-size="6" text-anchor="middle" fill="#374151">
+    <text x="78" y="97">7</text>
+    <text x="93" y="97">8</text>
+    <text x="108" y="97">9</text>
+    <text x="123" y="97">÷</text>
+    
+    <text x="78" y="110">4</text>
+    <text x="93" y="110">5</text>
+    <text x="108" y="110">6</text>
+    <text x="123" y="110">×</text>
+    
+    <text x="78" y="123">1</text>
+    <text x="93" y="123">2</text>
+    <text x="108" y="123">3</text>
+    <text x="123" y="123">-</text>
+    
+    <text x="85.5" y="136">0</text>
+    <text x="108" y="136">.</text>
+    <text x="123" y="136" fill="white">=</text>
+  </g>
+  
+  <!-- Money Symbol -->
+  <g transform="translate(40,70)">
+    <circle cx="0" cy="0" r="15" fill="url(#moneyGrad)" filter="url(#shadow)"/>
+    <text x="0" y="5" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white">¥</text>
+  </g>
+  
+  <!-- Tax Document -->
+  <g transform="translate(150,80)">
+    <rect x="0" y="0" width="20" height="25" rx="2" fill="rgba(255,255,255,0.9)" filter="url(#shadow)"/>
+    <line x1="3" y1="5" x2="17" y2="5" stroke="#059669" stroke-width="1"/>
+    <line x1="3" y1="8" x2="15" y2="8" stroke="#6b7280" stroke-width="0.5"/>
+    <line x1="3" y1="11" x2="17" y2="11" stroke="#6b7280" stroke-width="0.5"/>
+    <line x1="3" y1="14" x2="12" y2="14" stroke="#6b7280" stroke-width="0.5"/>
+    <line x1="3" y1="17" x2="16" y2="17" stroke="#6b7280" stroke-width="0.5"/>
+    <line x1="3" y1="20" x2="14" y2="20" stroke="#059669" stroke-width="1"/>
+  </g>
+  
+  <!-- Percentage Symbol -->
+  <g transform="translate(160,50)" opacity="0.7">
+    <circle cx="0" cy="0" r="8" fill="rgba(255,255,255,0.9)"/>
+    <text x="0" y="3" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#059669">%</text>
+  </g>
+  
+  <!-- Floating Numbers -->
+  <g opacity="0.6" font-family="monospace" font-size="10" fill="#ffffff">
+    <text x="30" y="120" transform="rotate(-15 30 120)">5000</text>
+    <text x="170" y="120" transform="rotate(20 170 120)">3.5%</text>
+    <text x="35" y="50" transform="rotate(-10 35 50)">税率</text>
+  </g>
+  
+  <!-- Calculation Process -->
+  <g transform="translate(100,160)">
+    <rect x="-35" y="0" width="70" height="4" rx="2" fill="rgba(255,255,255,0.3)"/>
+    <rect x="-35" y="0" width="50" height="4" rx="2" fill="#fbbf24">
+      <animate attributeName="width" values="0;50;70;50" dur="3s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+  
+  <!-- Sparkle Effects -->
+  <g opacity="0.8">
+    <circle cx="80" cy="40" r="2" fill="#fbbf24">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="120" cy="35" r="1.5" fill="#fbbf24">
+      <animate attributeName="opacity" values="1;0.3;1" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="160" cy="110" r="1" fill="#fbbf24">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="1.8s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Category Label -->
+  <rect x="20" y="170" width="160" height="20" rx="10" fill="rgba(255,255,255,0.9)" filter="url(#shadow)"/>
+  <text x="100" y="183" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#047857">个税计算器</text>
+  
+  <!-- Status Indicators -->
+  <g transform="translate(20,15)">
+    <rect x="0" y="0" width="45" height="15" rx="7" fill="rgba(34,197,94,0.9)"/>
+    <text x="22.5" y="11" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="white">计算中</text>
+  </g>
+  
+  <g transform="translate(75,15)">
+    <rect x="0" y="0" width="50" height="15" rx="7" fill="rgba(59,130,246,0.9)"/>
+    <text x="25" y="11" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="white">2024税率</text>
+  </g>
+  
+  <g transform="translate(135,15)">
+    <rect x="0" y="0" width="45" height="15" rx="7" fill="rgba(168,85,247,0.9)"/>
+    <text x="22.5" y="11" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="white">精确模式</text>
+  </g>
+</svg>

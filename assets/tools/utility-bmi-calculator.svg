@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bmiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#F59E0B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#10B981;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="url(#bmiGrad)" opacity="0.1"/>
+  
+  <!-- Scale base -->
+  <rect x="20" y="45" width="24" height="4" rx="2" fill="url(#bmiGrad)" opacity="0.3"/>
+  
+  <!-- Scale platform -->
+  <rect x="24" y="41" width="16" height="4" rx="1" fill="url(#bmiGrad)" opacity="0.5"/>
+  
+  <!-- Person silhouette -->
+  <circle cx="32" cy="22" r="4" fill="url(#bmiGrad)" opacity="0.6"/>
+  <rect x="29" y="26" width="6" height="12" rx="3" fill="url(#bmiGrad)" opacity="0.6"/>
+  <rect x="26" y="28" width="4" height="8" rx="2" fill="url(#bmiGrad)" opacity="0.4"/>
+  <rect x="34" y="28" width="4" height="8" rx="2" fill="url(#bmiGrad)" opacity="0.4"/>
+  <rect x="30" y="38" width="2" height="6" rx="1" fill="url(#bmiGrad)" opacity="0.6"/>
+  <rect x="32" y="38" width="2" height="6" rx="1" fill="url(#bmiGrad)" opacity="0.6"/>
+  
+  <!-- BMI gauge -->
+  <circle cx="48" cy="24" r="8" fill="none" stroke="url(#bmiGrad)" stroke-width="2" opacity="0.3"/>
+  <path d="M40 24 A8 8 0 0 1 48 16" fill="none" stroke="#EF4444" stroke-width="3"/>
+  <path d="M48 16 A8 8 0 0 1 56 24" fill="none" stroke="#F59E0B" stroke-width="3"/>
+  <path d="M56 24 A8 8 0 0 1 48 32" fill="none" stroke="#10B981" stroke-width="3"/>
+  
+  <!-- Gauge pointer -->
+  <line x1="48" y1="24" x2="52" y2="20" stroke="url(#bmiGrad)" stroke-width="2"/>
+  <circle cx="48" cy="24" r="2" fill="url(#bmiGrad)"/>
+  
+  <!-- Calculator display -->
+  <rect x="8" y="16" width="16" height="10" rx="2" fill="url(#bmiGrad)" opacity="0.2"/>
+  <text x="16" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="url(#bmiGrad)" font-weight="bold">BMI</text>
+  <text x="16" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="6" fill="url(#bmiGrad)">22.5</text>
+  
+  <!-- Height/Weight indicators -->
+  <text x="32" y="58" text-anchor="middle" font-family="Arial, sans-serif" font-size="6" fill="url(#bmiGrad)">H: 170cm W: 65kg</text>
+</svg>

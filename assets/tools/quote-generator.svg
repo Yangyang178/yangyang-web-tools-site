@@ -1,0 +1,126 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="quoteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0891b2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bubbleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f0f9ff;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#334155;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="url(#quoteGrad)" filter="url(#shadow)"/>
+  
+  <!-- Main Quote Bubble -->
+  <g transform="translate(100,90)">
+    <!-- Speech Bubble -->
+    <ellipse cx="0" cy="0" rx="50" ry="35" fill="url(#bubbleGrad)" filter="url(#shadow)"/>
+    <!-- Bubble Tail -->
+    <polygon points="-20,25 -15,35 -10,25" fill="url(#bubbleGrad)"/>
+    
+    <!-- Quote Marks -->
+    <text x="-35" y="-10" font-family="serif" font-size="24" font-weight="bold" fill="#06b6d4" opacity="0.7">"</text>
+    <text x="25" y="15" font-family="serif" font-size="24" font-weight="bold" fill="#06b6d4" opacity="0.7">"</text>
+    
+    <!-- Quote Text Lines -->
+    <line x1="-30" y1="-5" x2="20" y2="-5" stroke="#0f172a" stroke-width="2" opacity="0.8"/>
+    <line x1="-25" y1="5" x2="25" y2="5" stroke="#0f172a" stroke-width="2" opacity="0.8"/>
+    <line x1="-20" y1="15" x2="15" y2="15" stroke="#0f172a" stroke-width="2" opacity="0.8"/>
+  </g>
+  
+  <!-- Secondary Quote Bubbles -->
+  <g transform="translate(60,50)" opacity="0.7">
+    <ellipse cx="0" cy="0" rx="25" ry="18" fill="rgba(255,255,255,0.9)" filter="url(#shadow)"/>
+    <polygon points="-10,12 -7,20 -4,12" fill="rgba(255,255,255,0.9)"/>
+    <line x1="-15" y1="-3" x2="10" y2="-3" stroke="#0891b2" stroke-width="1.5"/>
+    <line x1="-12" y1="3" x2="12" y2="3" stroke="#0891b2" stroke-width="1.5"/>
+    <line x1="-8" y1="9" x2="8" y2="9" stroke="#0891b2" stroke-width="1.5"/>
+  </g>
+  
+  <g transform="translate(140,50)" opacity="0.7">
+    <ellipse cx="0" cy="0" rx="25" ry="18" fill="rgba(255,255,255,0.9)" filter="url(#shadow)"/>
+    <polygon points="10,12 7,20 4,12" fill="rgba(255,255,255,0.9)"/>
+    <line x1="-15" y1="-3" x2="10" y2="-3" stroke="#0891b2" stroke-width="1.5"/>
+    <line x1="-12" y1="3" x2="12" y2="3" stroke="#0891b2" stroke-width="1.5"/>
+    <line x1="-8" y1="9" x2="8" y2="9" stroke="#0891b2" stroke-width="1.5"/>
+  </g>
+  
+  <!-- Magic Wand -->
+  <g transform="translate(150,130) rotate(45)">
+    <!-- Wand Handle -->
+    <rect x="0" y="0" width="30" height="4" rx="2" fill="#8b5cf6" filter="url(#shadow)"/>
+    <!-- Wand Tip -->
+    <circle cx="32" cy="2" r="3" fill="#fbbf24" filter="url(#glow)"/>
+    <!-- Magic Sparkles -->
+    <polygon points="32,-5 33,-2 36,-2 34,0 35,3 32,1 29,3 30,0 28,-2 31,-2" fill="#fbbf24">
+      <animateTransform attributeName="transform" type="rotate" values="0 32 2;360 32 2" dur="4s" repeatCount="indefinite"/>
+    </polygon>
+  </g>
+  
+  <!-- Floating Words -->
+  <g opacity="0.6">
+    <text x="40" y="140" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#ffffff" transform="rotate(-15 40 140)">智慧</text>
+    <text x="160" y="80" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#ffffff" transform="rotate(20 160 80)">灵感</text>
+    <text x="30" y="80" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#ffffff" transform="rotate(-10 30 80)">创意</text>
+  </g>
+  
+  <!-- Inspiration Particles -->
+  <g opacity="0.8">
+    <circle cx="70" cy="40" r="2" fill="#fbbf24">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="0,0;5,-5;0,0" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="130" cy="35" r="1.5" fill="#fbbf24">
+      <animate attributeName="opacity" values="1;0.3;1" dur="2.5s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="0,0;-3,-8;0,0" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="170" cy="110" r="1" fill="#fbbf24">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="1.8s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="0,0;-8,3;0,0" dur="3.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Generation Progress -->
+  <g transform="translate(100,150)">
+    <rect x="-40" y="0" width="80" height="6" rx="3" fill="rgba(255,255,255,0.3)"/>
+    <rect x="-40" y="0" width="60" height="6" rx="3" fill="#10b981">
+      <animate attributeName="width" values="0;60;80;60" dur="4s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+  
+  <!-- Category Label -->
+  <rect x="20" y="170" width="160" height="20" rx="10" fill="rgba(255,255,255,0.9)" filter="url(#shadow)"/>
+  <text x="100" y="183" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#0891b2">个性化语录生成器</text>
+  
+  <!-- Status Indicators -->
+  <g transform="translate(20,15)">
+    <rect x="0" y="0" width="45" height="15" rx="7" fill="rgba(34,197,94,0.9)"/>
+    <text x="22.5" y="11" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="white">生成中</text>
+  </g>
+  
+  <g transform="translate(75,15)">
+    <rect x="0" y="0" width="50" height="15" rx="7" fill="rgba(59,130,246,0.9)"/>
+    <text x="25" y="11" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="white">AI模式</text>
+  </g>
+  
+  <g transform="translate(135,15)">
+    <rect x="0" y="0" width="45" height="15" rx="7" fill="rgba(168,85,247,0.9)"/>
+    <text x="22.5" y="11" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="white">库存: 99+</text>
+  </g>
+</svg>

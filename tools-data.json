@@ -1,0 +1,211 @@
+[
+  {
+    "id": "2048-game",
+    "name": "2048游戏",
+    "description": "经典的2048数字合并游戏，支持触摸和键盘操作",
+    "category": "game",
+    "tags": ["游戏", "2048", "数字", "益智"],
+    "localPath": "tools/games/2048游戏.html",
+    "isOriginal": true,
+    "featured": true
+  },
+  {
+    "id": "dice-roller",
+    "name": "电子骰子工具",
+    "description": "虚拟骰子工具，支持多种骰子类型和数量",
+    "category": "game",
+    "tags": ["游戏", "骰子", "随机", "娱乐"],
+    "localPath": "tools/games/电子骰子工具.html",
+    "isOriginal": true,
+    "featured": false
+  },
+  {
+    "id": "image-compressor",
+    "name": "图片压缩工具",
+    "description": "高级图片压缩工具，支持多种格式和压缩质量调节",
+    "category": "image",
+    "tags": ["图片", "压缩", "优化", "工具"],
+    "localPath": "tools/design/图片压缩工具.html",
+    "isOriginal": true,
+    "featured": true
+  },
+  {
+    "id": "image-format-converter",
+    "name": "图片格式转换器",
+    "description": "支持多种图片格式之间的相互转换",
+    "category": "image",
+    "tags": ["图片", "格式转换", "转换器", "工具"],
+    "localPath": "tools/design/图片格式转换器.html",
+    "isOriginal": true,
+    "featured": true
+  },
+  {
+    "id": "pdf-to-image",
+    "name": "PDF转图片工具",
+    "description": "将PDF文档转换为图片格式，支持多页处理",
+    "category": "image",
+    "tags": ["PDF", "图片", "转换", "文档"],
+    "localPath": "tools/design/PDF转图片工具.html",
+    "isOriginal": true,
+    "featured": false
+  },
+  {
+    "id": "image-to-pdf",
+    "name": "图片转PDF工具",
+    "description": "将多张图片合并转换为PDF文档",
+    "category": "image",
+    "tags": ["图片", "PDF", "转换", "合并"],
+    "localPath": "tools/design/图片转PDF工具.html",
+    "isOriginal": true,
+    "featured": false
+  },
+  {
+    "id": "number-base-converter",
+    "name": "多功能进制转换器",
+    "description": "支持二进制、八进制、十进制、十六进制等多种进制转换",
+    "category": "utility",
+    "tags": ["进制", "转换", "数学", "计算"],
+    "localPath": "tools/dev/多功能进制转换器.html",
+    "isOriginal": true,
+    "featured": false
+  },
+  {
+    "id": "qr-code-generator",
+    "name": "智能二维码生成器",
+    "description": "生成各种类型的二维码，支持自定义样式和颜色",
+    "category": "data",
+    "tags": ["二维码", "生成器", "QR码", "工具"],
+    "localPath": "tools/dev/智能二维码生成器.html",
+    "isOriginal": true,
+    "featured": true
+  },
+  {
+    "id": "password-generator",
+    "name": "随机密码生成器",
+    "description": "安全的密码生成工具，支持多种字符组合和长度设置",
+    "category": "security",
+    "tags": ["密码", "生成器", "安全", "随机"],
+    "localPath": "tools/dev/随机密码生成器.html",
+    "isOriginal": true,
+    "featured": true
+  },
+  {
+    "id": "markdown-editor",
+    "name": "Markdown编辑器",
+    "description": "优化版Markdown编辑器，支持实时预览和语法高亮",
+    "category": "text",
+    "tags": ["Markdown", "编辑器", "预览", "文档"],
+    "localPath": "tools/text/Markdown编辑器.html",
+    "isOriginal": true,
+    "featured": true
+  },
+  {
+    "id": "bmi-calculator",
+    "name": "BMI计算器",
+    "description": "计算体重指数BMI，支持身高体重输入",
+    "category": "utility",
+    "tags": ["健康", "BMI", "体重指数", "计算器"],
+    "localPath": "tools/utilities/BMI计算器.html",
+    "isOriginal": true,
+    "featured": false,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "multi-calculator",
+    "name": "多功能计算器",
+    "description": "四则运算与常用函数计算",
+    "category": "utility",
+    "tags": ["计算器", "数学", "四则运算", "工具"],
+    "localPath": "tools/utilities/多功能计算器.html",
+    "isOriginal": true,
+    "featured": false,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "math-practice",
+    "name": "小学生加减乘除练习器",
+    "description": "小学算术练习，随机题目与计时",
+    "category": "utility",
+    "tags": ["学习", "算术", "练习", "教育"],
+    "localPath": "tools/games/小学生加减乘除练习器.html",
+    "isOriginal": true,
+    "featured": false,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "word-count",
+    "name": "文字字数统计器",
+    "description": "统计字数、字符数与空格等",
+    "category": "text",
+    "tags": ["文本", "统计", "字数", "字符"],
+    "localPath": "tools/text/文字字数统计器.html",
+    "isOriginal": true,
+    "featured": false,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "timezone-table",
+    "name": "时区转换对照表",
+    "description": "快速查询并转换各地时区",
+    "category": "utility",
+    "tags": ["时区", "转换", "时间", "对照表"],
+    "localPath": "tools/utilities/时区转换对照表.html",
+    "isOriginal": true,
+    "featured": false,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "steps-distance",
+    "name": "步数换算距离工具",
+    "description": "将步数换算为行走距离",
+    "category": "utility",
+    "tags": ["健康", "步数", "距离", "换算"],
+    "localPath": "tools/utilities/步数换算距离工具.html",
+    "isOriginal": true,
+    "featured": false,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "pomodoro-timer",
+    "name": "番茄钟",
+    "description": "专注计时法工具，番茄工作法",
+    "category": "utility",
+    "tags": ["专注", "计时", "效率", "番茄钟"],
+    "localPath": "tools/utilities/番茄钟.html",
+    "isOriginal": true,
+    "featured": true,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "simple-gantt-generator",
+    "name": "简易甘特图生成器",
+    "category": "data",
+    "tags": ["项目", "甘特图", "时间轴", "可视化"],
+    "localPath": "tools/generators/简易甘特图生成器.html",
+    "isOriginal": true,
+    "featured": false,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "xiaohongshu-cover-generator",
+    "name": "自动生成小红书封面工具",
+    "description": "生成小红书封面模板与文字排版",
+    "category": "image",
+    "tags": ["图片", "封面", "模板", "小红书"],
+    "localPath": "tools/design/自动生成小红书封面工具.html",
+    "isOriginal": true,
+    "featured": true,
+    "dateAdded": "2025-10-24"
+  },
+  {
+    "id": "calorie-calculator",
+    "name": "食物热量计算器",
+    "description": "根据食物估算热量与营养",
+    "category": "utility",
+    "tags": ["健康", "热量", "食物", "营养"],
+    "localPath": "tools/utilities/食物热量计算器.html",
+    "isOriginal": true,
+    "featured": false,
+    "dateAdded": "2025-10-24"
+  }
+]

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>杨扬的工具站 - 现代化工具资源站</title>
+    <meta name="description" content="发现最新最好用的AI工具，提升工作效率">
+    <link rel="stylesheet" href="css/styles.css?v=1.1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* 隐藏可能的自检UI元素 */
+        [data-testid*='link-check'], 
+        [class*='link-check'], 
+        [id*='link-check'], 
+        [class*='self-check'], 
+        [id*='self-check'],
+        [class*='开启链接自检'],
+        [id*='开启链接自检'] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+        
+        /* 隐藏可能的浮动调试面板 */
+        div[style*="position: fixed"][style*="top: 0"],
+        div[style*="position: absolute"][style*="top: 0"],
+        .debug-panel,
+        .developer-tools,
+        .link-checker,
+        .self-check-panel {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+                <span class="logo-text">杨扬的工具站</span>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="#" class="nav-link active" onclick="showAllTools()">首页</a>
+                <a href="#" class="nav-link">分类</a>
+                <a href="#favorites" class="nav-link" onclick="showFavorites()">收藏</a>
+                <a href="#about" class="nav-link">关于</a>
+            </nav>
+            
+            <div class="header-actions">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="搜索AI工具..." id="searchInput">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                        <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </div>
+                
+                <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+                    <svg class="theme-icon sun-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+                        <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2"/>
+                        <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2"/>
+                        <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2"/>
+                        <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <svg class="theme-icon moon-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>
+                
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="菜单">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <main class="main">
+        <!-- 侧边栏 -->
+        <aside class="sidebar" id="sidebar">
+            <!-- 侧边栏切换按钮 -->
+            <button id="sidebarToggle" class="sidebar-toggle" aria-label="切换侧边栏" title="收起侧边栏">
+              <span class="toggle-icon-wrapper">
+                <svg class="toggle-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <!-- 侧栏意象：左侧竖条（低透明填充，更明显） -->
+                  <rect x="4" y="5" width="3" height="14" rx="1.5" class="toggle-bar" fill="currentColor" opacity="0.18" />
+                  <!-- 指示箭头：展开时指向左，收起时旋转180°指向右（实心） -->
+                  <path class="toggle-arrow" d="M16 8 L12 12 L16 16 Z" fill="currentColor" />
+                </svg>
+              </span>
+            </button>
+            <div class="sidebar-content">
+                <div class="category-section">
+                    <h3 class="category-title">工具分类</h3>
+                    <ul class="category-list">
+                        <li><a href="#" class="category-link active" data-category="all">
+                            <svg class="category-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="allGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <rect x="3" y="3" width="7" height="7" rx="1" fill="url(#allGradient)" stroke="none"/>
+                                <rect x="14" y="3" width="7" height="7" rx="1" fill="url(#allGradient)" stroke="none"/>
+                                <rect x="3" y="14" width="7" height="7" rx="1" fill="url(#allGradient)" stroke="none"/>
+                                <rect x="14" y="14" width="7" height="7" rx="1" fill="url(#allGradient)" stroke="none"/>
+                            </svg>
+                            全部工具
+                        </a></li>
+
+                        <li><a href="#" class="category-link" data-category="image">
+                            <svg class="category-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="imageGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#fa709a;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#fee140;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" fill="url(#imageGradient)" stroke="none"/>
+                                <circle cx="8.5" cy="8.5" r="1.5" fill="#ffffff"/>
+                                <path d="M21 15L16 10L5 21" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            图片处理
+                        </a></li>
+                        <li><a href="#" class="category-link" data-category="game">
+                            <svg class="category-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="gameGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#a8edea;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#fed6e3;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <rect x="2" y="8" width="20" height="8" rx="4" ry="4" fill="url(#gameGradient)" stroke="none"/>
+                                <circle cx="6" cy="12" r="1" fill="#6366f1"/>
+                                <circle cx="18" cy="12" r="1" fill="#ec4899"/>
+                                <path d="M15 9L17 11L15 13" stroke="#6366f1" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M9 9L7 11L9 13" stroke="#ec4899" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            娱乐游戏
+                        </a></li>
+
+
+                        <li><a href="#" class="category-link" data-category="utility">
+                            <svg class="category-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <radialGradient id="utilityGradient" cx="50%" cy="50%" r="50%">
+                                        <stop offset="0%" style="stop-color:#ffeaa7;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#fab1a0;stop-opacity:1" />
+                                    </radialGradient>
+                                </defs>
+                                <circle cx="12" cy="12" r="3" fill="url(#utilityGradient)" stroke="none"/>
+                                <path d="M12 1V3" stroke="#f39c12" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M12 21V23" stroke="#f39c12" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M4.22 4.22L5.64 5.64" stroke="#f39c12" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M18.36 18.36L19.78 19.78" stroke="#f39c12" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M1 12H3" stroke="#f39c12" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M21 12H23" stroke="#f39c12" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M4.22 19.78L5.64 18.36" stroke="#f39c12" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M18.36 5.64L19.78 4.22" stroke="#f39c12" stroke-width="2.5" stroke-linecap="round"/>
+                            </svg>
+                            通用工具
+                        </a></li>
+                        <li><a href="#" class="category-link" data-category="security">
+                            <svg class="category-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="securityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#ff9a9e;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#fecfef;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="url(#securityGradient)" stroke="none"/>
+                                <circle cx="12" cy="16" r="1.5" fill="#e11d48"/>
+                                <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11" stroke="#e11d48" stroke-width="2.5" fill="none"/>
+                                <path d="M12 16V19" stroke="#e11d48" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            加密安全
+                        </a></li>
+                        <li><a href="#" class="category-link" data-category="data">
+                            <svg class="category-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="dataGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#a8e6cf;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#88d8c0;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="url(#dataGradient)" stroke="none" stroke-linejoin="round"/>
+                                <path d="M2 17L12 22L22 17" fill="#10b981" stroke="none" stroke-linejoin="round"/>
+                                <path d="M2 12L12 17L22 12" fill="#34d399" stroke="none" stroke-linejoin="round"/>
+                            </svg>
+                            数据处理
+                        </a></li>
+                        <li><a href="#" class="category-link" data-category="text">
+                            <svg class="category-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#d299c2;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#fef9d7;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" fill="url(#textGradient)" stroke="none"/>
+                                <path d="M14 2V8H20" fill="#ffffff" stroke="none" stroke-linejoin="round"/>
+                                <path d="M16 13H8" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M16 17H8" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M10 9H8" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            文本处理
+                        </a></li>
+                    </ul>
+                </div>
+                
+                <div class="filter-section">
+                    <h3 class="filter-title">筛选条件</h3>
+                    <div class="filter-group">
+                        <label class="filter-label">价格</label>
+                        <div class="filter-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="free" class="filter-checkbox">
+                                <span class="checkmark"></span>
+                                免费
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="freemium" class="filter-checkbox">
+                                <span class="checkmark"></span>
+                                免费增值
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="paid" class="filter-checkbox">
+                                <span class="checkmark"></span>
+                                付费
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 工具卡片容器 -->
+        <section class="content">
+            <div class="content-header">
+                <h1 class="page-title">发现最新AI工具</h1>
+                <p class="page-subtitle">精选优质AI工具，提升您的工作效率</p>
+                
+            </div>
+
+            <!-- 工具卡片网格 -->
+            <div class="tools-grid" id="toolsGrid">
+                <!-- 工具卡片将通过JavaScript动态生成 -->
+            </div>
+
+            <!-- 加载更多按钮 -->
+            <div class="load-more-container">
+                <button class="load-more-btn" id="loadMoreBtn">加载更多工具</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- 关于部分 - 新设计 -->
+    <footer id="about" class="footer-section">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <!-- 杨扬工具站介绍 -->
+                <div class="footer-column">
+                    <h3 class="footer-title">杨扬工具站</h3>
+                    <p class="footer-description">
+                        专业的在线工具集合平台，支持AI智能的
+                        DeepSeek代理实现。
+                    </p>
+                    <div class="social-links">
+                        <h4>自媒体平台</h4>
+                        <div class="social-icons">
+                            <a href="#" class="social-icon" title="微信">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 4.882-1.900 7.60.5.5-3.187-2.75-6.876-8.343-6.876z"/>
+                                </svg>
+                            </a>
+                            <a href="#" class="social-icon" title="QQ">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-1.5-1.5L10 14l2-2 2 2 1.5 1.5L14 17l-2-2-2 2z"/>
+                                </svg>
+                            </a>
+                            <a href="#" class="social-icon" title="GitHub">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                            <a href="#" class="social-icon" title="Discord">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                                </svg>
+                            </a>
+                            <a href="#" class="social-icon" title="YouTube">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快速链接 -->
+                <div class="footer-column">
+                    <h3 class="footer-title">快速链接</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" class="footer-link">首页</a></li>
+                        <li><a href="#tools" class="footer-link">所有工具</a></li>
+                        <li><a href="#search" class="footer-link">OMG搜索</a></li>
+                        <li><a href="#" class="footer-link" onclick="showCategory('popular')">热门工具</a></li>
+                        <li><a href="tools/markdown-editor.html" class="footer-link">在线编辑器</a></li>
+                        <li><a href="#" class="footer-link" onclick="showFavorites()">我的收藏</a></li>
+                        <li><a href="#" class="footer-link" onclick="showHistory()">我的历史</a></li>
+                        <li><a href="#" class="footer-link">我的账户</a></li>
+                        <li><a href="about.html" class="footer-link">老版本网站 <span class="new-badge">NEW</span></a></li>
+                    </ul>
+                </div>
+
+                <!-- 帮助与支持 -->
+                <div class="footer-column">
+                    <h3 class="footer-title">帮助与支持</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" class="footer-link">使用教程</a></li>
+                        <li><a href="#" class="footer-link">常见问题</a></li>
+                        <li><a href="#" class="footer-link">意见反馈</a></li>
+                        <li><a href="#" class="footer-link">文字教程</a></li>
+                        <li><a href="#" class="footer-link">视频教程</a></li>
+                        <li><a href="#" class="footer-link">更新日志</a></li>
+                        <li><a href="#" class="footer-link">服务条款</a></li>
+                        <li><a href="#" class="footer-link">隐私政策</a></li>
+                        <li><a href="#" class="footer-link">解决问题</a></li>
+                    </ul>
+                </div>
+
+                <!-- 实用工具 -->
+                <div class="footer-column">
+                    <h3 class="footer-title">实用工具</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" class="footer-link" onclick="showCategory('utility')">🔧 工具集合</a></li>
+                        <li><a href="#" class="footer-link">清理缓存</a></li>
+                        <li><a href="tools/qr-code-generator.html" class="footer-link">二维码生成器</a></li>
+                        <li><a href="tools/qr-decoder.html" class="footer-link">二维码解码器</a></li>
+                        <li><a href="#" class="footer-link">《有钱的秘密实战课》基础版</a></li>
+                        <li><a href="#" class="footer-link">AI智能客服比较器</a></li>
+                        <li><a href="#" class="footer-link" onclick="showCategory('dev')">🔥 智能编程系列</a></li>
+                        <li><a href="tools/markdown-editor.html" class="footer-link">在线编辑器</a></li>
+                        <li><a href="#" class="footer-link" onclick="showCategory('popular')">热门工具</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 底部版权信息 -->
+            <div class="footer-bottom">
+                <div class="footer-bottom-content">
+                    <p class="copyright">© 2025 杨扬工具站. 保留所有权利.</p>
+                    <div class="footer-bottom-links">
+                        <span class="icp-info">🌐 杨扬AI编程提供技术支持</span>
+                        <div class="language-selector">
+                            <span>🌐 English</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 返回顶部按钮 -->
+    <button class="back-to-top" id="backToTop" aria-label="返回顶部">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 14L12 9L17 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </button>
+
+    <!-- 加载脚本 -->
+    <script src="js/script.js?v=20251024"></script>
+</body>
+</html>

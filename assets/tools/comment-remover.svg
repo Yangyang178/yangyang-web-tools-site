@@ -1,0 +1,191 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="codeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#374151;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1f2937;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="editorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e293b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="removeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#dc2626;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cleanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="url(#codeGrad)" filter="url(#shadow)"/>
+  
+  <!-- Code Editor Window -->
+  <rect x="30" y="40" width="140" height="120" rx="8" fill="url(#editorGrad)" filter="url(#shadow)"/>
+  
+  <!-- Editor Header -->
+  <rect x="30" y="40" width="140" height="20" rx="8" fill="rgba(75,85,99,0.8)"/>
+  <rect x="30" y="52" width="140" height="8" fill="rgba(75,85,99,0.8)"/>
+  
+  <!-- Window Controls -->
+  <circle cx="42" cy="50" r="3" fill="#ef4444"/>
+  <circle cx="52" cy="50" r="3" fill="#f59e0b"/>
+  <circle cx="62" cy="50" r="3" fill="#10b981"/>
+  
+  <!-- Line Numbers -->
+  <g fill="rgba(156,163,175,0.6)" font-family="monospace" font-size="8">
+    <text x="38" y="78">1</text>
+    <text x="38" y="88">2</text>
+    <text x="38" y="98">3</text>
+    <text x="38" y="108">4</text>
+    <text x="38" y="118">5</text>
+    <text x="38" y="128">6</text>
+    <text x="38" y="138">7</text>
+    <text x="38" y="148">8</text>
+  </g>
+  
+  <!-- Code Lines with Comments -->
+  <g font-family="monospace" font-size="7">
+    <!-- Line 1: function declaration -->
+    <text x="48" y="78" fill="#3b82f6">function</text>
+    <text x="78" y="78" fill="#fbbf24">getData</text>
+    <text x="108" y="78" fill="#ffffff">()</text>
+    <text x="118" y="78" fill="#ffffff">{</text>
+    
+    <!-- Line 2: comment (to be removed) -->
+    <text x="48" y="88" fill="#6b7280" opacity="0.8">// This function fetches data</text>
+    <rect x="46" y="82" width="100" height="8" fill="rgba(239,68,68,0.2)" rx="2">
+      <animate attributeName="opacity" values="0.2;0.6;0.2" dur="2s" repeatCount="indefinite"/>
+    </rect>
+    
+    <!-- Line 3: code -->
+    <text x="48" y="98" fill="#ffffff">  const</text>
+    <text x="78" y="98" fill="#fbbf24">url</text>
+    <text x="98" y="98" fill="#ffffff">=</text>
+    <text x="108" y="98" fill="#10b981">'api/data'</text>
+    
+    <!-- Line 4: comment (to be removed) -->
+    <text x="48" y="108" fill="#6b7280" opacity="0.8">/* API endpoint */</text>
+    <rect x="46" y="102" width="80" height="8" fill="rgba(239,68,68,0.2)" rx="2">
+      <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite"/>
+    </rect>
+    
+    <!-- Line 5: code -->
+    <text x="48" y="118" fill="#ffffff">  return</text>
+    <text x="78" y="118" fill="#fbbf24">fetch</text>
+    <text x="108" y="118" fill="#ffffff">(url)</text>
+    
+    <!-- Line 6: comment (to be removed) -->
+    <text x="48" y="128" fill="#6b7280" opacity="0.8">// Return promise</text>
+    <rect x="46" y="122" width="85" height="8" fill="rgba(239,68,68,0.2)" rx="2">
+      <animate attributeName="opacity" values="0.2;0.6;0.2" dur="2s" repeatCount="indefinite"/>
+    </rect>
+    
+    <!-- Line 7: code -->
+    <text x="48" y="138" fill="#ffffff">    .</text>
+    <text x="58" y="138" fill="#fbbf24">then</text>
+    <text x="78" y="138" fill="#ffffff">(res</text>
+    <text x="98" y="138" fill="#ffffff">=></text>
+    <text x="108" y="138" fill="#ffffff">res.</text>
+    <text x="128" y="138" fill="#fbbf24">json</text>
+    <text x="148" y="138" fill="#ffffff">())</text>
+    
+    <!-- Line 8: closing brace -->
+    <text x="48" y="148" fill="#ffffff">}</text>
+  </g>
+  
+  <!-- Removal Animation -->
+  <g opacity="0.9">
+    <!-- Strike-through lines for comments -->
+    <line x1="48" y1="88" x2="148" y2="88" stroke="#ef4444" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;1;0" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="x2" values="48;148;48" dur="3s" repeatCount="indefinite"/>
+    </line>
+    <line x1="48" y1="108" x2="128" y2="108" stroke="#ef4444" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;1;0" dur="3s" repeatCount="indefinite" begin="0.5s"/>
+      <animate attributeName="x2" values="48;128;48" dur="3s" repeatCount="indefinite" begin="0.5s"/>
+    </line>
+    <line x1="48" y1="128" x2="133" y2="128" stroke="#ef4444" stroke-width="2" opacity="0">
+      <animate attributeName="opacity" values="0;1;0" dur="3s" repeatCount="indefinite" begin="1s"/>
+      <animate attributeName="x2" values="48;133;48" dur="3s" repeatCount="indefinite" begin="1s"/>
+    </line>
+  </g>
+  
+  <!-- Eraser Tool -->
+  <g transform="translate(180,60) rotate(30)">
+    <rect x="0" y="0" width="25" height="8" rx="4" fill="url(#removeGrad)" filter="url(#shadow)"/>
+    <rect x="20" y="2" width="8" height="4" rx="2" fill="#fbbf24"/>
+    
+    <!-- Eraser particles -->
+    <g opacity="0.7">
+      <circle cx="30" cy="2" r="1" fill="#ef4444">
+        <animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="translate" values="0,0;5,-3;10,-6" dur="1s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="32" cy="6" r="0.8" fill="#ef4444">
+        <animate attributeName="opacity" values="1;0;1" dur="1.2s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="translate" values="0,0;4,-2;8,-4" dur="1.2s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+  </g>
+  
+  <!-- Clean Code Indicator -->
+  <g transform="translate(20,80)">
+    <circle cx="0" cy="0" r="12" fill="url(#cleanGrad)" opacity="0.9" filter="url(#glow)">
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <path d="M-6,-2 L-2,2 L6,-6" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+  </g>
+  
+  <!-- Progress Bar -->
+  <rect x="40" y="170" width="120" height="6" rx="3" fill="rgba(255,255,255,0.2)"/>
+  <rect x="40" y="170" width="90" height="6" rx="3" fill="url(#cleanGrad)">
+    <animate attributeName="width" values="0;120;0" dur="4s" repeatCount="indefinite"/>
+  </rect>
+  
+  <!-- Floating Elements -->
+  <g opacity="0.6">
+    <text x="25" y="35" font-family="monospace" font-size="10" fill="#6b7280" opacity="0.5">//</text>
+    <animateTransform attributeName="transform" type="translate" values="0,0;10,-10;20,-20" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.6;0;0.6" dur="3s" repeatCount="indefinite"/>
+    
+    <text x="160" y="45" font-family="monospace" font-size="8" fill="#6b7280" opacity="0.5">/**/</text>
+    <animateTransform attributeName="transform" type="translate" values="0,0;-8,-12;-16,-24" dur="3.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.5;0;0.5" dur="3.5s" repeatCount="indefinite"/>
+    
+    <text x="30" y="180" font-family="monospace" font-size="6" fill="#6b7280" opacity="0.4">#</text>
+    <animateTransform attributeName="transform" type="translate" values="0,0;15,-8;30,-16" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.4;0;0.4" dur="4s" repeatCount="indefinite"/>
+  </g>
+  
+  <!-- Category Label -->
+  <rect x="15" y="185" width="170" height="12" rx="6" fill="rgba(255,255,255,0.9)" filter="url(#shadow)"/>
+  <text x="100" y="194" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#1f2937">代码注释移除工具</text>
+  
+  <!-- Status Indicators -->
+  <g transform="translate(20,15)">
+    <rect x="0" y="0" width="35" height="10" rx="5" fill="rgba(239,68,68,0.9)"/>
+    <text x="17.5" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" font-weight="bold" fill="white">清理中</text>
+  </g>
+  
+  <g transform="translate(65,15)">
+    <rect x="0" y="0" width="40" height="10" rx="5" fill="rgba(59,130,246,0.9)"/>
+    <text x="20" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" font-weight="bold" fill="white">多语言</text>
+  </g>
+  
+  <g transform="translate(115,15)">
+    <rect x="0" y="0" width="45" height="10" rx="5" fill="rgba(34,197,94,0.9)"/>
+    <text x="22.5" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="7" font-weight="bold" fill="white">已清理75%</text>
+  </g>
+</svg>
