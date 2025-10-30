@@ -34,6 +34,38 @@
   --transition-fast: 0.15s ease;
   --transition-normal: 0.3s ease;
   --transition-slow: 0.5s ease;
+  
+  /* Additional Variables for Tool Pages */
+  --dark-color: #1e293b;
+  --light-color: #f8fafc;
+  --white: #ffffff;
+  --text-color: #1e293b;
+  --background-color: #f8fafc;
+  --card-color: #ffffff;
+  --primary-light: #e0e7ff;
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
+  --gray-color: #6b7280;
+  --text-light: #64748b;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --border-radius: 8px;
+  --box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --transition: 0.3s ease;
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --bg: #f8fafc;
+  --text: #1e293b;
+  --card: #ffffff;
+  --primary: #6366f1;
+  --secondary: #f1f5f9;
+  --tertiary-color: #e2e8f0;
+  --header-bg-color: #ffffff;
+  --panel-bg-color: #f8fafc;
+  --button-bg-color: #6366f1;
+  --button-hover-color: #5855eb;
+  --dark: #1e293b;
 }
 
 /* Dark Theme */
@@ -53,6 +85,38 @@
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+  
+  /* Additional Variables for Tool Pages - Dark Theme */
+  --dark-color: #f1f5f9;
+  --light-color: #1e293b;
+  --white: #0f172a;
+  --text-color: #f1f5f9;
+  --background-color: #1e293b;
+  --card-color: #0f172a;
+  --primary-light: #3730a3;
+  --success-color: #10b981;
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
+  --gray-color: #9ca3af;
+  --text-light: #cbd5e1;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+  --border-radius: 8px;
+  --box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+  --transition: 0.3s ease;
+  --bg-color: #1e293b;
+  --card-bg: #0f172a;
+  --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+  --bg: #1e293b;
+  --text: #f1f5f9;
+  --card: #0f172a;
+  --primary: #6366f1;
+  --secondary: #334155;
+  --tertiary-color: #475569;
+  --header-bg-color: #0f172a;
+  --panel-bg-color: #1e293b;
+  --button-bg-color: #6366f1;
+  --button-hover-color: #5855eb;
+  --dark: #f1f5f9;
 }
 
 /* Reset and Base Styles */
