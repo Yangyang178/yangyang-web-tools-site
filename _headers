@@ -24,3 +24,8 @@
 # 主页
 /
   Cache-Control: public, max-age=3600
+/js/script.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/css/styles.css
+  Cache-Control: no-cache, no-store, must-revalidate
