@@ -3,6 +3,8 @@ let aiTools = [];
 
 // 收藏功能相关变量
 let favorites = JSON.parse(localStorage.getItem('toolFavorites') || '[]');
+let featuredSelected = JSON.parse(localStorage.getItem('featuredTools') || '[]');
+let featuredDisabled = JSON.parse(localStorage.getItem('featuredToolsDisabled') || '[]');
 
 // 工具数据（直接嵌入，避免fetch加载问题）
 let toolsData = [
@@ -576,12 +578,13 @@ function createToolCard(tool) {
     const rating = tool.rating || 4.5;
     const popularity = tool.popularity || 80;
     const usageCount = tool.usageCount || Math.floor(Math.random() * 1000) + 100;
+    const isF = isFeatured(tool);
     
     card.innerHTML = `
         <div class="tool-card-header">
             <div class="tool-icon">${icon}</div>
             <div class="tool-meta">
-                <h3 class="tool-title">${tool.name}</h3>
+                <h3 class="tool-title">${tool.name}${isF ? '<span class="featured-badge">精选</span>' : ''}</h3>
                 <p class="tool-description">${tool.description}</p>
                 <div class="tool-info-row">
                     <span class="tool-category">${getCategoryName(tool.category)}</span>
@@ -591,6 +594,7 @@ function createToolCard(tool) {
                     </div>
                 </div>
             </div>
+            <button class="featured-btn ${isF ? 'active' : ''}" onclick="toggleFeatured('${tool.id}', event)" data-feature-id="${tool.id}">★</button>
             <button class="favorite-btn ${favorites.includes(tool.id) ? 'favorited' : ''}" onclick="toggleFavorite('${tool.id}', event)" data-tool-id="${tool.id}">
                 <svg class="favorite-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M20.84 4.61C20.3292 4.099 19.7228 3.69364 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69364 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.9083 3.5783 8.50903 2.9987 7.05 2.9987C5.59096 2.9987 4.19169 3.5783 3.16 4.61C2.1283 5.6417 1.5487 7.041 1.5487 8.5C1.5487 9.959 2.1283 11.3583 3.16 12.39L12 21.23L20.84 12.39C21.351 11.8792 21.7563 11.2728 22.0329 10.6053C22.3095 9.93789 22.4518 9.22248 22.4518 8.5C22.4518 7.77752 22.3095 7.06211 22.0329 6.39467C21.7563 5.72723 21.351 5.1208 20.84 4.61V4.61Z" stroke-linecap="round" stroke-linejoin="round"/>
@@ -836,8 +840,10 @@ function applyFilters() {
         );
     }
     
-    // 排序
+    // 排序（精选优先）
     filteredTools.sort((a, b) => {
+        const fav = (isFeatured(b) ? 1 : 0) - (isFeatured(a) ? 1 : 0);
+        if (fav !== 0) return fav;
         switch (currentSort) {
             case 'newest':
                 return new Date(b.dateAdded || '2024-01-01') - new Date(a.dateAdded || '2024-01-01');
@@ -1073,6 +1079,67 @@ function updateFavoriteButton(toolId) {
         }
         console.log('Button updated, favorited:', isFavorited);
     }
+}
+
+function isFeatured(tool) {
+    if (!tool) return false;
+    const id = tool.id;
+    if (featuredDisabled.includes(id)) return false;
+    if (featuredSelected.includes(id)) return true;
+    return !!tool.featured;
+}
+
+function toggleFeatured(toolId, event) {
+    event.stopPropagation();
+    const tool = getToolById(toolId);
+    const defaultFeatured = !!(tool && tool.featured);
+    const currently = isFeatured(tool);
+
+    if (currently) {
+        // Turn off
+        // If default was featured, record in disabled list; otherwise remove from selected
+        if (defaultFeatured) {
+            if (!featuredDisabled.includes(toolId)) featuredDisabled.push(toolId);
+            const si = featuredSelected.indexOf(toolId);
+            if (si > -1) featuredSelected.splice(si, 1);
+        } else {
+            const si = featuredSelected.indexOf(toolId);
+            if (si > -1) featuredSelected.splice(si, 1);
+            const di = featuredDisabled.indexOf(toolId);
+            if (di > -1) featuredDisabled.splice(di, 1);
+        }
+    } else {
+        // Turn on
+        // Ensure not disabled and add to selected
+        const di = featuredDisabled.indexOf(toolId);
+        if (di > -1) featuredDisabled.splice(di, 1);
+        if (!featuredSelected.includes(toolId)) featuredSelected.push(toolId);
+    }
+
+    localStorage.setItem('featuredTools', JSON.stringify(featuredSelected));
+    localStorage.setItem('featuredToolsDisabled', JSON.stringify(featuredDisabled));
+    updateFeaturedButton(toolId);
+    applyFilters();
+}
+
+function updateFeaturedButton(toolId) {
+    const btn = document.querySelector(`[data-feature-id="${toolId}"]`);
+    if (!btn) return;
+    const t = getToolById(toolId);
+    const active = isFeatured(t);
+    if (active) {
+        btn.classList.add('active');
+    } else {
+        btn.classList.remove('active');
+    }
+}
+
+function getToolById(id) {
+    const all = [...toolsData, ...aiTools];
+    for (let i = 0; i < all.length; i++) {
+        if (all[i].id === id) return all[i];
+    }
+    return null;
 }
 
 function getFavoriteTools() {

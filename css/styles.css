@@ -1665,6 +1665,16 @@ body {
     margin-left: 0.5rem;
 }
 
+.featured-badge {
+  background: #f59e0b;
+  color: #ffffff;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
 .footer-bottom {
     border-top: 1px solid #404040;
     padding-top: 1.5rem;
@@ -1807,4 +1817,34 @@ html {
     box-shadow: none;
     border: 1px solid #ccc;
   }
+}
+.featured-btn {
+  position: absolute;
+  top: 12px;
+  right: 52px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+  color: #f59e0b;
+  font-weight: 700;
+}
+
+.featured-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+.featured-btn.active {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  color: #ffffff;
 }
