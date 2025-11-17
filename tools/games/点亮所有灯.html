@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>点亮所有灯 - 灯谜游戏</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #ffffff;
+            overflow-x: hidden;
+            transition: background 0.5s ease;
+        }
+        
+        body.ocean {
+            background: linear-gradient(135deg, #00c6ff, #0072ff, #120078);
+        }
+        
+        body.forest {
+            background: linear-gradient(135deg, #134e5e, #71b280, #a8e063);
+        }
+        
+        body.galaxy {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+        }
+        
+        body.aurora {
+            background: linear-gradient(135deg, #00c9ff, #92fe9d, #fc00ff);
+        }
+        
+        body.fire {
+            background: linear-gradient(135deg, #ff4e00, #ff9a00, #ff0000);
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+        
+        .game-container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 600px;
+            width: 90%;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            margin-top: 0;
+            color: #ffffff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+        
+        .game-info {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .info-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 12px 20px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .info-item:hover {
+            transform: translateY(-3px);
+        }
+        
+        .difficulty-selector {
+            margin-bottom: 25px;
+        }
+        
+        .background-selector {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            font-size: 18px;
+            font-weight: 600;
+            margin-right: 10px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        select {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        select:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        select option {
+            background: #333;
+            color: white;
+        }
+        
+        .grid-container {
+            display: inline-block;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .grid {
+            display: grid;
+            grid-gap: 10px;
+        }
+        
+        .light {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #555, #222);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .light.on {
+            background: radial-gradient(circle at 30% 30%, #ffeb3b, #ff9800);
+            box-shadow: 0 0 25px #ffeb3b, 0 0 50px #ff9800, 0 0 75px #ff5722;
+            animation: pulse 1.5s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            from { box-shadow: 0 0 25px #ffeb3b, 0 0 50px #ff9800, 0 0 75px #ff5722; }
+            to { box-shadow: 0 0 30px #ffeb3b, 0 0 60px #ff9800, 0 0 90px #ff5722; }
+        }
+        
+        .light:hover {
+            transform: scale(1.1);
+        }
+        
+        .light:active {
+            transform: scale(0.95);
+        }
+        
+        .light::before {
+            content: '';
+            position: absolute;
+            top: 15%;
+            left: 15%;
+            width: 30%;
+            height: 30%;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            filter: blur(5px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .light.on::before {
+            opacity: 1;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .win-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: popIn 0.5s ease-out;
+        }
+        
+        @keyframes popIn {
+            from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        
+        .win-message h2 {
+            margin-top: 0;
+            color: #ffeb3b;
+            font-size: 2rem;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
+        }
+        
+        .win-message p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+        
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            animation: explode 1s ease-out forwards;
+        }
+        
+        @keyframes explode {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--x), var(--y));
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="game-container">
+        <h1>✨ 点亮所有灯 ✨</h1>
+        <div class="game-info">
+            <div class="info-item">步数: <span id="move-count">0</span></div>
+            <div class="info-item">时间: <span id="timer">00:00</span></div>
+        </div>
+        <div class="difficulty-selector">
+            <label for="grid-size">难度: </label>
+            <select id="grid-size">
+                <option value="3">简单 (3x3)</option>
+                <option value="5" selected>中等 (5x5)</option>
+                <option value="7">困难 (7x7)</option>
+            </select>
+        </div>
+        <div class="background-selector">
+            <label for="background-theme">背景主题: </label>
+            <select id="background-theme">
+                <option value="sunset" selected>日落渐变</option>
+                <option value="ocean">海洋渐变</option>
+                <option value="forest">森林渐变</option>
+                <option value="galaxy">星系渐变</option>
+                <option value="aurora">极光渐变</option>
+                <option value="fire">火焰渐变</option>
+            </select>
+        </div>
+        <div class="grid-container">
+            <div class="grid" id="light-grid"></div>
+        </div>
+        <div class="controls">
+            <button id="new-game">新游戏</button>
+            <button id="reset">重置</button>
+        </div>
+    </div>
+
+    <div class="win-message" id="win-message">
+        <h2>🎉 恭喜你赢了！ 🎉</h2>
+        <p>你用了 <span id="final-moves">0</span> 步，耗时 <span id="final-time">00:00</span></p>
+        <button id="play-again">再玩一次</button>
+    </div>
+    
+    <div class="fireworks" id="fireworks"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 创建星空背景
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 3}s`;
+                star.style.opacity = Math.random() * 0.8 + 0.2;
+                starsContainer.appendChild(star);
+            }
+            
+            const gridElement = document.getElementById('light-grid');
+            const moveCountElement = document.getElementById('move-count');
+            const timerElement = document.getElementById('timer');
+            const newGameButton = document.getElementById('new-game');
+            const resetButton = document.getElementById('reset');
+            const gridSizeSelect = document.getElementById('grid-size');
+            const backgroundThemeSelect = document.getElementById('background-theme');
+            const winMessage = document.getElementById('win-message');
+            const finalMovesElement = document.getElementById('final-moves');
+            const finalTimeElement = document.getElementById('final-time');
+            const playAgainButton = document.getElementById('play-again');
+            const fireworksContainer = document.getElementById('fireworks');
+
+            let gridSize = 5;
+            let lights = [];
+            let moveCount = 0;
+            let startTime = null;
+            let timerInterval = null;
+            let gameStarted = false;
+
+            // 初始化游戏
+            function initGame() {
+                gridSize = parseInt(gridSizeSelect.value);
+                gridElement.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+                gridElement.innerHTML = '';
+                lights = [];
+                moveCount = 0;
+                moveCountElement.textContent = moveCount;
+                
+                // 创建灯
+                for (let i = 0; i < gridSize * gridSize; i++) {
+                    const light = document.createElement('div');
+                    light.classList.add('light');
+                    light.dataset.index = i;
+                    light.addEventListener('click', toggleLight);
+                    gridElement.appendChild(light);
+                    lights.push(false); // 初始状态为关闭
+                }
+
+                // 随机生成初始状态
+                generateRandomState();
+                
+                // 重置计时器
+                resetTimer();
+                
+                // 隐藏胜利消息
+                winMessage.style.display = 'none';
+                
+                // 清除烟花
+                fireworksContainer.innerHTML = '';
+            }
+
+            // 生成随机状态
+            function generateRandomState() {
+                // 确保游戏有解：从全部关闭状态开始，随机进行一些操作
+                const operations = Math.floor(Math.random() * 10) + 5;
+                for (let i = 0; i < operations; i++) {
+                    const randomIndex = Math.floor(Math.random() * lights.length);
+                    toggleLightsState(randomIndex);
+                }
+                
+                // 更新UI
+                updateLightsUI();
+            }
+
+            // 切换灯的状态
+            function toggleLight(event) {
+                if (!gameStarted) {
+                    startGame();
+                }
+                
+                const index = parseInt(event.target.dataset.index);
+                toggleLightsState(index);
+                updateLightsUI();
+                moveCount++;
+                moveCountElement.textContent = moveCount;
+                
+                // 检查是否获胜
+                if (checkWin()) {
+                    endGame();
+                    createFireworks();
+                }
+            }
+
+            // 切换灯及其相邻灯的状态
+            function toggleLightsState(index) {
+                const row = Math.floor(index / gridSize);
+                const col = index % gridSize;
+                
+                // 切换当前灯
+                lights[index] = !lights[index];
+                
+                // 切换上方灯
+                if (row > 0) {
+                    lights[index - gridSize] = !lights[index - gridSize];
+                }
+                
+                // 切换下方灯
+                if (row < gridSize - 1) {
+                    lights[index + gridSize] = !lights[index + gridSize];
+                }
+                
+                // 切换左侧灯
+                if (col > 0) {
+                    lights[index - 1] = !lights[index - 1];
+                }
+                
+                // 切换右侧灯
+                if (col < gridSize - 1) {
+                    lights[index + 1] = !lights[index + 1];
+                }
+            }
+
+            // 更新灯的UI
+            function updateLightsUI() {
+                const lightElements = gridElement.querySelectorAll('.light');
+                lightElements.forEach((element, index) => {
+                    if (lights[index]) {
+                        element.classList.add('on');
+                    } else {
+                        element.classList.remove('on');
+                    }
+                });
+            }
+
+            // 检查是否获胜
+            function checkWin() {
+                return lights.every(light => light);
+            }
+
+            // 开始游戏
+            function startGame() {
+                if (!gameStarted) {
+                    gameStarted = true;
+                    startTime = Date.now();
+                    timerInterval = setInterval(updateTimer, 1000);
+                }
+            }
+
+            // 结束游戏
+            function endGame() {
+                clearInterval(timerInterval);
+                gameStarted = false;
+                
+                // 显示胜利消息
+                finalMovesElement.textContent = moveCount;
+                finalTimeElement.textContent = timerElement.textContent;
+                winMessage.style.display = 'block';
+            }
+
+            // 重置游戏
+            function resetGame() {
+                clearInterval(timerInterval);
+                gameStarted = false;
+                initGame();
+            }
+
+            // 重置计时器
+            function resetTimer() {
+                clearInterval(timerInterval);
+                timerElement.textContent = '00:00';
+                gameStarted = false;
+            }
+
+            // 更新计时器
+            function updateTimer() {
+                if (startTime) {
+                    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                    const seconds = (elapsed % 60).toString().padStart(2, '0');
+                    timerElement.textContent = `${minutes}:${seconds}`;
+                }
+            }
+            
+            // 创建烟花效果
+            function createFireworks() {
+                const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffffff'];
+                
+                for (let i = 0; i < 50; i++) {
+                    setTimeout(() => {
+                        const x = Math.random() * window.innerWidth;
+                        const y = Math.random() * window.innerHeight;
+                        
+                        for (let j = 0; j < 30; j++) {
+                            const firework = document.createElement('div');
+                            firework.classList.add('firework');
+                            firework.style.left = `${x}px`;
+                            firework.style.top = `${y}px`;
+                            firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                            
+                            const angle = Math.random() * Math.PI * 2;
+                            const velocity = Math.random() * 100 + 50;
+                            firework.style.setProperty('--x', `${Math.cos(angle) * velocity}px`);
+                            firework.style.setProperty('--y', `${Math.sin(angle) * velocity}px`);
+                            
+                            fireworksContainer.appendChild(firework);
+                            
+                            // 动画结束后移除元素
+                            setTimeout(() => {
+                                firework.remove();
+                            }, 1000);
+                        }
+                    }, i * 100);
+                }
+            }
+            
+            // 更改背景主题
+            function changeBackgroundTheme() {
+                const theme = backgroundThemeSelect.value;
+                document.body.className = theme;
+            }
+
+            // 事件监听器
+            newGameButton.addEventListener('click', initGame);
+            resetButton.addEventListener('click', resetGame);
+            gridSizeSelect.addEventListener('change', initGame);
+            backgroundThemeSelect.addEventListener('change', changeBackgroundTheme);
+            playAgainButton.addEventListener('click', initGame);
+
+            // 初始化游戏
+            initGame();
+        });
+    </script>
+</body>
+</html>

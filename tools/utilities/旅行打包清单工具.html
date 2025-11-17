@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅行打包工具清单</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="80" cy="40" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="40" cy="80" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.1);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(-20px, -20px) rotate(360deg); }
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            font-weight: 300;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-section {
+            padding: 50px;
+            background: linear-gradient(145deg, #f8f9ff 0%, #fff5f8 100%);
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1em;
+            position: relative;
+        }
+
+        .input-group label::before {
+            content: '✨';
+            margin-right: 8px;
+            font-size: 0.9em;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 18px;
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.2), inset 0 2px 4px rgba(0,0,0,0.05);
+            transform: translateY(-2px);
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.3em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+        }
+
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+
+        .generate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .result-section {
+            padding: 0 50px 50px;
+            display: none;
+            background: linear-gradient(145deg, #f0f8ff 0%, #fff0f5 100%);
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .checklist {
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            padding: 35px;
+            margin-top: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .checklist h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 2em;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .checklist h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+            border-radius: 2px;
+        }
+
+        .category {
+            margin-bottom: 30px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .category h3 {
+            color: #2c3e50;
+            margin-bottom: 18px;
+            font-size: 1.4em;
+            padding-bottom: 8px;
+            position: relative;
+            font-weight: 600;
+        }
+
+        .category h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+            border-radius: 2px;
+        }
+
+        .item-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .item input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .item label {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .item.checked {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .item.essential {
+            border-left: 5px solid #e74c3c;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffeaa7 100%);
+            box-shadow: 0 3px 10px rgba(231, 76, 60, 0.2);
+        }
+
+        .item.recommended {
+            border-left: 5px solid #27ae60;
+            background: linear-gradient(135deg, #f8fff9 0%, #a8e6cf 100%);
+            box-shadow: 0 3px 10px rgba(39, 174, 96, 0.2);
+        }
+
+        .item.optional {
+            border-left: 5px solid #f39c12;
+            background: linear-gradient(135deg, #fffdf5 0%, #ffd93d 100%);
+            box-shadow: 0 3px 10px rgba(243, 156, 18, 0.2);
+        }
+
+        .recommended-section {
+            background: linear-gradient(145deg, #e8f4fd 0%, #fff0f5 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 25px;
+            border: 3px dashed #74b9ff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .recommended-section::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #74b9ff, #0984e3, #74b9ff);
+            border-radius: 20px;
+            z-index: -1;
+            animation: borderGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes borderGlow {
+            0% { opacity: 0.5; }
+            100% { opacity: 0.8; }
+        }
+
+        .recommended-section h3 {
+            color: #0984e3;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .add-item-btn {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-left: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+            font-weight: 600;
+        }
+
+        .add-item-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 184, 148, 0.4);
+            background: linear-gradient(135deg, #00a085 0%, #00b7b3 100%);
+        }
+
+        .priority-badge {
+            font-size: 0.8em;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+            font-weight: bold;
+        }
+
+        .priority-essential {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+        }
+
+        .priority-recommended {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+        }
+
+        .priority-optional {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+        }
+
+        .summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .print-btn {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 25px;
+            float: right;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.3);
+            font-weight: 600;
+        }
+
+        .print-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+            background: linear-gradient(135deg, #5f4fcf 0%, #9085e8 100%);
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 25px;
+            margin-right: 15px;
+            float: right;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(253, 121, 168, 0.3);
+            font-weight: 600;
+        }
+
+        .clear-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(253, 121, 168, 0.4);
+            background: linear-gradient(135deg, #e66b96 0%, #d63384 100%);
+        }
+
+        .button-group {
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 15px;
+                border-radius: 20px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .form-section, .checklist {
+                padding: 30px 25px;
+            }
+            
+            .item-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .generate-btn {
+                padding: 18px;
+                font-size: 1.2em;
+            }
+            
+            .print-btn, .clear-btn {
+                padding: 12px 20px;
+                margin-top: 20px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .container {
+                box-shadow: none;
+                background: white;
+            }
+            
+            .form-section, .print-btn, .clear-btn, .recommended-section {
+                display: none;
+            }
+            
+            .header {
+                background: #333;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧳 旅行打包工具清单</h1>
+            <p>智能生成个性化旅行必备物品清单</p>
+        </div>
+
+        <div class="form-section">
+            <div class="input-group">
+                <label for="destination">目的地</label>
+                <input type="text" id="destination" placeholder="例如：日本东京、泰国普吉岛、北京等">
+            </div>
+
+            <div class="input-group">
+                <label for="days">旅行天数</label>
+                <input type="number" id="days" min="1" max="365" placeholder="输入旅行天数">
+            </div>
+
+            <div class="input-group">
+                <label for="season">出行季节</label>
+                <select id="season">
+                    <option value="">请选择季节</option>
+                    <option value="spring">春季 (3-5月)</option>
+                    <option value="summer">夏季 (6-8月)</option>
+                    <option value="autumn">秋季 (9-11月)</option>
+                    <option value="winter">冬季 (12-2月)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="travelType">旅行类型</label>
+                <select id="travelType">
+                    <option value="">请选择旅行类型</option>
+                    <option value="business">商务出行</option>
+                    <option value="leisure">休闲度假</option>
+                    <option value="adventure">户外探险</option>
+                    <option value="cultural">文化旅游</option>
+                    <option value="beach">海滨度假</option>
+                    <option value="city">城市观光</option>
+                </select>
+            </div>
+
+            <button class="generate-btn" onclick="generatePackingList()">
+                🎯 生成打包清单
+            </button>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="summary" id="summary"></div>
+            <div class="checklist" id="checklist"></div>
+            <div class="button-group">
+                <button class="print-btn" onclick="window.print()">🖨️ 打印清单</button>
+                <button class="clear-btn" onclick="clearAll()">🗑️ 重新开始</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 基础物品数据库 - 重新组织为必需品、推荐品和可选品
+        const itemDatabase = {
+            essential: {
+                name: "必需品",
+                items: [
+                    "护照/身份证", "签证文件", "机票/车票", "酒店预订单", 
+                    "现金", "银行卡", "手机", "充电器"
+                ]
+            },
+            recommended: {
+                name: "推荐物品",
+                items: [
+                    "充电宝", "耳机", "相机", "太阳镜", "雨伞", "常用药品", 
+                    "湿纸巾", "口罩", "保温杯", "小背包"
+                ]
+            },
+            optional: {
+                name: "可选物品",
+                items: [
+                    "平板电脑", "电子书", "游戏机", "零食", "茶叶", 
+                    "拖鞋", "眼罩", "颈枕", "便携音响", "自拍杆"
+                ]
+            },
+            clothing: {
+                name: "服装类",
+                essential: {
+                    spring: ["内衣裤", "袜子", "舒适的鞋子", "基础外套"],
+                    summer: ["短袖T恤", "短裤", "内衣裤", "袜子", "凉鞋"],
+                    autumn: ["长袖衬衫", "长裤", "内衣裤", "袜子", "外套"],
+                    winter: ["保暖内衣", "厚裤子", "羽绒服", "保暖鞋", "厚袜子"]
+                },
+                recommended: {
+                    spring: ["轻薄外套", "长袖衬衫", "T恤", "牛仔裤", "休闲裤"],
+                    summer: ["裙子", "帽子", "防晒衣", "泳衣"],
+                    autumn: ["毛衣", "围巾"],
+                    winter: ["手套", "围巾", "帽子"]
+                },
+                optional: {
+                    spring: ["雨具", "运动鞋", "休闲装"],
+                    summer: ["沙滩装", "运动装", "凉帽"],
+                    autumn: ["风衣", "靴子", "针织衫"],
+                    winter: ["雪地靴", "保暖帽", "厚手套"]
+                }
+            },
+            toiletries: {
+                name: "洗护用品",
+                essential: ["牙刷", "牙膏", "毛巾", "护肤品"],
+                recommended: ["洗发水", "沐浴露", "防晒霜", "化妆品", "剃须刀"],
+                optional: ["卫生纸", "洗衣液", "护发素", "面膜", "香水"]
+            },
+            electronics: {
+                name: "电子设备",
+                essential: ["数据线", "转换插头"],
+                recommended: ["相机", "耳机"],
+                optional: ["移动硬盘", "平板电脑", "电子书阅读器", "蓝牙音响"]
+            },
+            medicine: {
+                name: "药品健康",
+                essential: ["常用药品", "创可贴", "口罩"],
+                recommended: ["体温计", "消毒湿巾", "晕车药", "肠胃药"],
+                optional: ["维生素", "止痛药", "感冒药", "过敏药"]
+            },
+            business: {
+                name: "商务用品",
+                items: ["笔记本电脑", "商务装", "领带", "皮鞋", "公文包", "名片", "文件夹", "笔"]
+            },
+            leisure: {
+                name: "休闲用品",
+                items: ["休闲服", "运动鞋", "背包", "水杯", "零食", "书籍", "游戏设备"]
+            },
+            adventure: {
+                name: "户外用品",
+                items: ["登山鞋", "冲锋衣", "登山包", "头灯", "指南针", "急救包", "防虫喷雾", "户外帽"]
+            },
+            beach: {
+                name: "海滨用品",
+                items: ["泳衣", "沙滩巾", "防晒霜", "太阳镜", "凉鞋", "防水包", "浮潜装备"]
+            }
+        };
+
+        // 地区特殊物品
+        const regionSpecialItems = {
+            "日本": ["日元现金", "JR Pass", "便携WiFi", "药品申报单"],
+            "泰国": ["防蚊液", "肠胃药", "轻便雨衣", "泰铢"],
+            "欧洲": ["欧标转换插头", "欧元", "保险单", "申根签证"],
+            "美国": ["美标转换插头", "美元", "EVUS登记", "小费零钱"],
+            "韩国": ["韩元", "T-money卡", "韩式护肤品", "便携暖宝宝"],
+            "新加坡": ["新币", "薄外套", "防晒用品", "舒适步行鞋"],
+            "马来西亚": ["马币", "防蚊液", "轻便雨具", "防晒霜"],
+            "印度": ["印度卢比", "肠胃药", "长袖衣物", "头巾"],
+            "澳大利亚": ["澳币", "防晒霜", "帽子", "入境申报单"],
+            "北京": ["厚外套", "口罩", "保湿用品", "舒适步行鞋"],
+            "上海": ["轻便外套", "雨具", "舒适鞋子", "地铁卡"],
+            "广州": ["轻薄衣物", "雨具", "防晒用品", "舒适鞋子"],
+            "西藏": ["高原反应药", "保暖衣物", "太阳镜", "润唇膏"],
+            "新疆": ["防晒霜", "保湿用品", "厚外套", "舒适鞋子"],
+            "海南": ["泳衣", "防晒霜", "凉鞋", "轻薄衣物"]
+        };
+
+        function generatePackingList() {
+            const destination = document.getElementById('destination').value.trim();
+            const days = parseInt(document.getElementById('days').value);
+            const season = document.getElementById('season').value;
+            const travelType = document.getElementById('travelType').value;
+
+            if (!destination || !days || !season || !travelType) {
+                alert('请填写完整的旅行信息！');
+                return;
+            }
+
+            // 生成清单
+            const packingList = generateItems(destination, days, season, travelType);
+            
+            // 显示结果
+            displayResults(destination, days, season, travelType, packingList);
+        }
+
+        function generateItems(destination, days, season, travelType) {
+            const essentialItems = {};
+            const recommendedItems = {};
+            const optionalItems = {};
+
+            // 添加基础必需品
+            essentialItems[itemDatabase.essential.name] = [...itemDatabase.essential.items];
+            recommendedItems[itemDatabase.recommended.name] = [...itemDatabase.recommended.items];
+            optionalItems[itemDatabase.optional.name] = [...itemDatabase.optional.items];
+
+            // 添加季节性服装
+            const seasonClothingEssential = itemDatabase.clothing.essential[season] || itemDatabase.clothing.essential.spring;
+            const seasonClothingRecommended = itemDatabase.clothing.recommended[season] || itemDatabase.clothing.recommended.spring;
+            const seasonClothingOptional = itemDatabase.clothing.optional[season] || itemDatabase.clothing.optional.spring;
+            
+            essentialItems[itemDatabase.clothing.name] = [...seasonClothingEssential];
+            recommendedItems[itemDatabase.clothing.name] = [...seasonClothingRecommended];
+            optionalItems[itemDatabase.clothing.name] = [...seasonClothingOptional];
+
+            // 根据天数调整
+            if (days > 7) {
+                essentialItems[itemDatabase.clothing.name].push("额外内衣裤", "额外袜子");
+                recommendedItems[itemDatabase.clothing.name].push("洗衣液");
+            }
+
+            // 添加洗护用品
+            essentialItems[itemDatabase.toiletries.name] = [...itemDatabase.toiletries.essential];
+            recommendedItems[itemDatabase.toiletries.name] = [...itemDatabase.toiletries.recommended];
+            optionalItems[itemDatabase.toiletries.name] = [...itemDatabase.toiletries.optional];
+
+            // 添加电子设备
+            essentialItems[itemDatabase.electronics.name] = [...itemDatabase.electronics.essential];
+            recommendedItems[itemDatabase.electronics.name] = [...itemDatabase.electronics.recommended];
+            optionalItems[itemDatabase.electronics.name] = [...itemDatabase.electronics.optional];
+
+            // 添加药品健康
+            essentialItems[itemDatabase.medicine.name] = [...itemDatabase.medicine.essential];
+            recommendedItems[itemDatabase.medicine.name] = [...itemDatabase.medicine.recommended];
+            optionalItems[itemDatabase.medicine.name] = [...itemDatabase.medicine.optional];
+
+            // 根据旅行类型添加特殊物品
+            if (travelType === 'business' && itemDatabase.business) {
+                recommendedItems[itemDatabase.business.name] = [...itemDatabase.business.items];
+            } else if (travelType === 'adventure' && itemDatabase.adventure) {
+                recommendedItems[itemDatabase.adventure.name] = [...itemDatabase.adventure.items];
+            } else if (travelType === 'beach' && itemDatabase.beach) {
+                recommendedItems[itemDatabase.beach.name] = [...itemDatabase.beach.items];
+            } else if (travelType === 'leisure' && itemDatabase.leisure) {
+                recommendedItems[itemDatabase.leisure.name] = [...itemDatabase.leisure.items];
+            }
+
+            // 添加地区特殊物品
+            for (const region in regionSpecialItems) {
+                if (destination.includes(region)) {
+                    if (!recommendedItems["地区特色物品"]) {
+                        recommendedItems["地区特色物品"] = [];
+                    }
+                    recommendedItems["地区特色物品"] = [...recommendedItems["地区特色物品"], ...regionSpecialItems[region]];
+                    break;
+                }
+            }
+
+            // 根据季节添加特殊物品
+            if (season === 'summer') {
+                if (!recommendedItems["夏季专用"]) recommendedItems["夏季专用"] = [];
+                recommendedItems["夏季专用"].push("防晒霜", "太阳帽");
+                if (!optionalItems["夏季专用"]) optionalItems["夏季专用"] = [];
+                optionalItems["夏季专用"].push("凉席", "电扇");
+            } else if (season === 'winter') {
+                if (!recommendedItems["冬季专用"]) recommendedItems["冬季专用"] = [];
+                recommendedItems["冬季专用"].push("暖宝宝", "保温杯");
+                if (!optionalItems["冬季专用"]) optionalItems["冬季专用"] = [];
+                optionalItems["冬季专用"].push("润唇膏", "护手霜");
+            }
+
+            return { essential: essentialItems, recommended: recommendedItems, optional: optionalItems };
+        }
+
+        let selectedRecommendedItems = new Set();
+        let selectedOptionalItems = new Set();
+
+        function displayResults(destination, days, season, travelType) {
+            const packingData = generateItems(destination, days, season, travelType);
+            
+            // 显示摘要
+            const summary = document.getElementById('summary');
+            const seasonNames = {
+                spring: '春季', summer: '夏季', autumn: '秋季', winter: '冬季'
+            };
+            const travelTypeNames = {
+                business: '商务出行', leisure: '休闲度假', adventure: '户外探险',
+                cultural: '文化旅游', beach: '海滨度假', city: '城市观光'
+            };
+
+            let totalEssential = 0, totalRecommended = 0, totalOptional = 0;
+            Object.values(packingData.essential).forEach(items => totalEssential += items.length);
+            Object.values(packingData.recommended).forEach(items => totalRecommended += items.length);
+            Object.values(packingData.optional).forEach(items => totalOptional += items.length);
+
+            summary.innerHTML = `
+                <h2>📋 ${destination} ${days}天${seasonNames[season]}${travelTypeNames[document.getElementById('travelType').value]}清单</h2>
+                <p>必需品: ${totalEssential} 项 | 推荐品: ${totalRecommended} 项 | 可选品: ${totalOptional} 项</p>
+            `;
+
+            // 显示清单
+            const checklist = document.getElementById('checklist');
+            let checklistHTML = '<h2>🎒 我的打包清单</h2>';
+
+            // 必需品清单
+            checklistHTML += '<div class="category"><h3>🔴 必需品 (必须携带)</h3><div class="item-list">';
+            for (const [category, items] of Object.entries(packingData.essential)) {
+                items.forEach((item, index) => {
+                    const itemId = `essential-${category}-${index}`;
+                    checklistHTML += `
+                        <div class="item essential" id="item-${itemId}">
+                            <input type="checkbox" id="check-${itemId}" onchange="toggleItem('${itemId}')">
+                            <label for="check-${itemId}">${item}</label>
+                            <span class="priority-badge priority-essential">必需</span>
+                        </div>
+                    `;
+                });
+            }
+            checklistHTML += '</div></div>';
+
+            // 已选推荐品清单
+            if (selectedRecommendedItems.size > 0) {
+                checklistHTML += '<div class="category"><h3>🟢 已选推荐品</h3><div class="item-list">';
+                selectedRecommendedItems.forEach((item, index) => {
+                    const itemId = `selected-recommended-${index}`;
+                    checklistHTML += `
+                        <div class="item recommended" id="item-${itemId}">
+                            <input type="checkbox" id="check-${itemId}" onchange="toggleItem('${itemId}')">
+                            <label for="check-${itemId}">${item}</label>
+                            <span class="priority-badge priority-recommended">推荐</span>
+                        </div>
+                    `;
+                });
+                checklistHTML += '</div></div>';
+            }
+
+            // 已选可选品清单
+            if (selectedOptionalItems.size > 0) {
+                checklistHTML += '<div class="category"><h3>🟡 已选可选品</h3><div class="item-list">';
+                selectedOptionalItems.forEach((item, index) => {
+                    const itemId = `selected-optional-${index}`;
+                    checklistHTML += `
+                        <div class="item optional" id="item-${itemId}">
+                            <input type="checkbox" id="check-${itemId}" onchange="toggleItem('${itemId}')">
+                            <label for="check-${itemId}">${item}</label>
+                            <span class="priority-badge priority-optional">可选</span>
+                        </div>
+                    `;
+                });
+                checklistHTML += '</div></div>';
+            }
+
+            checklist.innerHTML = checklistHTML;
+
+            // 显示推荐物品选择区域
+            displayRecommendedItems(packingData.recommended, packingData.optional);
+
+            // 显示结果区域
+            document.getElementById('resultSection').classList.add('show');
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayRecommendedItems(recommendedData, optionalData) {
+            let recommendedHTML = `
+                <div class="recommended-section">
+                    <h3>🛍️ 推荐物品选择 (点击添加到清单)</h3>
+                    <div class="category">
+                        <h4>🟢 推荐物品</h4>
+                        <div class="item-list">
+            `;
+
+            for (const [category, items] of Object.entries(recommendedData)) {
+                items.forEach((item, index) => {
+                    if (!selectedRecommendedItems.has(item)) {
+                        recommendedHTML += `
+                            <div class="item recommended">
+                                <label>${item}</label>
+                                <button class="add-item-btn" onclick="addRecommendedItem('${item}')">
+                                    ➕ 添加
+                                </button>
+                            </div>
+                        `;
+                    }
+                });
+            }
+
+            recommendedHTML += `
+                        </div>
+                    </div>
+                    <div class="category">
+                        <h4>🟡 可选物品</h4>
+                        <div class="item-list">
+            `;
+
+            for (const [category, items] of Object.entries(optionalData)) {
+                items.forEach((item, index) => {
+                    if (!selectedOptionalItems.has(item)) {
+                        recommendedHTML += `
+                            <div class="item optional">
+                                <label>${item}</label>
+                                <button class="add-item-btn" onclick="addOptionalItem('${item}')">
+                                    ➕ 添加
+                                </button>
+                            </div>
+                        `;
+                    }
+                });
+            }
+
+            recommendedHTML += `
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('checklist').innerHTML += recommendedHTML;
+        }
+
+        function addRecommendedItem(item) {
+            selectedRecommendedItems.add(item);
+            refreshResults();
+        }
+
+        function addOptionalItem(item) {
+            selectedOptionalItems.add(item);
+            refreshResults();
+        }
+
+        function refreshResults() {
+            const destination = document.getElementById('destination').value;
+            const days = parseInt(document.getElementById('days').value);
+            const season = document.getElementById('season').value;
+            const travelType = document.getElementById('travelType').value;
+            
+            displayResults(destination, days, season, travelType);
+        }
+
+        function toggleItem(itemId) {
+            const item = document.getElementById(`item-${itemId}`);
+            const checkbox = document.getElementById(`check-${itemId}`);
+            
+            if (checkbox.checked) {
+                item.classList.add('checked');
+            } else {
+                item.classList.remove('checked');
+            }
+        }
+
+        function clearAll() {
+            // 确认对话框
+            if (confirm('确定要清除所有内容并重新开始吗？')) {
+                // 清空表单
+                document.getElementById('destination').value = '';
+                document.getElementById('days').value = '';
+                document.getElementById('season').value = '';
+                document.getElementById('travelType').value = '';
+                
+                // 清空选择的物品
+                selectedRecommendedItems.clear();
+                selectedOptionalItems.clear();
+                
+                // 隐藏结果区域
+                document.getElementById('resultSection').classList.remove('show');
+                
+                // 滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // 重新设置当前季节
+                setCurrentSeason();
+            }
+        }
+
+        function setCurrentSeason() {
+            // 自动检测当前季节
+            const now = new Date();
+            const month = now.getMonth() + 1;
+            let currentSeason = 'spring';
+            
+            if (month >= 3 && month <= 5) currentSeason = 'spring';
+            else if (month >= 6 && month <= 8) currentSeason = 'summer';
+            else if (month >= 9 && month <= 11) currentSeason = 'autumn';
+            else currentSeason = 'winter';
+            
+            document.getElementById('season').value = currentSeason;
+        }
+
+        // 页面加载时的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            setCurrentSeason();
+        });
+    </script>
+</body>
+</html>

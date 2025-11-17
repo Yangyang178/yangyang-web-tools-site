@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON格式化与校验工具</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        h1 {
+            color: #3a7bd5;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        textarea {
+            width: 100%;
+            height: 250px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            margin-bottom: 20px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background-color: #fafafa;
+        }
+        textarea:focus {
+            border-color: #3a7bd5;
+            box-shadow: 0 0 0 3px rgba(58,123,213,0.2);
+            outline: none;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            flex: 1;
+            background: linear-gradient(to right, #3a7bd5, #00d2ff);
+            color: white;
+            padding: 12px 0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(0,0,0,0.1);
+            background: linear-gradient(to right, #00d2ff, #3a7bd5);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 200px;
+            font-family: 'Consolas', monospace;
+            white-space: pre-wrap;
+            background-color: #f9f9f9;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        #result:hover {
+            border-color: #3a7bd5;
+        }
+        .error {
+            color: #ff4757;
+            background-color: #ffecec;
+            border-color: #ff4757;
+        }
+        .success {
+            color: #2ed573;
+            background-color: #ecf9f2;
+            border-color: #2ed573;
+        }
+        .string { color: #2ed573; }
+        .number { color: #ffa502; }
+        .boolean { color: #3742fa; }
+        .null { color: #ff6b81; }
+        .key { color: #e84393; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>JSON格式化与校验工具</h1>
+        <textarea id="input" placeholder="请在此粘贴您的JSON数据..."></textarea>
+        <div class="btn-group">
+            <button onclick="formatJSON()">格式化</button>
+            <button onclick="validateJSON()">校验</button>
+            <button onclick="clearAll()">清空</button>
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function formatJSON() {
+            const input = document.getElementById('input').value;
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                const jsonObj = JSON.parse(input);
+                const formatted = JSON.stringify(jsonObj, null, 4);
+                resultDiv.innerHTML = syntaxHighlight(formatted);
+                resultDiv.className = 'success fade-in';
+            } catch (e) {
+                resultDiv.textContent = '错误: ' + e.message;
+                resultDiv.className = 'error fade-in';
+                
+                // Try to locate the error position
+                try {
+                    const errorPos = findErrorPosition(input, e);
+                    if (errorPos !== -1) {
+                        resultDiv.textContent += '\n\n错误位置: ' + errorPos;
+                        highlightErrorInInput(errorPos);
+                    }
+                } catch (e) {
+                    // Ignore if we can't locate the error
+                }
+            }
+        }
+
+        function validateJSON() {
+            const input = document.getElementById('input').value;
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                JSON.parse(input);
+                resultDiv.textContent = '有效的JSON格式!';
+                resultDiv.className = 'success fade-in';
+            } catch (e) {
+                resultDiv.textContent = '无效的JSON: ' + e.message;
+                resultDiv.className = 'error fade-in';
+                
+                // Try to locate the error position
+                try {
+                    const errorPos = findErrorPosition(input, e);
+                    if (errorPos !== -1) {
+                        resultDiv.textContent += '\n\n错误位置: ' + errorPos;
+                        highlightErrorInInput(errorPos);
+                    }
+                } catch (e) {
+                    // Ignore if we can't locate the error
+                }
+            }
+        }
+
+        function clearAll() {
+            document.getElementById('input').value = '';
+            document.getElementById('result').textContent = '';
+            document.getElementById('result').className = '';
+        }
+
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(
+                /("(\\.|[^\\"])*"|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, 
+                function (match) {
+                    let cls = 'number';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = 'key';
+                        } else {
+                            cls = 'string';
+                        }
+                    } else if (/true|false/.test(match)) {
+                        cls = 'boolean';
+                    } else if (/null/.test(match)) {
+                        cls = 'null';
+                    }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                }
+            );
+        }
+
+        function findErrorPosition(jsonString, error) {
+            if (!error.message.includes('position')) {
+                return -1;
+            }
+            
+            const posMatch = error.message.match(/position (\d+)/);
+            if (posMatch && posMatch[1]) {
+                return parseInt(posMatch[1]);
+            }
+            return -1;
+        }
+
+        function highlightErrorInInput(position) {
+            const input = document.getElementById('input');
+            const startPos = Math.max(0, position - 20);
+            const endPos = Math.min(input.value.length, position + 20);
+            
+            input.focus();
+            input.setSelectionRange(startPos, endPos);
+        }
+    </script>
+</body>
+</html>

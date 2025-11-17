@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>室内空间尺寸规划器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .controls {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .control-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group label {
+            font-weight: bold;
+            color: #495057;
+            min-width: 80px;
+        }
+
+        .input-group input {
+            padding: 8px 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 100px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(86, 171, 47, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .main-content {
+            display: flex;
+            min-height: 600px;
+        }
+
+        .furniture-panel {
+            width: 280px;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 800px;
+        }
+
+        .furniture-panel h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .furniture-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: grab;
+            transition: all 0.3s;
+            user-select: none;
+            position: relative;
+        }
+
+        .furniture-item:hover {
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .furniture-item:active {
+            cursor: grabbing;
+        }
+
+        .furniture-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .furniture-info {
+            flex: 1;
+        }
+
+        .furniture-name {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 2px;
+        }
+
+        .furniture-size {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .furniture-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .size-inputs {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .size-inputs input {
+            width: 50px;
+            padding: 2px 4px;
+            font-size: 11px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .canvas-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .canvas-wrapper {
+            border: 3px solid #dee2e6;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #roomCanvas {
+            display: block;
+            cursor: crosshair;
+        }
+
+        .info-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+            max-width: 600px;
+        }
+
+        .info-panel h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .info-panel p {
+            color: #424242;
+            line-height: 1.6;
+            margin-bottom: 5px;
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .add-furniture-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 8px;
+            border-left: 4px solid #4caf50;
+        }
+
+        .add-furniture-section h4 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .add-furniture-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .add-furniture-form input, .add-furniture-form select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .furniture-panel {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+                max-height: 400px;
+            }
+            
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #f44336;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #4caf50;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .furniture-item.editable .furniture-size {
+            display: none;
+        }
+
+        .furniture-item.editable .size-inputs {
+            display: flex;
+        }
+
+        .furniture-item:not(.editable) .size-inputs {
+            display: none;
+        }
+
+        .context-menu {
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            padding: 5px 0;
+            z-index: 1000;
+            display: none;
+        }
+
+        .context-menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .context-menu-item:hover {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 室内空间尺寸规划器</h1>
+            <p>专业的室内空间规划工具，让您的家居设计更加精准</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <div class="input-group">
+                    <label for="roomWidth">房间宽度:</label>
+                    <input type="number" id="roomWidth" value="5" min="1" max="20" step="0.1">
+                    <span>米</span>
+                </div>
+                <div class="input-group">
+                    <label for="roomHeight">房间长度:</label>
+                    <input type="number" id="roomHeight" value="4" min="1" max="20" step="0.1">
+                    <span>米</span>
+                </div>
+                <button class="btn btn-primary" onclick="generateRoom()">生成房间</button>
+            </div>
+            <div class="control-group">
+                <button class="btn btn-success" onclick="saveLayout()">💾 保存规划图</button>
+                <button class="btn btn-warning" onclick="clearRoom()">🗑️ 清空房间</button>
+                <button class="btn btn-primary" onclick="exportImage()">📷 导出图片</button>
+            </div>
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+        </div>
+
+        <div class="main-content">
+            <div class="furniture-panel">
+                <h3>🪑 家具库</h3>
+                <div id="furnitureList">
+                    <!-- 家具项目将通过JavaScript动态生成 -->
+                </div>
+
+                <div class="add-furniture-section">
+                    <h4>➕ 添加自定义家具</h4>
+                    <div class="add-furniture-form">
+                        <input type="text" id="newFurnitureName" placeholder="家具名称" maxlength="10">
+                        <select id="newFurnitureIcon">
+                            <option value="🛏️">🛏️ 床</option>
+                            <option value="🛋️">🛋️ 沙发</option>
+                            <option value="🪑">🪑 椅子</option>
+                            <option value="🍽️">🍽️ 餐桌</option>
+                            <option value="☕">☕ 茶几</option>
+                            <option value="💻">💻 办公桌</option>
+                            <option value="👔">👔 衣柜</option>
+                            <option value="📺">📺 电视柜</option>
+                            <option value="📚">📚 书柜</option>
+                            <option value="🚿">🚿 卫浴</option>
+                            <option value="🔥">🔥 厨具</option>
+                            <option value="🎵">🎵 钢琴</option>
+                            <option value="🏃">🏃 跑步机</option>
+                            <option value="📦">📦 其他</option>
+                        </select>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="number" id="newFurnitureWidth" placeholder="宽度(m)" step="0.1" min="0.1" max="10">
+                            <input type="number" id="newFurnitureHeight" placeholder="长度(m)" step="0.1" min="0.1" max="10">
+                        </div>
+                        <button class="btn btn-success btn-small" onclick="addCustomFurniture()">添加家具</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <div class="canvas-wrapper">
+                    <canvas id="roomCanvas" width="600" height="400"></canvas>
+                </div>
+                <div class="info-panel">
+                    <h4>📋 使用说明</h4>
+                    <p>• 输入房间尺寸后点击"生成房间"创建空间网格</p>
+                    <p>• 从左侧家具库拖拽家具到房间中进行摆放</p>
+                    <p>• 点击家具库中的"编辑"按钮可修改家具尺寸</p>
+                    <p>• 房间内的家具可以拖拽移动位置</p>
+                    <p>• 双击房间内家具可以旋转90度</p>
+                    <p>• 右键点击房间内家具可以删除</p>
+                    <p>• 红色边框表示家具超出房间范围</p>
+                    <p>• 可以添加自定义家具到家具库</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar" id="statusBar"></div>
+    
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="rotateFurniture()">🔄 旋转家具</div>
+        <div class="context-menu-item" onclick="deleteFurniture()">🗑️ 删除家具</div>
+    </div>
+
+    <script>
+        class RoomPlanner {
+            constructor() {
+                this.canvas = document.getElementById('roomCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.roomWidth = 5; // 米
+                this.roomHeight = 4; // 米
+                this.scale = 60; // 像素/米
+                this.gridSize = 0.5; // 网格大小（米）
+                this.furniture = [];
+                this.draggedFurniture = null;
+                this.dragOffset = { x: 0, y: 0 };
+                this.selectedFurniture = null;
+                this.contextMenuFurniture = null;
+                this.isDragging = false;
+                
+                // 默认家具库
+                this.defaultFurniture = [
+                    { type: 'bed', name: '双人床', icon: '🛏️', width: 2.0, height: 1.5 },
+                    { type: 'single-bed', name: '单人床', icon: '🛏️', width: 1.2, height: 2.0 },
+                    { type: 'sofa', name: '三人沙发', icon: '🛋️', width: 2.2, height: 0.9 },
+                    { type: 'loveseat', name: '双人沙发', icon: '🪑', width: 1.5, height: 0.8 },
+                    { type: 'dining-table', name: '餐桌', icon: '🍽️', width: 1.6, height: 0.8 },
+                    { type: 'coffee-table', name: '茶几', icon: '☕', width: 1.2, height: 0.6 },
+                    { type: 'desk', name: '办公桌', icon: '💻', width: 1.4, height: 0.7 },
+                    { type: 'wardrobe', name: '衣柜', icon: '👔', width: 1.8, height: 0.6 },
+                    { type: 'tv-stand', name: '电视柜', icon: '📺', width: 1.5, height: 0.4 }
+                ];
+                
+                this.init();
+            }
+
+            init() {
+                this.loadFurnitureLibrary();
+                this.renderFurnitureList();
+                this.setupEventListeners();
+                this.generateRoom();
+                this.loadLayout();
+            }
+
+            loadFurnitureLibrary() {
+                const saved = localStorage.getItem('furnitureLibrary');
+                if (saved) {
+                    try {
+                        this.furnitureLibrary = JSON.parse(saved);
+                    } catch (e) {
+                        this.furnitureLibrary = [...this.defaultFurniture];
+                    }
+                } else {
+                    this.furnitureLibrary = [...this.defaultFurniture];
+                }
+            }
+
+            saveFurnitureLibrary() {
+                localStorage.setItem('furnitureLibrary', JSON.stringify(this.furnitureLibrary));
+            }
+
+            renderFurnitureList() {
+                const container = document.getElementById('furnitureList');
+                container.innerHTML = '';
+                
+                this.furnitureLibrary.forEach((item, index) => {
+                    const furnitureDiv = document.createElement('div');
+                    furnitureDiv.className = 'furniture-item';
+                    furnitureDiv.draggable = true;
+                    furnitureDiv.dataset.index = index;
+                    
+                    furnitureDiv.innerHTML = `
+                        <div class="furniture-icon">${item.icon}</div>
+                        <div class="furniture-info">
+                            <div class="furniture-name">${item.name}</div>
+                            <div class="furniture-size">${item.width}m × ${item.height}m</div>
+                            <div class="size-inputs">
+                                <input type="number" class="width-input" value="${item.width}" step="0.1" min="0.1" max="10">
+                                <span>×</span>
+                                <input type="number" class="height-input" value="${item.height}" step="0.1" min="0.1" max="10">
+                            </div>
+                        </div>
+                        <div class="furniture-controls">
+                            <button class="btn btn-primary btn-small edit-btn" onclick="toggleEdit(${index})">编辑</button>
+                            ${!this.isDefaultFurniture(item.type) ? `<button class="btn btn-warning btn-small" onclick="removeFurniture(${index})">删除</button>` : ''}
+                        </div>
+                    `;
+                    
+                    container.appendChild(furnitureDiv);
+                });
+                
+                this.setupFurnitureEventListeners();
+            }
+
+            isDefaultFurniture(type) {
+                return this.defaultFurniture.some(item => item.type === type);
+            }
+
+            setupFurnitureEventListeners() {
+                const furnitureItems = document.querySelectorAll('.furniture-item');
+                furnitureItems.forEach(item => {
+                    item.addEventListener('dragstart', this.handleDragStart.bind(this));
+                });
+            }
+
+            setupEventListeners() {
+                // Canvas事件
+                this.canvas.addEventListener('dragover', this.handleDragOver.bind(this));
+                this.canvas.addEventListener('drop', this.handleDrop.bind(this));
+                this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
+                this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
+                this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
+                this.canvas.addEventListener('dblclick', this.handleDoubleClick.bind(this));
+                this.canvas.addEventListener('contextmenu', this.handleRightClick.bind(this));
+
+                // 输入框事件
+                document.getElementById('roomWidth').addEventListener('change', this.updateRoomSize.bind(this));
+                document.getElementById('roomHeight').addEventListener('change', this.updateRoomSize.bind(this));
+                
+                // 点击其他地方关闭右键菜单
+                document.addEventListener('click', () => {
+                    document.getElementById('contextMenu').style.display = 'none';
+                });
+            }
+
+            handleDragStart(e) {
+                const index = parseInt(e.target.dataset.index);
+                const furnitureData = this.furnitureLibrary[index];
+                e.dataTransfer.setData('application/json', JSON.stringify(furnitureData));
+            }
+
+            handleDragOver(e) {
+                e.preventDefault();
+            }
+
+            handleDrop(e) {
+                e.preventDefault();
+                const furnitureData = JSON.parse(e.dataTransfer.getData('application/json'));
+                const rect = this.canvas.getBoundingClientRect();
+                
+                // 修正坐标转换，考虑偏移量
+                const x = (e.clientX - rect.left - 50) / this.scale;
+                const y = (e.clientY - rect.top - 50) / this.scale;
+
+                const furniture = {
+                    id: Date.now(),
+                    type: furnitureData.type,
+                    name: furnitureData.name,
+                    icon: furnitureData.icon,
+                    x: Math.max(0, x - furnitureData.width / 2),
+                    y: Math.max(0, y - furnitureData.height / 2),
+                    width: furnitureData.width,
+                    height: furnitureData.height,
+                    color: this.getFurnitureColor(furnitureData.type)
+                };
+
+                this.furniture.push(furniture);
+                this.draw();
+                this.showStatus(`已添加 ${furniture.name}`);
+            }
+
+            handleMouseDown(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                // 修正坐标转换
+                const x = (e.clientX - rect.left - 50) / this.scale;
+                const y = (e.clientY - rect.top - 50) / this.scale;
+
+                // 查找点击的家具（从后往前查找，确保选中最上层的）
+                this.selectedFurniture = null;
+                for (let i = this.furniture.length - 1; i >= 0; i--) {
+                    const furniture = this.furniture[i];
+                    if (x >= furniture.x && x <= furniture.x + furniture.width &&
+                        y >= furniture.y && y <= furniture.y + furniture.height) {
+                        this.draggedFurniture = furniture;
+                        this.selectedFurniture = furniture;
+                        this.dragOffset = {
+                            x: x - furniture.x,
+                            y: y - furniture.y
+                        };
+                        this.canvas.style.cursor = 'grabbing';
+                        this.isDragging = true;
+                        break;
+                    }
+                }
+                this.draw();
+            }
+
+            handleMouseMove(e) {
+                if (this.draggedFurniture && this.isDragging) {
+                    const rect = this.canvas.getBoundingClientRect();
+                    // 修正坐标转换
+                    const x = (e.clientX - rect.left - 50) / this.scale;
+                    const y = (e.clientY - rect.top - 50) / this.scale;
+
+                    this.draggedFurniture.x = x - this.dragOffset.x;
+                    this.draggedFurniture.y = y - this.dragOffset.y;
+                    this.draw();
+                }
+            }
+
+            handleMouseUp(e) {
+                if (this.draggedFurniture) {
+                    this.draggedFurniture = null;
+                    this.canvas.style.cursor = 'crosshair';
+                    this.isDragging = false;
+                }
+            }
+
+            handleDoubleClick(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                // 修正坐标转换
+                const x = (e.clientX - rect.left - 50) / this.scale;
+                const y = (e.clientY - rect.top - 50) / this.scale;
+
+                // 查找双击的家具并旋转
+                for (let furniture of this.furniture) {
+                    if (x >= furniture.x && x <= furniture.x + furniture.width &&
+                        y >= furniture.y && y <= furniture.y + furniture.height) {
+                        // 旋转家具（交换宽高）
+                        const temp = furniture.width;
+                        furniture.width = furniture.height;
+                        furniture.height = temp;
+                        this.draw();
+                        this.showStatus(`已旋转 ${furniture.name}`);
+                        break;
+                    }
+                }
+            }
+
+            handleRightClick(e) {
+                e.preventDefault();
+                const rect = this.canvas.getBoundingClientRect();
+                // 修正坐标转换
+                const x = (e.clientX - rect.left - 50) / this.scale;
+                const y = (e.clientY - rect.top - 50) / this.scale;
+
+                // 查找右键点击的家具
+                for (let furniture of this.furniture) {
+                    if (x >= furniture.x && x <= furniture.x + furniture.width &&
+                        y >= furniture.y && y <= furniture.y + furniture.height) {
+                        this.contextMenuFurniture = furniture;
+                        const contextMenu = document.getElementById('contextMenu');
+                        contextMenu.style.display = 'block';
+                        contextMenu.style.left = e.clientX + 'px';
+                        contextMenu.style.top = e.clientY + 'px';
+                        break;
+                    }
+                }
+            }
+
+            updateRoomSize() {
+                const width = parseFloat(document.getElementById('roomWidth').value);
+                const height = parseFloat(document.getElementById('roomHeight').value);
+                
+                if (width > 0 && height > 0 && width <= 20 && height <= 20) {
+                    this.roomWidth = width;
+                    this.roomHeight = height;
+                    this.generateRoom();
+                } else {
+                    this.showError('房间尺寸必须在1-20米之间');
+                }
+            }
+
+            generateRoom() {
+                // 计算画布尺寸
+                const canvasWidth = Math.max(400, this.roomWidth * this.scale + 100);
+                const canvasHeight = Math.max(300, this.roomHeight * this.scale + 100);
+                
+                this.canvas.width = canvasWidth;
+                this.canvas.height = canvasHeight;
+                
+                this.draw();
+                this.showSuccess(`已生成 ${this.roomWidth}m × ${this.roomHeight}m 的房间`);
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 绘制背景
+                this.ctx.fillStyle = '#f8f9fa';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 绘制网格
+                this.drawGrid();
+                
+                // 绘制房间边界
+                this.drawRoomBoundary();
+                
+                // 绘制家具
+                this.drawFurniture();
+                
+                // 绘制尺寸标注
+                this.drawDimensions();
+            }
+
+            drawGrid() {
+                this.ctx.strokeStyle = '#e9ecef';
+                this.ctx.lineWidth = 1;
+                
+                const gridPixels = this.gridSize * this.scale;
+                const roomWidthPixels = this.roomWidth * this.scale;
+                const roomHeightPixels = this.roomHeight * this.scale;
+                
+                // 垂直线
+                for (let x = 0; x <= roomWidthPixels; x += gridPixels) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x + 50, 50);
+                    this.ctx.lineTo(x + 50, roomHeightPixels + 50);
+                    this.ctx.stroke();
+                }
+                
+                // 水平线
+                for (let y = 0; y <= roomHeightPixels; y += gridPixels) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(50, y + 50);
+                    this.ctx.lineTo(roomWidthPixels + 50, y + 50);
+                    this.ctx.stroke();
+                }
+            }
+
+            drawRoomBoundary() {
+                this.ctx.strokeStyle = '#495057';
+                this.ctx.lineWidth = 3;
+                this.ctx.strokeRect(50, 50, this.roomWidth * this.scale, this.roomHeight * this.scale);
+            }
+
+            drawFurniture() {
+                this.furniture.forEach(furniture => {
+                    const x = furniture.x * this.scale + 50;
+                    const y = furniture.y * this.scale + 50;
+                    const width = furniture.width * this.scale;
+                    const height = furniture.height * this.scale;
+                    
+                    // 检查是否超出边界
+                    const isOutOfBounds = furniture.x < 0 || furniture.y < 0 || 
+                                        furniture.x + furniture.width > this.roomWidth || 
+                                        furniture.y + furniture.height > this.roomHeight;
+                    
+                    // 绘制家具
+                    this.ctx.fillStyle = furniture.color;
+                    this.ctx.fillRect(x, y, width, height);
+                    
+                    // 绘制边框
+                    this.ctx.strokeStyle = isOutOfBounds ? '#f44336' : '#495057';
+                    this.ctx.lineWidth = furniture === this.selectedFurniture ? 3 : 2;
+                    this.ctx.strokeRect(x, y, width, height);
+                    
+                    // 绘制家具图标和名称
+                    this.ctx.fillStyle = '#ffffff';
+                    this.ctx.font = 'bold 16px Microsoft YaHei';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.textBaseline = 'middle';
+                    
+                    // 绘制图标
+                    this.ctx.fillText(furniture.icon || '📦', x + width/2, y + height/2 - 10);
+                    
+                    // 绘制名称
+                    this.ctx.font = 'bold 10px Microsoft YaHei';
+                    this.ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                    this.ctx.fillRect(x + 2, y + height - 15, width - 4, 13);
+                    this.ctx.fillStyle = '#ffffff';
+                    this.ctx.fillText(furniture.name, x + width/2, y + height - 8);
+                });
+            }
+
+            drawDimensions() {
+                this.ctx.fillStyle = '#495057';
+                this.ctx.font = 'bold 14px Microsoft YaHei';
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'middle';
+                
+                // 房间宽度标注
+                this.ctx.fillText(`${this.roomWidth}m`, 50 + (this.roomWidth * this.scale) / 2, 30);
+                
+                // 房间高度标注
+                this.ctx.save();
+                this.ctx.translate(30, 50 + (this.roomHeight * this.scale) / 2);
+                this.ctx.rotate(-Math.PI / 2);
+                this.ctx.fillText(`${this.roomHeight}m`, 0, 0);
+                this.ctx.restore();
+            }
+
+            getFurnitureColor(type) {
+                const colors = {
+                    'bed': '#8e24aa',
+                    'single-bed': '#7b1fa2',
+                    'sofa': '#1976d2',
+                    'loveseat': '#1565c0',
+                    'dining-table': '#388e3c',
+                    'coffee-table': '#2e7d32',
+                    'desk': '#f57c00',
+                    'wardrobe': '#5d4037',
+                    'tv-stand': '#424242'
+                };
+                return colors[type] || '#666666';
+            }
+
+            clearRoom() {
+                if (this.furniture.length > 0) {
+                    if (confirm('确定要清空所有家具吗？')) {
+                        this.furniture = [];
+                        this.selectedFurniture = null;
+                        this.draw();
+                        this.showSuccess('已清空房间');
+                    }
+                }
+            }
+
+            saveLayout() {
+                const layout = {
+                    roomWidth: this.roomWidth,
+                    roomHeight: this.roomHeight,
+                    furniture: this.furniture,
+                    furnitureLibrary: this.furnitureLibrary,
+                    timestamp: new Date().toISOString()
+                };
+                
+                localStorage.setItem('roomLayout', JSON.stringify(layout));
+                this.showSuccess('布局已保存到本地存储');
+            }
+
+            loadLayout() {
+                const saved = localStorage.getItem('roomLayout');
+                if (saved) {
+                    try {
+                        const layout = JSON.parse(saved);
+                        this.roomWidth = layout.roomWidth || 5;
+                        this.roomHeight = layout.roomHeight || 4;
+                        this.furniture = layout.furniture || [];
+                        
+                        if (layout.furnitureLibrary) {
+                            this.furnitureLibrary = layout.furnitureLibrary;
+                            this.renderFurnitureList();
+                        }
+                        
+                        document.getElementById('roomWidth').value = this.roomWidth;
+                        document.getElementById('roomHeight').value = this.roomHeight;
+                        
+                        this.generateRoom();
+                        this.showSuccess('已加载保存的布局');
+                    } catch (e) {
+                        console.error('加载布局失败:', e);
+                    }
+                }
+            }
+
+            exportImage() {
+                // 创建一个新的canvas用于导出
+                const exportCanvas = document.createElement('canvas');
+                const exportCtx = exportCanvas.getContext('2d');
+                
+                exportCanvas.width = this.canvas.width;
+                exportCanvas.height = this.canvas.height;
+                
+                // 设置白色背景
+                exportCtx.fillStyle = '#ffffff';
+                exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                
+                // 复制当前canvas内容
+                exportCtx.drawImage(this.canvas, 0, 0);
+                
+                // 添加标题和信息
+                exportCtx.fillStyle = '#495057';
+                exportCtx.font = 'bold 16px Microsoft YaHei';
+                exportCtx.textAlign = 'left';
+                exportCtx.fillText(`室内空间规划图 - ${this.roomWidth}m × ${this.roomHeight}m`, 10, 25);
+                
+                exportCtx.font = '12px Microsoft YaHei';
+                exportCtx.fillText(`生成时间: ${new Date().toLocaleString()}`, 10, exportCanvas.height - 10);
+                
+                // 下载图片
+                const link = document.createElement('a');
+                link.download = `室内规划图_${this.roomWidth}x${this.roomHeight}_${Date.now()}.png`;
+                link.href = exportCanvas.toDataURL();
+                link.click();
+                
+                this.showSuccess('规划图已导出');
+            }
+
+            addCustomFurniture(name, icon, width, height) {
+                const newFurniture = {
+                    type: `custom_${Date.now()}`,
+                    name: name,
+                    icon: icon,
+                    width: width,
+                    height: height
+                };
+                
+                this.furnitureLibrary.push(newFurniture);
+                this.saveFurnitureLibrary();
+                this.renderFurnitureList();
+                this.showSuccess(`已添加自定义家具: ${name}`);
+            }
+
+            removeFurnitureFromLibrary(index) {
+                if (confirm(`确定要删除 ${this.furnitureLibrary[index].name} 吗？`)) {
+                    this.furnitureLibrary.splice(index, 1);
+                    this.saveFurnitureLibrary();
+                    this.renderFurnitureList();
+                    this.showSuccess('家具已从库中删除');
+                }
+            }
+
+            updateFurnitureSize(index, width, height) {
+                this.furnitureLibrary[index].width = width;
+                this.furnitureLibrary[index].height = height;
+                this.saveFurnitureLibrary();
+                this.renderFurnitureList();
+                this.showSuccess('家具尺寸已更新');
+            }
+
+            showStatus(message) {
+                const statusBar = document.getElementById('statusBar');
+                statusBar.textContent = message;
+                statusBar.style.display = 'block';
+                setTimeout(() => {
+                    statusBar.style.display = 'none';
+                }, 3000);
+            }
+
+            showError(message) {
+                const errorDiv = document.getElementById('errorMessage');
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 5000);
+            }
+
+            showSuccess(message) {
+                const successDiv = document.getElementById('successMessage');
+                successDiv.textContent = message;
+                successDiv.style.display = 'block';
+                setTimeout(() => {
+                    successDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // 全局变量
+        let roomPlanner;
+
+        // 全局函数
+        function generateRoom() {
+            if (!roomPlanner) {
+                roomPlanner = new RoomPlanner();
+            } else {
+                roomPlanner.updateRoomSize();
+            }
+        }
+
+        function clearRoom() {
+            if (roomPlanner) {
+                roomPlanner.clearRoom();
+            }
+        }
+
+        function saveLayout() {
+            if (roomPlanner) {
+                roomPlanner.saveLayout();
+            }
+        }
+
+        function exportImage() {
+            if (roomPlanner) {
+                roomPlanner.exportImage();
+            }
+        }
+
+        function addCustomFurniture() {
+            const name = document.getElementById('newFurnitureName').value.trim();
+            const icon = document.getElementById('newFurnitureIcon').value;
+            const width = parseFloat(document.getElementById('newFurnitureWidth').value);
+            const height = parseFloat(document.getElementById('newFurnitureHeight').value);
+            
+            if (!name) {
+                alert('请输入家具名称');
+                return;
+            }
+            
+            if (!width || !height || width <= 0 || height <= 0) {
+                alert('请输入有效的尺寸');
+                return;
+            }
+            
+            roomPlanner.addCustomFurniture(name, icon, width, height);
+            
+            // 清空输入框
+            document.getElementById('newFurnitureName').value = '';
+            document.getElementById('newFurnitureWidth').value = '';
+            document.getElementById('newFurnitureHeight').value = '';
+        }
+
+        function toggleEdit(index) {
+            const furnitureItem = document.querySelector(`[data-index="${index}"]`);
+            const isEditing = furnitureItem.classList.contains('editable');
+            
+            if (isEditing) {
+                // 保存编辑
+                const widthInput = furnitureItem.querySelector('.width-input');
+                const heightInput = furnitureItem.querySelector('.height-input');
+                const width = parseFloat(widthInput.value);
+                const height = parseFloat(heightInput.value);
+                
+                if (width > 0 && height > 0) {
+                    roomPlanner.updateFurnitureSize(index, width, height);
+                    furnitureItem.classList.remove('editable');
+                    furnitureItem.querySelector('.edit-btn').textContent = '编辑';
+                } else {
+                    alert('请输入有效的尺寸');
+                }
+            } else {
+                // 开始编辑
+                furnitureItem.classList.add('editable');
+                furnitureItem.querySelector('.edit-btn').textContent = '保存';
+            }
+        }
+
+        function removeFurniture(index) {
+            roomPlanner.removeFurnitureFromLibrary(index);
+        }
+
+        function rotateFurniture() {
+            if (roomPlanner.contextMenuFurniture) {
+                const furniture = roomPlanner.contextMenuFurniture;
+                const temp = furniture.width;
+                furniture.width = furniture.height;
+                furniture.height = temp;
+                roomPlanner.draw();
+                roomPlanner.showStatus(`已旋转 ${furniture.name}`);
+            }
+            document.getElementById('contextMenu').style.display = 'none';
+        }
+
+        function deleteFurniture() {
+            if (roomPlanner.contextMenuFurniture) {
+                const furniture = roomPlanner.contextMenuFurniture;
+                const index = roomPlanner.furniture.indexOf(furniture);
+                if (index > -1) {
+                    roomPlanner.furniture.splice(index, 1);
+                    roomPlanner.selectedFurniture = null;
+                    roomPlanner.draw();
+                    roomPlanner.showStatus(`已删除 ${furniture.name}`);
+                }
+            }
+            document.getElementById('contextMenu').style.display = 'none';
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            roomPlanner = new RoomPlanner();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字华容道</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        select, button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .game-board {
+            display: grid;
+            gap: 4px;
+            margin: 0 auto;
+            max-width: 400px;
+            aspect-ratio: 1;
+            background: #f0f0f0;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .tile {
+            background: #667eea;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tile:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .tile.empty {
+            background: transparent;
+            cursor: default;
+        }
+
+        .tile.empty:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .tile.disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .tile.disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .tile.moving {
+            z-index: 10;
+            transform: scale(1.1);
+        }
+
+        .win-message {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .moves-counter {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .game-status {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #888;
+            font-weight: bold;
+        }
+
+        .game-status.playing {
+            color: #4CAF50;
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .tile {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>数字华容道</h1>
+        
+        <div class="controls">
+            <div class="difficulty-selector">
+                <label>难度:</label>
+                <select id="difficulty">
+                    <option value="3">3x3 (简单)</option>
+                    <option value="4" selected>4x4 (普通)</option>
+                    <option value="5">5x5 (困难)</option>
+                    <option value="6">6x6 (专家)</option>
+                </select>
+            </div>
+            <button id="startBtn" onclick="startGame()" style="background: #4CAF50;">开始游戏</button>
+            <button onclick="newGame()">重新开始</button>
+        </div>
+        
+        <div class="timer" id="timer">00:00</div>
+        <div class="moves-counter">步数: <span id="moves">0</span></div>
+        <div class="game-status" id="gameStatus">准备就绪，点击"开始游戏"开始</div>
+        
+        <div class="game-board" id="gameBoard"></div>
+        
+        <div class="win-message" id="winMessage">
+            🎉 恭喜完成！<br>
+            用时: <span id="finalTime"></span><br>
+            步数: <span id="finalMoves"></span>
+        </div>
+    </div>
+
+    <script>
+        class DigitalKlotski {
+            constructor() {
+                this.size = 4;
+                this.tiles = [];
+                this.emptyPos = { row: 0, col: 0 };
+                this.moves = 0;
+                this.startTime = null;
+                this.timerInterval = null;
+                this.isPlaying = false;
+                
+                this.init();
+            }
+
+            init() {
+                this.createBoard();
+                this.newGame();
+            }
+
+            createBoard() {
+                const board = document.getElementById('gameBoard');
+                board.innerHTML = '';
+                board.style.gridTemplateColumns = `repeat(${this.size}, 1fr)`;
+                
+                for (let i = 0; i < this.size * this.size; i++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile';
+                    tile.addEventListener('click', () => this.handleTileClick(i));
+                    board.appendChild(tile);
+                }
+            }
+
+            newGame() {
+                this.size = parseInt(document.getElementById('difficulty').value);
+                this.createBoard();
+                
+                this.tiles = [];
+                for (let i = 0; i < this.size * this.size - 1; i++) {
+                    this.tiles.push(i + 1);
+                }
+                this.tiles.push(0); // 0 表示空格
+                
+                this.shuffle();
+                this.render();
+                
+                this.moves = 0;
+            document.getElementById('moves').textContent = this.moves;
+            
+            // 重置计时器
+            this.stopTimer();
+            document.getElementById('timer').textContent = '00:00';
+            
+            // 重置游戏状态
+            this.isPlaying = false;
+            document.getElementById('winMessage').style.display = 'none';
+            
+            // 重置开始按钮状态
+            const startBtn = document.getElementById('startBtn');
+            startBtn.disabled = false;
+            startBtn.style.opacity = '1';
+            startBtn.style.cursor = 'pointer';
+            
+            // 初始化状态提示
+            document.getElementById('gameStatus').textContent = '准备就绪，点击"开始游戏"开始';
+            }
+
+            shuffle() {
+                // 使用有效的打乱算法
+                const moves = this.size * this.size * 20;
+                for (let i = 0; i < moves; i++) {
+                    const possibleMoves = this.getPossibleMoves();
+                    if (possibleMoves.length > 0) {
+                        const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+                        this.moveTile(randomMove, false);
+                    }
+                }
+                
+                // 确保游戏可解
+                if (!this.isSolvable()) {
+                    // 交换最后两个非空格的数字
+                    let pos1 = this.size * this.size - 2;
+                    let pos2 = this.size * this.size - 3;
+                    [this.tiles[pos1], this.tiles[pos2]] = [this.tiles[pos2], this.tiles[pos1]];
+                }
+            }
+
+            isSolvable() {
+                let inversions = 0;
+                const flatTiles = this.tiles.filter(t => t !== 0);
+                
+                for (let i = 0; i < flatTiles.length; i++) {
+                    for (let j = i + 1; j < flatTiles.length; j++) {
+                        if (flatTiles[i] > flatTiles[j]) {
+                            inversions++;
+                        }
+                    }
+                }
+                
+                if (this.size % 2 === 1) {
+                    return inversions % 2 === 0;
+                } else {
+                    const emptyRow = Math.floor(this.tiles.indexOf(0) / this.size);
+                    return (inversions + emptyRow) % 2 === 1;
+                }
+            }
+
+            getPossibleMoves() {
+                const emptyIndex = this.tiles.indexOf(0);
+                const row = Math.floor(emptyIndex / this.size);
+                const col = emptyIndex % this.size;
+                const moves = [];
+
+                if (row > 0) moves.push(emptyIndex - this.size); // 上
+                if (row < this.size - 1) moves.push(emptyIndex + this.size); // 下
+                if (col > 0) moves.push(emptyIndex - 1); // 左
+                if (col < this.size - 1) moves.push(emptyIndex + 1); // 右
+
+                return moves;
+            }
+
+            handleTileClick(index) {
+                if (!this.isPlaying) return;
+                
+                const emptyIndex = this.tiles.indexOf(0);
+                const row = Math.floor(index / this.size);
+                const col = index % this.size;
+                const emptyRow = Math.floor(emptyIndex / this.size);
+                const emptyCol = emptyIndex % this.size;
+
+                // 检查是否可以移动（相邻）
+                if ((Math.abs(row - emptyRow) === 1 && col === emptyCol) ||
+                    (Math.abs(col - emptyCol) === 1 && row === emptyRow)) {
+                    this.moveTile(index, true);
+                }
+            }
+
+            moveTile(index, countMove = true) {
+                const emptyIndex = this.tiles.indexOf(0);
+                [this.tiles[index], this.tiles[emptyIndex]] = [this.tiles[emptyIndex], this.tiles[index]];
+                
+                if (countMove) {
+                    this.moves++;
+                    document.getElementById('moves').textContent = this.moves;
+                }
+                
+                this.render();
+                
+                if (this.isWin()) {
+                    this.handleWin();
+                }
+            }
+
+            isWin() {
+                for (let i = 0; i < this.tiles.length - 1; i++) {
+                    if (this.tiles[i] !== i + 1) {
+                        return false;
+                    }
+                }
+                return this.tiles[this.tiles.length - 1] === 0;
+            }
+
+            handleWin() {
+                this.isPlaying = false;
+                this.stopTimer();
+                
+                // 重置开始按钮状态
+                const startBtn = document.getElementById('startBtn');
+                startBtn.disabled = false;
+                startBtn.style.opacity = '1';
+                startBtn.style.cursor = 'pointer';
+                
+                // 更新状态提示
+                document.getElementById('gameStatus').textContent = '🎉 恭喜完成！';
+                document.getElementById('gameStatus').className = 'game-status';
+                
+                const time = document.getElementById('timer').textContent;
+                document.getElementById('finalTime').textContent = time;
+                document.getElementById('finalMoves').textContent = this.moves;
+                document.getElementById('winMessage').style.display = 'block';
+            }
+
+            render() {
+                const tiles = document.querySelectorAll('.tile');
+                
+                tiles.forEach((tile, index) => {
+                    const value = this.tiles[index];
+                    tile.textContent = value === 0 ? '' : value;
+                    
+                    let className = value === 0 ? 'tile empty' : 'tile';
+                    if (!this.isPlaying && value !== 0) {
+                        className += ' disabled';
+                    }
+                    tile.className = className;
+                });
+            }
+
+            startGame() {
+                if (!this.isPlaying) {
+                    this.startTimer();
+                    this.isPlaying = true;
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('startBtn').style.opacity = '0.6';
+                    document.getElementById('startBtn').style.cursor = 'not-allowed';
+                }
+            }
+
+            startTimer() {
+                this.stopTimer();
+                this.startTime = Date.now();
+                this.timerInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60);
+                    const seconds = elapsed % 60;
+                    document.getElementById('timer').textContent = 
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }, 1000);
+            }
+
+            stopTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+            }
+        }
+
+        // 初始化游戏
+        let game;
+
+        function startGame() {
+            if (game && !game.isPlaying) {
+                game.startGame();
+            }
+        }
+
+        function newGame() {
+            if (game) {
+                game.newGame();
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new DigitalKlotski();
+        });
+
+        // 键盘控制
+        document.addEventListener('keydown', (e) => {
+            if (!game || !game.isPlaying) return;
+            
+            const emptyIndex = game.tiles.indexOf(0);
+            const emptyRow = Math.floor(emptyIndex / game.size);
+            const emptyCol = emptyIndex % game.size;
+            let targetIndex = -1;
+
+            switch(e.key) {
+                case 'ArrowUp':
+                    if (emptyRow < game.size - 1) targetIndex = emptyIndex + game.size;
+                    break;
+                case 'ArrowDown':
+                    if (emptyRow > 0) targetIndex = emptyIndex - game.size;
+                    break;
+                case 'ArrowLeft':
+                    if (emptyCol < game.size - 1) targetIndex = emptyIndex + 1;
+                    break;
+                case 'ArrowRight':
+                    if (emptyCol > 0) targetIndex = emptyIndex - 1;
+                    break;
+            }
+
+            if (targetIndex >= 0) {
+                e.preventDefault();
+                game.moveTile(targetIndex, true);
+            }
+        });
+    </script>
+</body>
+</html>

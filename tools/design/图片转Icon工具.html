@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片转Icon工具</title>
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --accent-color: #ff4e50;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--light-color);
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #ff4e50, #f9d423);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .upload-area {
+            border: 3px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 50px;
+            text-align: center;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .upload-area:hover {
+            border-color: var(--accent-color);
+            background: rgba(255, 78, 80, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .upload-area.highlight {
+            border-color: var(--accent-color);
+            background: rgba(255, 78, 80, 0.2);
+            animation: bounce 0.5s;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .control-group:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.12);
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: var(--light-color);
+            font-size: 1.1rem;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            font-size: 16px;
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(255, 78, 80, 0.5);
+        }
+        
+        button {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        button:disabled {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        #clearBtn {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            margin-top: 10px;
+        }
+        
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .preview-box {
+            text-align: center;
+        }
+        
+        .preview-box img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .preview-box p {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        
+        .download-btn {
+            background: linear-gradient(45deg, var(--success-color), #20c997);
+            margin-top: 10px;
+            padding: 10px 15px;
+            font-size: 16px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            background: var(--success-color);
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transform: translateX(200%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>图片转Icon工具</h1>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <h2>点击上传图片或将图片拖拽到此处</h2>
+            <p>支持 JPG、PNG、GIF 格式</p>
+            <input type="file" id="fileInput" accept="image/*" class="hidden">
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="sizeSelect">选择Icon尺寸</label>
+                <select id="sizeSelect">
+                    <option value="16">16x16</option>
+                    <option value="32">32x32</option>
+                    <option value="48">48x48</option>
+                    <option value="64" selected>64x64</option>
+                    <option value="128">128x128</option>
+                    <option value="256">256x256</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="borderRadius">圆角大小</label>
+                <input type="range" id="borderRadius" min="0" max="50" value="0">
+                <span id="borderRadiusValue">0px</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="formatSelect">输出格式</label>
+                <select id="formatSelect">
+                    <option value="png">PNG</option>
+                    <option value="jpeg">JPEG</option>
+                    <option value="webp">WebP</option>
+                </select>
+            </div>
+            
+            <button id="convertBtn" disabled>转换为Icon</button>
+            <button id="clearBtn">清除</button>
+        </div>
+        
+        <div class="preview-container" id="previewContainer">
+            <!-- 预览区域 -->
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">Icon生成成功！</div>
+    
+    <script>
+        // DOM元素
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const sizeSelect = document.getElementById('sizeSelect');
+        const borderRadius = document.getElementById('borderRadius');
+        const borderRadiusValue = document.getElementById('borderRadiusValue');
+        const formatSelect = document.getElementById('formatSelect');
+        const convertBtn = document.getElementById('convertBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const previewContainer = document.getElementById('previewContainer');
+        const notification = document.getElementById('notification');
+        
+        // 当前图片对象
+        let currentImage = null;
+        
+        // 点击上传区域时触发文件选择
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // 拖拽上传功能
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('highlight');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('highlight');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('highlight');
+            
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        
+        // 文件选择处理
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        // 处理文件
+        function handleFile(file) {
+            // 检查文件类型
+            if (!file.type.match('image.*')) {
+                alert('请选择图片文件！');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                // 创建图片对象
+                currentImage = new Image();
+                currentImage.onload = () => {
+                    // 启用转换按钮
+                    convertBtn.disabled = false;
+                };
+                currentImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 圆角大小滑块事件
+        borderRadius.addEventListener('input', () => {
+            borderRadiusValue.textContent = `${borderRadius.value}px`;
+        });
+        
+        // 转换按钮点击事件
+        convertBtn.addEventListener('click', () => {
+            if (!currentImage) {
+                alert('请先上传图片！');
+                return;
+            }
+            
+            const size = parseInt(sizeSelect.value);
+            const radius = parseInt(borderRadius.value);
+            const format = formatSelect.value;
+            convertToIcon(currentImage, size, radius, format);
+        });
+        
+        // 清除按钮点击事件
+        clearBtn.addEventListener('click', () => {
+            // 重置上传区域
+            uploadArea.classList.remove('highlight');
+            
+            // 清空文件输入
+            fileInput.value = '';
+            
+            // 重置当前图片
+            currentImage = null;
+            
+            // 禁用转换按钮
+            convertBtn.disabled = true;
+            
+            // 清空预览区域
+            previewContainer.innerHTML = '';
+            
+            // 重置选择器
+            sizeSelect.value = '64';
+            borderRadius.value = '0';
+            borderRadiusValue.textContent = '0px';
+            formatSelect.value = 'png';
+        });
+        
+        // 转换图片为Icon
+        function convertToIcon(img, size, radius, format) {
+            // 创建canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            
+            // 绘制图片到canvas
+            const ctx = canvas.getContext('2d');
+            
+            // 如果需要圆角，创建圆角路径
+            if (radius > 0) {
+                ctx.beginPath();
+                ctx.moveTo(radius, 0);
+                ctx.lineTo(size - radius, 0);
+                ctx.quadraticCurveTo(size, 0, size, radius);
+                ctx.lineTo(size, size - radius);
+                ctx.quadraticCurveTo(size, size, size - radius, size);
+                ctx.lineTo(radius, size);
+                ctx.quadraticCurveTo(0, size, 0, size - radius);
+                ctx.lineTo(0, radius);
+                ctx.quadraticCurveTo(0, 0, radius, 0);
+                ctx.closePath();
+                ctx.clip();
+            }
+            
+            // 计算缩放比例，保持图片比例并填充整个canvas
+            const scale = Math.max(size / img.width, size / img.height);
+            const width = img.width * scale;
+            const height = img.height * scale;
+            const x = (size - width) / 2;
+            const y = (size - height) / 2;
+            
+            ctx.drawImage(img, x, y, width, height);
+            
+            // 创建预览
+            createPreview(canvas, size, format);
+        }
+        
+        // 创建预览
+        function createPreview(canvas, size, format) {
+            // 清空预览区域
+            previewContainer.innerHTML = '';
+            
+            // 创建预览框
+            const previewBox = document.createElement('div');
+            previewBox.className = 'preview-box';
+            
+            // 创建图片
+            const mimeType = format === 'jpeg' ? 'image/jpeg' : format === 'webp' ? 'image/webp' : 'image/png';
+            const img = document.createElement('img');
+            img.src = canvas.toDataURL(mimeType);
+            
+            // 创建尺寸标签
+            const label = document.createElement('p');
+            label.textContent = `${size}x${size} (${format.toUpperCase()})`;
+            
+            // 创建下载按钮
+            const downloadBtn = document.createElement('button');
+            downloadBtn.className = 'download-btn';
+            downloadBtn.textContent = '下载Icon';
+            downloadBtn.addEventListener('click', () => {
+                downloadIcon(canvas, size, format);
+            });
+            
+            // 组装元素
+            previewBox.appendChild(img);
+            previewBox.appendChild(label);
+            previewBox.appendChild(downloadBtn);
+            
+            previewContainer.appendChild(previewBox);
+            
+            // 显示通知
+            showNotification();
+        }
+        
+        // 下载Icon
+        function downloadIcon(canvas, size, format) {
+            const mimeType = format === 'jpeg' ? 'image/jpeg' : format === 'webp' ? 'image/webp' : 'image/png';
+            const extension = format === 'jpeg' ? 'jpg' : format;
+            const link = document.createElement('a');
+            link.download = `icon-${size}x${size}.${extension}`;
+            link.href = canvas.toDataURL(mimeType);
+            link.click();
+        }
+        
+        // 显示通知
+        function showNotification() {
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

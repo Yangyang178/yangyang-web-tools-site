@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>颜色选择器 & 调色板生成工具</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --gradient: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 350px;
+            max-width: 500px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        
+        .panel h2 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+        
+        .color-picker {
+            width: 100%;
+            height: 60px;
+            margin: 1.5rem 0;
+            cursor: pointer;
+            border: 3px solid var(--light-color);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .color-picker:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+        
+        .color-display {
+            width: 100%;
+            height: 120px;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .color-display:hover {
+            transform: scale(1.01);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+        }
+        
+        .color-info {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: rgba(0,0,0,0.03);
+            border-radius: 0.5rem;
+        }
+        
+        .color-info p {
+            margin: 0.5rem 0;
+            font-weight: 500;
+        }
+        
+        .palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin: 1.5rem 0;
+            justify-content: center;
+        }
+        
+        .palette-color {
+            width: 60px;
+            height: 60px;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .palette-color:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        
+        button {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            margin: 0.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(67, 97, 238, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .code {
+            background: rgba(0,0,0,0.05);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Fira Code', monospace;
+            margin: 1rem 0;
+            word-break: break-all;
+            transition: all 0.3s ease;
+        }
+        
+        .code:hover {
+            background: rgba(0,0,0,0.08);
+            transform: scale(1.01);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .panel {
+            animation: fadeIn 0.6s ease forwards;
+        }
+        
+        .panel:nth-child(1) { animation-delay: 0.1s; }
+        .panel:nth-child(2) { animation-delay: 0.3s; }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .panel {
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>颜色选择器 & 调色板生成工具</h1>
+    
+    <div class="container">
+        <div class="panel">
+            <h2>颜色选择器</h2>
+            <input type="color" id="colorPicker" class="color-picker" value="#ff0000">
+            
+            <div id="colorDisplay" class="color-display" style="background-color: #ff0000;"></div>
+            
+            <div class="color-info">
+                <p>HEX: <span id="hexValue">#ff0000</span></p>
+                <p>RGB: <span id="rgbValue">rgb(255, 0, 0)</span></p>
+                <p>HSL: <span id="hslValue">hsl(0, 100%, 50%)</span></p>
+            </div>
+            
+            <button id="copyHex">复制HEX</button>
+            <button id="copyRgb">复制RGB</button>
+            <button id="copyHsl">复制HSL</button>
+        </div>
+        
+        <div class="panel">
+            <h2>调色板生成</h2>
+            
+            <button id="complementaryBtn">生成互补色</button>
+            <button id="analogousBtn">生成类似色</button>
+            <button id="triadicBtn">生成三色组合</button>
+            <button id="monochromaticBtn">生成单色调</button>
+            <button id="gradientBtn">生成渐变色</button>
+            
+            <div id="paletteContainer" class="palette"></div>
+            
+            <div id="paletteInfo">
+                <h3>调色板代码</h3>
+                <div id="paletteCode" class="code">选择颜色并点击上方按钮生成调色板</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const colorPicker = document.getElementById('colorPicker');
+        const colorDisplay = document.getElementById('colorDisplay');
+        const hexValue = document.getElementById('hexValue');
+        const rgbValue = document.getElementById('rgbValue');
+        const hslValue = document.getElementById('hslValue');
+        const paletteContainer = document.getElementById('paletteContainer');
+        const paletteCode = document.getElementById('paletteCode');
+        
+        // 颜色选择器事件监听
+        colorPicker.addEventListener('input', function() {
+            const color = this.value;
+            colorDisplay.style.backgroundColor = color;
+            updateColorInfo(color);
+        });
+        
+        // 更新颜色信息
+        function updateColorInfo(hexColor) {
+            hexValue.textContent = hexColor;
+            
+            // HEX转RGB
+            const r = parseInt(hexColor.substr(1, 2), 16);
+            const g = parseInt(hexColor.substr(3, 2), 16);
+            const b = parseInt(hexColor.substr(5, 2), 16);
+            rgbValue.textContent = `rgb(${r}, ${g}, ${b})`;
+            
+            // RGB转HSL
+            const hsl = rgbToHsl(r, g, b);
+            hslValue.textContent = `hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s)}%, ${Math.round(hsl.l)}%)`;
+        }
+        
+        // RGB转HSL
+        function rgbToHsl(r, g, b) {
+            r /= 255, g /= 255, b /= 255;
+            
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+            
+            if (max === min) {
+                h = s = 0; // achromatic
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                
+                h /= 6;
+            }
+            
+            return {
+                h: h * 360,
+                s: s * 100,
+                l: l * 100
+            };
+        }
+        
+        // HSL转RGB
+        function hslToRgb(h, s, l) {
+            h /= 360;
+            s /= 100;
+            l /= 100;
+            
+            let r, g, b;
+            
+            if (s === 0) {
+                r = g = b = l; // achromatic
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+                
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+            
+            return {
+                r: Math.round(r * 255),
+                g: Math.round(g * 255),
+                b: Math.round(b * 255)
+            };
+        }
+        
+        // RGB转HEX
+        function rgbToHex(r, g, b) {
+            return '#' + [r, g, b].map(x => {
+                const hex = x.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('');
+        }
+        
+        // 生成互补色
+        document.getElementById('complementaryBtn').addEventListener('click', function() {
+            const hexColor = colorPicker.value;
+            const r = parseInt(hexColor.substr(1, 2), 16);
+            const g = parseInt(hexColor.substr(3, 2), 16);
+            const b = parseInt(hexColor.substr(5, 2), 16);
+            
+            const hsl = rgbToHsl(r, g, b);
+            const complementaryH = (hsl.h + 180) % 360;
+            
+            const rgb = hslToRgb(complementaryH, hsl.s, hsl.l);
+            const complementaryHex = rgbToHex(rgb.r, rgb.g, rgb.b);
+            
+            generatePalette([hexColor, complementaryHex], '互补色方案');
+        });
+        
+        // 生成类似色
+        document.getElementById('analogousBtn').addEventListener('click', function() {
+            const hexColor = colorPicker.value;
+            const r = parseInt(hexColor.substr(1, 2), 16);
+            const g = parseInt(hexColor.substr(3, 2), 16);
+            const b = parseInt(hexColor.substr(5, 2), 16);
+            
+            const hsl = rgbToHsl(r, g, b);
+            const analogous1H = (hsl.h + 30) % 360;
+            const analogous2H = (hsl.h - 30 + 360) % 360;
+            
+            const rgb1 = hslToRgb(analogous1H, hsl.s, hsl.l);
+            const analogous1Hex = rgbToHex(rgb1.r, rgb1.g, rgb1.b);
+            
+            const rgb2 = hslToRgb(analogous2H, hsl.s, hsl.l);
+            const analogous2Hex = rgbToHex(rgb2.r, rgb2.g, rgb2.b);
+            
+            generatePalette([analogous1Hex, hexColor, analogous2Hex], '类似色方案');
+        });
+        
+        // 生成三色组合
+        document.getElementById('triadicBtn').addEventListener('click', function() {
+            const hexColor = colorPicker.value;
+            const r = parseInt(hexColor.substr(1, 2), 16);
+            const g = parseInt(hexColor.substr(3, 2), 16);
+            const b = parseInt(hexColor.substr(5, 2), 16);
+            
+            const hsl = rgbToHsl(r, g, b);
+            const triadic1H = (hsl.h + 120) % 360;
+            const triadic2H = (hsl.h + 240) % 360;
+            
+            const rgb1 = hslToRgb(triadic1H, hsl.s, hsl.l);
+            const triadic1Hex = rgbToHex(rgb1.r, rgb1.g, rgb1.b);
+            
+            const rgb2 = hslToRgb(triadic2H, hsl.s, hsl.l);
+            const triadic2Hex = rgbToHex(rgb2.r, rgb2.g, rgb2.b);
+            
+            generatePalette([hexColor, triadic1Hex, triadic2Hex], '三色组合方案');
+        });
+        
+        
+        
+        // 生成调色板
+        function generatePalette(colors, paletteName) {
+            paletteContainer.innerHTML = '';
+            
+            colors.forEach(color => {
+                const colorBox = document.createElement('div');
+                colorBox.className = 'palette-color';
+                colorBox.style.backgroundColor = color;
+                colorBox.title = color;
+                
+                colorBox.addEventListener('click', function() {
+                    colorPicker.value = color;
+                    colorDisplay.style.backgroundColor = color;
+                    updateColorInfo(color);
+                });
+                
+                paletteContainer.appendChild(colorBox);
+            });
+            
+            // 生成调色板代码
+            let code = `/* ${paletteName} */\n`;
+            colors.forEach((color, index) => {
+                code += `--color-${index + 1}: ${color};\n`;
+            });
+            
+            paletteCode.textContent = code;
+        }
+        
+        // 复制功能
+        document.getElementById('copyHex').addEventListener('click', function() {
+            copyToClipboard(hexValue.textContent);
+        });
+        
+        document.getElementById('copyRgb').addEventListener('click', function() {
+            copyToClipboard(rgbValue.textContent);
+        });
+        
+        document.getElementById('copyHsl').addEventListener('click', function() {
+            copyToClipboard(hslValue.textContent);
+        });
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('已复制: ' + text);
+            }).catch(err => {
+                console.error('复制失败: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
+
+        
+        // 生成调色板
+        function generatePalette(colors, paletteName) {
+            paletteContainer.innerHTML = '';
+            
+            colors.forEach(color => {
+                const colorBox = document.createElement('div');
+                colorBox.className = 'palette-color';
+                colorBox.style.backgroundColor = color;
+                colorBox.title = color;
+                
+                colorBox.addEventListener('click', function() {
+                    colorPicker.value = color;
+                    colorDisplay.style.backgroundColor = color;
+                    updateColorInfo(color);
+                });
+                
+                paletteContainer.appendChild(colorBox);
+            });
+            
+            // 生成调色板代码
+            let code = `/* ${paletteName} */\n`;
+            colors.forEach((color, index) => {
+                code += `--color-${index + 1}: ${color};\n`;
+            });
+            
+            paletteCode.textContent = code;
+        }
+        
+        // 复制功能
+        document.getElementById('copyHex').addEventListener('click', function() {
+            copyToClipboard(hexValue.textContent);
+        });
+        
+        document.getElementById('copyRgb').addEventListener('click', function() {
+            copyToClipboard(rgbValue.textContent);
+        });
+        
+        document.getElementById('copyHsl').addEventListener('click', function() {
+            copyToClipboard(hslValue.textContent);
+        });
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('已复制: ' + text);
+            }).catch(err => {
+                console.error('复制失败: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

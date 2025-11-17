@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>个人成就记录库</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --primary: #22c55e;
+      --accent: #38bdf8;
+      --warn: #f59e0b;
+      --violet: #a78bfa;
+      --border: #1f2937;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei";
+      background: linear-gradient(180deg, #0b1022, var(--bg)); color: var(--text);
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 16px; }
+    h1 { margin: 0; font-size: 24px; }
+    .desc { color: var(--muted); font-size: 14px; }
+    .grid { display: grid; gap: 16px; }
+    .grid.cols-2 { grid-template-columns: 1fr 1fr; }
+    .grid.cols-3 { grid-template-columns: 1.2fr 1fr 1fr; }
+    .card { background: linear-gradient(180deg, #0e1328, var(--card)); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .card h2 { margin: 0 0 12px; font-size: 18px; }
+    .controls { display:flex; gap: 8px; flex-wrap: wrap; align-items:center; }
+    button { background: #1f2937; color: var(--text); border: 1px solid #293445; border-radius: 8px; padding: 8px 12px; cursor: pointer; font-size: 14px; }
+    button.primary { background: var(--primary); border-color: #16a34a; color: #04140a; font-weight: 600; }
+    button.accent { background: var(--accent); border-color: #0ea5e9; color: #041017; font-weight: 600; }
+    button.warn { background: var(--warn); border-color: #d97706; color: #1f1504; font-weight: 600; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    label { font-size: 13px; color: var(--muted); }
+    input[type="text"], input[type="date"], textarea, select {
+      width: 100%; background: #0b1427; color: var(--text); border: 1px solid #233049; border-radius: 8px; padding: 8px; font-size: 14px;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    .field { display:flex; flex-direction: column; gap: 6px; }
+    .two-cols { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .three-cols { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .pill { background:#0b1427; border:1px solid #253047; padding:8px 12px; border-radius: 999px; font-size:13px; color: var(--muted); }
+    .list { list-style:none; padding:0; margin:0; }
+    .list li { border-top:1px dashed #26324a; padding:8px 0; }
+    .items { display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+    .item { border:1px solid #26324a; border-radius:10px; padding:12px; background:#0c1429; }
+    .item h3 { margin:0 0 6px; font-size:16px; }
+    .item small { color: var(--muted); }
+    .thumb { width:100%; height:140px; object-fit:cover; border-radius:8px; border:1px solid #253047; background:#0b1427; }
+    .evidence { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .ev-link { display:inline-block; background:#0b1427; border:1px solid #233049; color:#cbd5e1; padding:4px 8px; border-radius:6px; font-size:12px; text-decoration:none; }
+    .tag { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid #253047; }
+    .tag.work { color:#38bdf8; border-color:#0ea5e9; }
+    .tag.study { color:#22c55e; border-color:#16a34a; }
+    .tag.life { color:#f59e0b; border-color:#d97706; }
+    .tag.other { color:#a78bfa; border-color:#7c3aed; }
+    .chart { width: 100%; height: 240px; background:#0b1427; border:1px solid #253047; border-radius:10px; position:relative; overflow:hidden; }
+    .chart .axis { position:absolute; left:0; right:0; bottom:0; height:24px; display:flex; justify-content:space-between; padding:0 8px; color:#8aa0be; font-size:12px; }
+    .muted { color: var(--muted); }
+    .footer-note { color: var(--muted); font-size: 12px; margin-top: 8px; }
+    @media (max-width: 900px) { .grid.cols-2, .grid.cols-3 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>个人成就记录库</h1>
+        <div class="desc">记录你的成就与成功片刻，分类管理，视觉化时间线，在需要鼓励时回望闪光瞬间。</div>
+      </div>
+      <div class="controls">
+        <button class="accent" id="exportBtn">导出JSON</button>
+        <label class="pill">导入JSON：<input type="file" id="importInput" accept="application/json"></label>
+      </div>
+    </header>
+
+    <div class="grid cols-3">
+      <div class="card">
+        <h2>添加成就</h2>
+        <div class="field"><label>标题</label><input type="text" id="titleInput" placeholder="例如：完成年度项目交付" /></div>
+        <div class="two-cols" style="margin-top:8px;">
+          <div class="field">
+            <label>分类</label>
+            <select id="categorySelect">
+              <option value="work">工作</option>
+              <option value="study">学习</option>
+              <option value="life">生活</option>
+              <option value="other">其他</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>日期</label>
+            <input type="date" id="dateInput" />
+          </div>
+        </div>
+        <div class="field" style="margin-top:8px;"><label>描述</label><textarea id="descInput" placeholder="简述你完成了什么、为什么重要、带来的影响"></textarea></div>
+        <div class="field" style="margin-top:8px;">
+          <label>证据图片（可多选，自动压缩）</label>
+          <input type="file" id="imageInput" accept="image/*" multiple />
+        </div>
+        <div class="two-cols" style="margin-top:8px; align-items:end;">
+          <div class="field">
+            <label>证据链接</label>
+            <input type="text" id="linkInput" placeholder="如：文档、视频、博客URL" />
+          </div>
+          <button id="addLinkBtn">添加链接</button>
+        </div>
+        <div class="evidence" id="linkList"></div>
+        <div class="controls" style="margin-top:10px;">
+          <button class="primary" id="addBtn">添加成就</button>
+          <span class="pill" id="saveStatus">未保存</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>成就列表</h2>
+        <div class="controls">
+          <label>筛选分类：
+            <select id="filterSelect">
+              <option value="all">全部</option>
+              <option value="work">工作</option>
+              <option value="study">学习</option>
+              <option value="life">生活</option>
+              <option value="other">其他</option>
+            </select>
+          </label>
+          <label>排序：
+            <select id="sortSelect">
+              <option value="desc">日期新→旧</option>
+              <option value="asc">日期旧→新</option>
+            </select>
+          </label>
+        </div>
+        <div class="items" id="items"></div>
+        <div class="footer-note">提示：点击“删除”可移除一条成就（仅影响本地数据）。</div>
+      </div>
+
+      <div class="card">
+        <h2>需要鼓励时</h2>
+        <div class="controls"><button class="warn" id="randomBtn">随机展示过往成就</button></div>
+        <div id="encourage" class="item" style="margin-top:10px; display:none;"></div>
+        <div class="footer-note">随机挑选一条成就，提醒自己：你一直在进步。</div>
+      </div>
+    </div>
+
+    <div class="grid cols-2" style="margin-top:16px;">
+      <div class="card">
+        <h2>成就时间线（按日期）</h2>
+        <div class="chart" id="timelineChart">
+          <div class="axis" id="timelineAxis"></div>
+        </div>
+        <div class="footer-note">颜色：工作(蓝)、学习(绿)、生活(橙)、其他(紫)。点越靠右代表越新。</div>
+      </div>
+      <div class="card">
+        <h2>统计概览</h2>
+        <ul class="list" id="overview"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'achievementLog_v1';
+    const CATEGORY_META = {
+      work: { label: '工作', color: '#38bdf8', tagClass: 'work' },
+      study: { label: '学习', color: '#22c55e', tagClass: 'study' },
+      life: { label: '生活', color: '#f59e0b', tagClass: 'life' },
+      other: { label: '其他', color: '#a78bfa', tagClass: 'other' },
+    };
+
+    function loadData() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      try { return JSON.parse(raw) || []; } catch { return []; }
+    }
+    function saveData(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+
+    async function readImages(files) {
+      const images = [];
+      const maxCount = Math.min(files.length, 5);
+      for (let i = 0; i < maxCount; i++) {
+        const file = files[i];
+        const dataUrl = await compressImage(file, 1000); // 压到最大宽度1000px
+        images.push({ name: file.name, dataUrl });
+      }
+      return images;
+    }
+
+    function compressImage(file, maxW=1000) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            const scale = Math.min(1, maxW / img.width);
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            // 0.85质量压缩
+            resolve(canvas.toDataURL('image/jpeg', 0.85));
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // 添加链接列表
+    const linkState = [];
+    function renderLinkList() {
+      const wrap = document.getElementById('linkList');
+      wrap.innerHTML = linkState.length ? '' : '<span class="muted">尚未添加链接</span>';
+      linkState.forEach((l, idx) => {
+        const a = document.createElement('a');
+        a.href = l; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.className = 'ev-link'; a.textContent = l;
+        wrap.appendChild(a);
+        const del = document.createElement('button');
+        del.textContent = '×'; del.style.marginLeft = '4px'; del.style.padding = '2px 6px'; del.addEventListener('click',()=>{ linkState.splice(idx,1); renderLinkList(); });
+        wrap.appendChild(del);
+      });
+    }
+
+    // 添加成就
+    async function addAchievement() {
+      const title = document.getElementById('titleInput').value.trim();
+      const category = document.getElementById('categorySelect').value;
+      const date = document.getElementById('dateInput').value || new Date().toISOString().slice(0,10);
+      const desc = document.getElementById('descInput').value.trim();
+      const imageFiles = document.getElementById('imageInput').files;
+      if (!title) { alert('请填写标题'); return; }
+      const images = await readImages(imageFiles);
+      const item = { id: uid(), title, category, date, desc, images, links: [...linkState] };
+      const data = loadData();
+      data.push(item);
+      saveData(data);
+      document.getElementById('saveStatus').textContent = '已保存';
+      // 清空输入
+      document.getElementById('titleInput').value='';
+      document.getElementById('descInput').value='';
+      document.getElementById('imageInput').value='';
+      document.getElementById('linkInput').value='';
+      linkState.splice(0, linkState.length);
+      renderLinkList();
+      renderItems();
+      renderTimeline();
+      renderOverview();
+    }
+
+    function deleteItem(id) {
+      let data = loadData();
+      data = data.filter(x => x.id !== id);
+      saveData(data);
+      renderItems();
+      renderTimeline();
+      renderOverview();
+    }
+
+    function renderItems() {
+      const itemsWrap = document.getElementById('items');
+      const filter = document.getElementById('filterSelect').value;
+      const sortDir = document.getElementById('sortSelect').value;
+      let data = loadData();
+      if (filter !== 'all') data = data.filter(x => x.category === filter);
+      data.sort((a,b)=> sortDir==='desc' ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date));
+      itemsWrap.innerHTML = data.length ? '' : '<div class="muted">暂无成就，添加你的第一条记录吧！</div>';
+      data.forEach(item => {
+        const div = document.createElement('div'); div.className = 'item';
+        const cat = CATEGORY_META[item.category];
+        const img = item.images?.[0]?.dataUrl || '';
+        div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>${item.title}</h3>
+            <span class="tag ${cat.tagClass}">${cat.label}</span>
+          </div>
+          <small>${item.date}</small>
+          ${img ? `<img class='thumb' src='${img}' alt='evidence' />` : ''}
+          <p style="margin:8px 0;">${item.desc ? item.desc : ''}</p>
+          <div class="evidence">${(item.links||[]).map(l=>`<a class='ev-link' href='${l}' target='_blank' rel='noopener noreferrer'>链接</a>`).join('')}</div>
+          <div class="controls" style="margin-top:8px;">
+            <button class="danger" onclick="deleteItem('${item.id}')">删除</button>
+          </div>
+        `;
+        itemsWrap.appendChild(div);
+      });
+    }
+
+    function renderOverview() {
+      const ov = document.getElementById('overview');
+      const data = loadData();
+      const total = data.length;
+      const byCat = { work:0, study:0, life:0, other:0 };
+      data.forEach(d => byCat[d.category] = (byCat[d.category]||0) + 1);
+      const dates = data.map(d=>d.date).sort();
+      const first = dates[0], last = dates[dates.length-1];
+      ov.innerHTML = '';
+      ov.innerHTML += `<li>总记录：${total}</li>`;
+      ov.innerHTML += `<li>工作：${byCat.work}，学习：${byCat.study}，生活：${byCat.life}，其他：${byCat.other}</li>`;
+      ov.innerHTML += `<li>时间范围：${first||'-'} ~ ${last||'-'}</li>`;
+    }
+
+    function renderTimeline() {
+      const chart = document.getElementById('timelineChart');
+      const axis = document.getElementById('timelineAxis');
+      const data = loadData().slice().sort((a,b)=>a.date.localeCompare(b.date));
+      const W = chart.clientWidth; const H = chart.clientHeight - 24; const pad = 24;
+      // 清空旧图
+      chart.querySelectorAll('svg').forEach(n=>n.remove());
+      axis.innerHTML = '';
+      if (!data.length) { axis.innerHTML = '<span class="muted">暂无数据</span>'; return; }
+      const min = new Date(data[0].date); const max = new Date(data[data.length-1].date);
+      const range = max - min || 1;
+      const xs = (d) => pad + (W - 2*pad) * ((new Date(d.date) - min) / range);
+      const ys = (i) => 20 + (H - 40) * (i % 3) / 2; // 简单三行分布防止遮挡
+      const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      // 轴刻度：每月/每季
+      const labels = [];
+      const cursor = new Date(min.getTime());
+      cursor.setDate(1);
+      while (cursor <= max) {
+        labels.push(cursor.toISOString().slice(0,7));
+        cursor.setMonth(cursor.getMonth()+1);
+      }
+      axis.innerHTML = labels.map(l=>`<span>${l.slice(5)}</span>`).join('');
+      // 画点
+      data.forEach((d, i) => {
+        const x = xs(d); const y = ys(i);
+        const color = CATEGORY_META[d.category]?.color || '#cbd5e1';
+        const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        circle.setAttribute('cx', x); circle.setAttribute('cy', y); circle.setAttribute('r', 6);
+        circle.setAttribute('fill', color); circle.setAttribute('stroke', '#0f172a'); circle.setAttribute('stroke-width', '2');
+        const title = document.createElementNS('http://www.w3.org/2000/svg','title');
+        title.textContent = `${d.date} · ${CATEGORY_META[d.category]?.label} · ${d.title}`;
+        circle.appendChild(title);
+        svg.appendChild(circle);
+      });
+      chart.appendChild(svg);
+    }
+
+    function randomEncourage() {
+      const data = loadData();
+      const box = document.getElementById('encourage');
+      if (!data.length) { box.style.display='block'; box.innerHTML = '<div class="muted">暂无成就记录，去添加一条吧！</div>'; return; }
+      const pick = data[Math.floor(Math.random()*data.length)];
+      const cat = CATEGORY_META[pick.category];
+      const img = pick.images?.[0]?.dataUrl || '';
+      box.style.display='block';
+      box.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3>${pick.title}</h3>
+          <span class="tag ${cat.tagClass}">${cat.label}</span>
+        </div>
+        <small>${pick.date}</small>
+        ${img ? `<img class='thumb' src='${img}' alt='evidence' />` : ''}
+        <p style="margin:8px 0;">${pick.desc || '这是一段了不起的达成时刻。'}</p>
+        <div class="evidence">${(pick.links||[]).map(l=>`<a class='ev-link' href='${l}' target='_blank' rel='noopener noreferrer'>链接</a>`).join('')}</div>
+      `;
+      confettiOnce();
+    }
+
+    function confettiOnce() {
+      // 轻量emoji彩带
+      const emojis = ['🎉','✨','🏆','💪','🎯','🌟'];
+      const count = 14;
+      for (let i=0;i<count;i++) {
+        const span = document.createElement('span');
+        span.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+        span.style.position='fixed'; span.style.left=Math.random()*100+'%'; span.style.top='-20px'; span.style.fontSize=(16+Math.random()*20)+'px';
+        span.style.transition='transform 2.4s ease, opacity 2.4s ease'; span.style.zIndex='9999';
+        document.body.appendChild(span);
+        requestAnimationFrame(()=>{
+          span.style.transform=`translateY(${window.innerHeight+40}px) translateX(${(Math.random()-0.5)*200}px)`;
+          span.style.opacity='0';
+        });
+        setTimeout(()=>span.remove(), 2600);
+      }
+    }
+
+    function bindEvents() {
+      document.getElementById('dateInput').value = new Date().toISOString().slice(0,10);
+      document.getElementById('addLinkBtn').addEventListener('click', () => {
+        const v = document.getElementById('linkInput').value.trim();
+        if (!v) return; linkState.push(v); document.getElementById('linkInput').value=''; renderLinkList();
+      });
+      document.getElementById('addBtn').addEventListener('click', () => { addAchievement(); });
+      document.getElementById('filterSelect').addEventListener('change', renderItems);
+      document.getElementById('sortSelect').addEventListener('change', renderItems);
+      document.getElementById('randomBtn').addEventListener('click', randomEncourage);
+      document.getElementById('exportBtn').addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(loadData(), null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `achievements_${new Date().toISOString().slice(0,10)}.json`; a.click();
+        URL.revokeObjectURL(url);
+      });
+      document.getElementById('importInput').addEventListener('change', async (e) => {
+        const file = e.target.files[0]; if (!file) return;
+        const text = await file.text();
+        try {
+          const obj = JSON.parse(text);
+          if (!Array.isArray(obj)) throw new Error('格式错误');
+          saveData(obj);
+          renderItems(); renderTimeline(); renderOverview();
+          alert('导入成功');
+        } catch (err) {
+          alert('导入失败：' + err.message);
+        } finally { e.target.value=''; }
+      });
+    }
+
+    function init() {
+      bindEvents();
+      renderLinkList();
+      renderItems();
+      renderTimeline();
+      renderOverview();
+    }
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

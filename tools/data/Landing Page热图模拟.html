@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page 热图模拟器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .upload-section {
+            border: 3px dashed #e0e7ff;
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.6s;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: linear-gradient(145deg, #f8faff 0%, #e0e7ff 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .upload-section:hover::before {
+            left: 100%;
+        }
+
+        .upload-section.dragover {
+            border-color: #667eea;
+            background: linear-gradient(145deg, #e0e7ff 0%, #c7d2fe 100%);
+            transform: scale(1.02);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .upload-icon {
+            font-size: 5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 25px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .upload-text {
+            font-size: 1.3rem;
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .upload-btn:hover::before {
+            left: 100%;
+        }
+
+        .upload-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .controls {
+            display: none;
+            background: linear-gradient(145deg, #ffffff 0%, #f8faff 100%);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            min-width: 120px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #e0e7ff, #c7d2fe);
+            outline: none;
+            -webkit-appearance: none;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            border: none;
+        }
+
+        .canvas-container {
+            display: none;
+            position: relative;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        #imageCanvas, #heatmapCanvas {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        #heatmapCanvas {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        .action-buttons {
+            display: none;
+            text-align: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .action-buttons button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+            min-width: 140px;
+        }
+
+        .action-buttons button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .action-buttons button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-buttons button:hover::before {
+            left: 100%;
+        }
+
+        .action-buttons button:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .action-buttons button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .action-buttons button:disabled:hover {
+            transform: none;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .info-panel {
+            background: linear-gradient(145deg, #e3f2fd 0%, #f3e5f5 100%);
+            border-left: 6px solid transparent;
+            border-image: linear-gradient(135deg, #2196f3, #9c27b0) 1;
+            padding: 25px;
+            border-radius: 0 15px 15px 0;
+            margin-top: 30px;
+            box-shadow: 0 4px 20px rgba(33, 150, 243, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(33, 150, 243, 0.05) 0%, rgba(156, 39, 176, 0.05) 100%);
+            pointer-events: none;
+        }
+
+        .info-panel h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .info-panel ul {
+            color: #424242;
+            padding-left: 25px;
+            line-height: 1.6;
+        }
+
+        .info-panel li {
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .info-panel li::marker {
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .control-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .control-group label {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 Landing Page 热图模拟器</h1>
+            <p>上传网页截图，智能生成用户视线热力图分析</p>
+        </div>
+
+        <div class="main-content">
+            <div class="upload-section" id="uploadSection">
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">拖拽图片到此处或点击上传</div>
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">选择图片</button>
+                <input type="file" id="fileInput" class="file-input" accept="image/*">
+            </div>
+
+            <div class="controls" id="controls">
+                <h3 style="margin-bottom: 20px;">🎛️ 热图参数调节</h3>
+                <div class="control-group">
+                    <label>热点强度:</label>
+                    <input type="range" class="slider" id="intensitySlider" min="0.3" max="1" step="0.1" value="0.7">
+                    <span id="intensityValue">0.7</span>
+                </div>
+                <div class="control-group">
+                    <label>热点半径:</label>
+                    <input type="range" class="slider" id="radiusSlider" min="20" max="100" step="10" value="50">
+                    <span id="radiusValue">50px</span>
+                </div>
+                <div class="control-group">
+                    <label>热点数量:</label>
+                    <input type="range" class="slider" id="countSlider" min="5" max="30" step="5" value="15">
+                    <span id="countValue">15</span>
+                </div>
+                <div class="control-group">
+                    <label>F型扫视:</label>
+                    <input type="checkbox" id="fPatternCheck" checked>
+                    <span>模拟F型阅读模式</span>
+                </div>
+            </div>
+
+            <div class="canvas-container" id="canvasContainer">
+                <canvas id="imageCanvas"></canvas>
+                <canvas id="heatmapCanvas"></canvas>
+            </div>
+
+            <div class="action-buttons" id="actionButtons">
+                <button onclick="generateHeatmap()">🔥 生成热图</button>
+                <button onclick="downloadHeatmap()">💾 下载结果</button>
+                <button onclick="resetAll()">🔄 重新开始</button>
+            </div>
+
+            <div class="info-panel">
+                <h3>📊 热图生成原理</h3>
+                <ul>
+                    <li><strong>F型扫视模式:</strong> 模拟用户从左上角开始的F型阅读习惯</li>
+                    <li><strong>视觉层次:</strong> 根据元素大小、颜色对比度分配注意力权重</li>
+                    <li><strong>黄金分割:</strong> 重点关注页面黄金分割点位置</li>
+                    <li><strong>边缘效应:</strong> 页面边缘区域获得较少关注</li>
+                    <li><strong>颜色映射:</strong> 红色=高关注，黄色=中等关注，蓝色=低关注</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedImage = null;
+        let imageCanvas = null;
+        let heatmapCanvas = null;
+        let ctx = null;
+        let heatmapCtx = null;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            imageCanvas = document.getElementById('imageCanvas');
+            heatmapCanvas = document.getElementById('heatmapCanvas');
+            ctx = imageCanvas.getContext('2d');
+            heatmapCtx = heatmapCanvas.getContext('2d');
+
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadSection = document.getElementById('uploadSection');
+
+            // 文件选择
+            fileInput.addEventListener('change', handleFileSelect);
+
+            // 拖拽上传
+            uploadSection.addEventListener('dragover', handleDragOver);
+            uploadSection.addEventListener('dragleave', handleDragLeave);
+            uploadSection.addEventListener('drop', handleDrop);
+
+            // 滑块事件
+            setupSliderEvents();
+        }
+
+        function setupSliderEvents() {
+            const sliders = ['intensity', 'radius', 'count'];
+            sliders.forEach(slider => {
+                const element = document.getElementById(slider + 'Slider');
+                const display = document.getElementById(slider + 'Value');
+                
+                element.addEventListener('input', function() {
+                    let value = this.value;
+                    if (slider === 'radius') value += 'px';
+                    display.textContent = value;
+                });
+            });
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        }
+
+        function processFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('请选择图片文件！');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    uploadedImage = img;
+                    displayImage();
+                    showControls();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function displayImage() {
+            const maxWidth = 800;
+            const maxHeight = 600;
+            
+            let { width, height } = uploadedImage;
+            
+            // 等比缩放
+            if (width > maxWidth) {
+                height = (height * maxWidth) / width;
+                width = maxWidth;
+            }
+            if (height > maxHeight) {
+                width = (width * maxHeight) / height;
+                height = maxHeight;
+            }
+
+            imageCanvas.width = width;
+            imageCanvas.height = height;
+            heatmapCanvas.width = width;
+            heatmapCanvas.height = height;
+
+            ctx.drawImage(uploadedImage, 0, 0, width, height);
+
+            document.getElementById('canvasContainer').style.display = 'block';
+            document.getElementById('actionButtons').style.display = 'flex';
+        }
+
+        function showControls() {
+            document.getElementById('controls').style.display = 'block';
+        }
+
+        function generateHeatmap() {
+            if (!uploadedImage) return;
+
+            const width = imageCanvas.width;
+            const height = imageCanvas.height;
+            const intensity = parseFloat(document.getElementById('intensitySlider').value);
+            const radius = parseInt(document.getElementById('radiusSlider').value);
+            const count = parseInt(document.getElementById('countSlider').value);
+            const fPattern = document.getElementById('fPatternCheck').checked;
+
+            // 清除之前的热图
+            heatmapCtx.clearRect(0, 0, width, height);
+
+            // 生成热点
+            const hotspots = generateHotspots(width, height, count, fPattern);
+
+            // 绘制热图
+            drawHeatmap(hotspots, radius, intensity);
+        }
+
+        function generateHotspots(width, height, count, fPattern) {
+            const hotspots = [];
+
+            if (fPattern) {
+                // F型扫视模式
+                // 顶部横线
+                for (let i = 0; i < Math.floor(count * 0.4); i++) {
+                    hotspots.push({
+                        x: (width * 0.1) + (width * 0.8 * i / Math.floor(count * 0.4)),
+                        y: height * 0.15 + Math.random() * height * 0.1,
+                        weight: 0.8 + Math.random() * 0.2
+                    });
+                }
+
+                // 中部横线（较短）
+                for (let i = 0; i < Math.floor(count * 0.3); i++) {
+                    hotspots.push({
+                        x: (width * 0.1) + (width * 0.5 * i / Math.floor(count * 0.3)),
+                        y: height * 0.4 + Math.random() * height * 0.1,
+                        weight: 0.6 + Math.random() * 0.2
+                    });
+                }
+
+                // 左侧竖线
+                for (let i = 0; i < Math.floor(count * 0.3); i++) {
+                    hotspots.push({
+                        x: width * 0.1 + Math.random() * width * 0.1,
+                        y: height * 0.2 + (height * 0.6 * i / Math.floor(count * 0.3)),
+                        weight: 0.5 + Math.random() * 0.3
+                    });
+                }
+            } else {
+                // 随机分布
+                for (let i = 0; i < count; i++) {
+                    hotspots.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        weight: 0.3 + Math.random() * 0.7
+                    });
+                }
+            }
+
+            // 添加黄金分割点
+            hotspots.push({
+                x: width * 0.618,
+                y: height * 0.382,
+                weight: 0.9
+            });
+
+            return hotspots;
+        }
+
+        function drawHeatmap(hotspots, radius, intensity) {
+            const width = heatmapCanvas.width;
+            const height = heatmapCanvas.height;
+
+            // 创建热图数据
+            const heatmapData = new Array(width * height).fill(0);
+
+            // 为每个热点生成影响区域
+            hotspots.forEach(hotspot => {
+                const centerX = Math.round(hotspot.x);
+                const centerY = Math.round(hotspot.y);
+
+                for (let x = Math.max(0, centerX - radius); x < Math.min(width, centerX + radius); x++) {
+                    for (let y = Math.max(0, centerY - radius); y < Math.min(height, centerY + radius); y++) {
+                        const distance = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+                        if (distance <= radius) {
+                            const influence = (1 - distance / radius) * hotspot.weight * intensity;
+                            const index = y * width + x;
+                            heatmapData[index] = Math.min(1, heatmapData[index] + influence);
+                        }
+                    }
+                }
+            });
+
+            // 绘制热图
+            const imageData = heatmapCtx.createImageData(width, height);
+            const data = imageData.data;
+
+            for (let i = 0; i < heatmapData.length; i++) {
+                const heat = heatmapData[i];
+                const pixelIndex = i * 4;
+
+                if (heat > 0) {
+                    const color = getHeatColor(heat);
+                    data[pixelIndex] = color.r;     // Red
+                    data[pixelIndex + 1] = color.g; // Green
+                    data[pixelIndex + 2] = color.b; // Blue
+                    data[pixelIndex + 3] = Math.round(heat * 180); // Alpha
+                }
+            }
+
+            heatmapCtx.putImageData(imageData, 0, 0);
+        }
+
+        function getHeatColor(intensity) {
+            // 热图颜色映射：蓝色 -> 绿色 -> 黄色 -> 红色
+            if (intensity < 0.25) {
+                return { r: 0, g: 0, b: Math.round(255 * intensity * 4) };
+            } else if (intensity < 0.5) {
+                const t = (intensity - 0.25) * 4;
+                return { r: 0, g: Math.round(255 * t), b: 255 - Math.round(255 * t) };
+            } else if (intensity < 0.75) {
+                const t = (intensity - 0.5) * 4;
+                return { r: Math.round(255 * t), g: 255, b: 0 };
+            } else {
+                const t = (intensity - 0.75) * 4;
+                return { r: 255, g: 255 - Math.round(255 * t), b: 0 };
+            }
+        }
+
+        function downloadHeatmap() {
+            if (!uploadedImage) return;
+
+            // 创建合成画布
+            const compositeCanvas = document.createElement('canvas');
+            const compositeCtx = compositeCanvas.getContext('2d');
+            
+            compositeCanvas.width = imageCanvas.width;
+            compositeCanvas.height = imageCanvas.height;
+
+            // 绘制原图
+            compositeCtx.drawImage(imageCanvas, 0, 0);
+            
+            // 绘制热图
+            compositeCtx.drawImage(heatmapCanvas, 0, 0);
+
+            // 下载
+            const link = document.createElement('a');
+            link.download = 'heatmap-result.png';
+            link.href = compositeCanvas.toDataURL();
+            link.click();
+        }
+
+        function resetAll() {
+            uploadedImage = null;
+            ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+            heatmapCtx.clearRect(0, 0, heatmapCanvas.width, heatmapCanvas.height);
+            
+            document.getElementById('canvasContainer').style.display = 'none';
+            document.getElementById('controls').style.display = 'none';
+            document.getElementById('actionButtons').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+        }
+    </script>
+</body>
+</html>

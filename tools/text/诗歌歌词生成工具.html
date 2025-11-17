@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>诗歌/歌词生成工具</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        
+        :root {
+            --primary: #8e44ad;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        h1 {
+            color: var(--dark);
+            text-align: center;
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+        }
+        
+        .control-group {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-group label {
+            font-weight: 500;
+            color: var(--dark);
+            min-width: 60px;
+        }
+        
+        input, select {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        button {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #keyword-container {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        #keywords-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .keyword-tag {
+            background-color: var(--light);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            animation: fadeIn 0.3s;
+        }
+        
+        .keyword-tag span {
+            color: var(--accent);
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        
+        .keyword-tag span:hover {
+            transform: scale(1.2);
+        }
+        
+        #result {
+            margin-top: 30px;
+            white-space: pre-wrap;
+            min-height: 150px;
+            padding: 20px;
+            background-color: var(--light);
+            border-radius: 10px;
+            border-left: 5px solid var(--primary);
+            font-size: 18px;
+            line-height: 1.6;
+            animation: fadeIn 0.5s;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .clear-btn {
+            background: linear-gradient(45deg, var(--accent), #e67e22);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .poem-icon {
+            font-size: 24px;
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .decoration {
+            position: absolute;
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        .decoration-1 {
+            top: 20px;
+            right: 20px;
+            font-size: 100px;
+            color: var(--primary);
+        }
+        
+        .decoration-2 {
+            bottom: 20px;
+            left: 20px;
+            font-size: 80px;
+            color: var(--secondary);
+        }
+    </style>
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>诗歌/歌词生成工具</h1>
+        <p>输入关键词，AI将为您生成押韵的诗歌或歌词</p>
+        
+        <div class="decoration decoration-1">诗</div>
+        <div class="decoration decoration-2">词</div>
+        
+        <div id="keyword-container">
+            <input type="text" id="new-keyword" placeholder="输入关键词，按Enter添加">
+            <button onclick="addKeyword()">
+                <span class="poem-icon">✍️</span>添加
+            </button>
+        </div>
+        <div id="keywords-list"></div>
+        
+        <div class="control-group">
+            <label><span class="poem-icon">🎨</span>风格:</label>
+            <select id="style">
+                <option value="poem">诗歌</option>
+                <option value="lyric">歌词</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label><span class="poem-icon">📏</span>长度:</label>
+            <select id="length">
+                <option value="short">短(4行)</option>
+                <option value="medium" selected>中(8行)</option>
+                <option value="long">长(12行)</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label><span class="poem-icon">🎵</span>韵脚:</label>
+            <select id="rhyme">
+                <option value="a">a韵</option>
+                <option value="e">e韵</option>
+                <option value="i">i韵</option>
+                <option value="o">o韵</option>
+                <option value="u">u韵</option>
+                <option value="random" selected>随机</option>
+            </select>
+        </div>
+        
+        <div class="action-buttons">
+            <button onclick="generatePoem()">
+                <span class="poem-icon">✨</span>生成
+            </button>
+            <button class="clear-btn" onclick="clearAll()">
+                <span class="poem-icon">🗑️</span>清除
+            </button>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // 简单的押韵词库
+        const rhymeWords = {
+            'a': ['啊', '花', '家', '发', '华', '沙', '茶', '妈'],
+            'e': ['歌', '河', '车', '乐', '德', '色', '热', '特'],
+            'i': ['你', '里', '起', '喜', '意', '气', '机', '西'],
+            'o': ['我', '多', '说', '过', '火', '落', '错', '波'],
+            'u': ['雨', '去', '路', '苦', '树', '处', '舞', '书']
+        };
+
+        let keywords = [];
+        
+        // 添加关键词
+        function addKeyword() {
+            const newKeyword = document.getElementById('new-keyword').value.trim();
+            if (newKeyword) {
+                keywords.push(newKeyword);
+                document.getElementById('new-keyword').value = '';
+                updateKeywordsList();
+            }
+        }
+        
+        // 更新关键词列表显示
+        function updateKeywordsList() {
+            const listDiv = document.getElementById('keywords-list');
+            listDiv.innerHTML = keywords.map((word, index) => 
+                `<span class="keyword-tag">${word} <span onclick="removeKeyword(${index})">×</span></span>`
+            ).join('');
+        }
+        
+        // 移除关键词
+        function removeKeyword(index) {
+            keywords.splice(index, 1);
+            updateKeywordsList();
+        }
+        
+        // 生成诗歌/歌词
+        function generatePoem() {
+            const style = document.getElementById('style').value;
+            const length = document.getElementById('length').value;
+            const rhyme = document.getElementById('rhyme').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (keywords.length === 0) {
+                resultDiv.textContent = '请添加至少一个关键词';
+                return;
+            }
+            
+            let poem = '';
+            
+            if (style === 'poem') {
+                // 生成诗歌
+                poem = generateChinesePoem(keywords, length, rhyme);
+            } else {
+                // 生成歌词
+                poem = generateLyrics(keywords, length, rhyme);
+            }
+            
+            resultDiv.textContent = poem;
+        }
+        
+        // 生成诗歌
+        function generateChinesePoem(keywords, length, rhyme) {
+            let lineCount = 4;
+            if (length === 'medium') lineCount = 8;
+            if (length === 'long') lineCount = 12;
+            
+            const lines = [`《${keywords[0] || '无题'}》`, ''];
+            const themes = keywords.length > 0 ? keywords : ['春', '夏', '秋', '冬'];
+            
+            // 诗句模板库
+            const templates = [
+                (t) => `在${t}的季节里，${getRandomRhyme('i')}`, 
+                (t) => `远方的${t}${getRandomRhyme('a')}，勾起我无限遐思`,
+                (t) => `${t}${getRandomRhyme('o')}，${['轻轻', '缓缓', '静静'][Math.floor(Math.random()*3)]}流淌`,
+                (t) => `我${['怀念', '思念', '追忆'][Math.floor(Math.random()*3)]}那${t}的${['时光', '岁月', '日子'][Math.floor(Math.random()*3)]}`,
+                (t) => `${t}的${['故事', '传说', '记忆'][Math.floor(Math.random()*3)]}，${getRandomRhyme('e')}`
+            ];
+            
+            for (let i = 0; i < lineCount; i++) {
+                const theme = themes[i % themes.length];
+                const currentRhyme = rhyme === 'random' ? Object.keys(rhymeWords)[i % 5] : rhyme;
+                const template = templates[Math.floor(Math.random() * templates.length)];
+                lines.push(template(theme));
+                
+                // 随机添加空行增加节奏感
+                if (i > 0 && Math.random() > 0.7) {
+                    lines.push('');
+                }
+            }
+            
+            lines.push('', `—— AI生成于${new Date().toLocaleDateString()}`);
+            return lines.join('\n');
+        }
+        
+        // 生成歌词
+        function generateLyrics(keywords, length, rhyme) {
+            let lineCount = 4;
+            if (length === 'medium') lineCount = 8;
+            if (length === 'long') lineCount = 12;
+            
+            const verses = ['[主歌1]'];
+            const themes = keywords.length > 0 ? keywords : ['爱', '梦', '远方', '希望'];
+            
+            // 歌词模板库
+            const templates = [
+                (t) => `每当我想起${t}的时候，${getRandomRhyme('i')}`,
+                (t) => `${t}像${['风', '雨', '阳光'][Math.floor(Math.random()*3)]}${getRandomRhyme('a')}`,
+                (t) => `我${['追逐', '寻找', '等待'][Math.floor(Math.random()*3)]}着${t}的${['方向', '足迹', '身影'][Math.floor(Math.random()*3)]}`,
+                (t) => `${t}${getRandomRhyme('o')}，${['让我', '使我', '令我'][Math.floor(Math.random()*3)]}${getRandomRhyme('e')}`,
+                (t) => `在${['黑夜', '黎明', '黄昏'][Math.floor(Math.random()*3)]}里，我${['歌唱', '呼唤', '诉说'][Math.floor(Math.random()*3)]}${t}`
+            ];
+            
+            for (let i = 0; i < lineCount; i++) {
+                const theme = themes[i % themes.length];
+                const currentRhyme = rhyme === 'random' ? Object.keys(rhymeWords)[i % 5] : rhyme;
+                
+                if (i === Math.floor(lineCount/2)) {
+                    verses.push('', '[副歌]');
+                }
+                
+                const template = templates[Math.floor(Math.random() * templates.length)];
+                verses.push(template(theme));
+            }
+            
+            verses.push('', `—— AI生成于${new Date().toLocaleDateString()}`);
+            return verses.join('\n');
+        }
+        
+        // 获取随机押韵词
+        function getRandomRhyme(vowel) {
+            const words = rhymeWords[vowel] || ['']; 
+            return words[Math.floor(Math.random() * words.length)];
+        }
+        
+        // 初始化
+        document.getElementById('new-keyword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addKeyword();
+            }
+        });
+        
+        // 清除所有内容
+        function clearAll() {
+            keywords = [];
+            document.getElementById('keywords-list').innerHTML = '';
+            document.getElementById('result').textContent = '';
+            document.getElementById('new-keyword').value = '';
+            
+            // 添加清除动画效果
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.animation = 'none';
+            setTimeout(() => {
+                resultDiv.style.animation = 'fadeIn 0.5s';
+            }, 10);
+        }
+    </script>
+</body>
+</html>

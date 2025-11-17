@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密码管理器</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        h1, h2 {
+            color: var(--primary);
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #d1146a;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e08a1a;
+        }
+        
+        .password-list {
+            margin-top: 2rem;
+        }
+        
+        .password-item {
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background-color: var(--light);
+        }
+        
+        .password-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .password-item-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .password-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .password-display {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .password-display input {
+            flex: 1;
+        }
+        
+        .toggle-password {
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .search-box {
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .close {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .close:hover {
+            color: var(--danger);
+        }
+        
+        .strength-meter {
+            height: 10px;
+            margin-top: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.5s ease;
+        }
+        
+        .weak { 
+            background: linear-gradient(to right, #ff758c, #ff7eb3); 
+        }
+        
+        .medium { 
+            background: linear-gradient(to right, #ffb347, #ffcc33); 
+        }
+        
+        .strong { 
+            background: linear-gradient(to right, #4facfe, #00f2fe); 
+        }
+        
+        .strength-text {
+            margin-top: 0.5rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            z-index: 1001;
+            display: none;
+        }
+        
+        .notification.success {
+            background-color: var(--success);
+        }
+        
+        .notification.error {
+            background-color: var(--danger);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            body {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🔒 密码管理器</h1>
+    
+    <div class="container">
+        <div class="card">
+            <h2>添加/编辑密码</h2>
+            <form id="passwordForm">
+                <input type="hidden" id="editIndex">
+                <div class="form-group">
+                    <label for="site">网站/应用名称:</label>
+                    <input type="text" id="site" placeholder="例如: Google, 微信" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="url">网站地址:</label>
+                    <input type="url" id="url" placeholder="例如: https://www.example.com">
+                </div>
+                
+
+                <div class="form-group">
+                    <label for="username">用户名/邮箱:</label>
+                    <input type="text" id="username" placeholder="例如: user@example.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">密码:</label>
+                    <input type="password" id="password" placeholder="输入密码" required>
+                </div>
+                
+                <div class="form-group">
+                    <div class="strength-meter">
+                        <div class="strength-bar" id="strengthBar"></div>
+                    </div>
+                    <p class="strength-text" id="strengthText">密码强度</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">分类:</label>
+                    <select id="category">
+                        <option value="">-- 请选择分类 --</option>
+                        <option value="社交">社交</option>
+                        <option value="购物">购物</option>
+                        <option value="金融">金融</option>
+                        <option value="工作">工作</option>
+                        <option value="娱乐">娱乐</option>
+                        <option value="学习">学习</option>
+                        <option value="生活">生活</option>
+                        <option value="游戏">游戏</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">备注:</label>
+                    <input type="text" id="notes" placeholder="例如: 个人账户">
+                </div>
+                
+                <button type="submit" class="btn">保存密码</button>
+                <button type="button" class="btn btn-warning" onclick="clearForm()" style="margin-left: 10px;">清空</button>
+            </form>
+        </div>
+        
+        <div class="card">
+            <h2>密码库</h2>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜索网站或用户名..." onkeyup="searchPasswords()">
+            </div>
+            
+            <div id="passwordList" class="password-list">
+                <!-- 密码列表将通过JavaScript动态生成 -->
+                <div class="empty-state">暂无密码条目</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 删除确认模态框 -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDeleteModal()">&times;</span>
+            <h2>确认删除</h2>
+            <p>您确定要删除这个密码条目吗？此操作无法撤销。</p>
+            <button class="btn btn-danger" onclick="confirmDelete()">确认删除</button>
+            <button class="btn" onclick="closeDeleteModal()" style="margin-left: 10px;">取消</button>
+        </div>
+    </div>
+    
+    <!-- 通知 -->
+    <div id="notification" class="notification"></div>
+    
+    <script>
+        // 密码数据存储在localStorage中
+        let passwords = JSON.parse(localStorage.getItem('passwords')) || [];
+        let deleteIndex = -1;
+        
+        // 页面加载时渲染密码列表
+        window.onload = function() {
+            renderPasswordList();
+            
+            // 为密码输入框添加强度检测
+            document.getElementById('password').addEventListener('input', checkPasswordStrength);
+        };
+        
+        // 检测密码强度
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const strengthBar = document.getElementById('strengthBar');
+            const strengthText = document.getElementById('strengthText');
+            
+            // 重置样式
+            strengthBar.className = 'strength-bar';
+            
+            if (password.length === 0) {
+                strengthBar.style.width = '0%';
+                strengthText.textContent = '密码强度';
+                return;
+            }
+            
+            let score = 0;
+            
+            // 长度检查
+            if (password.length >= 8) score += 1;
+            if (password.length >= 12) score += 1;
+            
+            // 包含数字
+            if (/\d/.test(password)) score += 1;
+            
+            // 包含小写字母
+            if (/[a-z]/.test(password)) score += 1;
+            
+            // 包含大写字母
+            if (/[A-Z]/.test(password)) score += 1;
+            
+            // 包含特殊字符
+            if (/[^A-Za-z0-9]/.test(password)) score += 1;
+            
+            // 计算百分比
+            const percent = Math.min(100, (score / 6) * 100);
+            strengthBar.style.width = percent + '%';
+            
+            // 设置强度文本和样式
+            if (percent < 40) {
+                strengthBar.classList.add('weak');
+                strengthText.textContent = '弱';
+            } else if (percent < 80) {
+                strengthBar.classList.add('medium');
+                strengthText.textContent = '中等';
+            } else {
+                strengthBar.classList.add('strong');
+                strengthText.textContent = '强';
+            }
+        }
+        
+        // 保存密码
+        document.getElementById('passwordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const site = document.getElementById('site').value;
+            const url = document.getElementById('url').value;
+            const urlSuffix = document.getElementById('urlSuffix').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const category = document.getElementById('category').value;
+            const notes = document.getElementById('notes').value;
+            const editIndex = document.getElementById('editIndex').value;
+            
+            // 创建密码对象
+            const passwordEntry = {
+                site: site,
+                url: url,
+                username: username,
+                password: btoa(password), // 简单的Base64编码
+                category: category,
+                notes: notes,
+                createdAt: editIndex ? passwords[editIndex].createdAt : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            if (editIndex === '') {
+                // 添加新密码
+                passwords.push(passwordEntry);
+                showNotification('密码已添加', 'success');
+            } else {
+                // 更新现有密码
+                passwords[editIndex] = passwordEntry;
+                showNotification('密码已更新', 'success');
+            }
+            
+            // 保存到localStorage
+            localStorage.setItem('passwords', JSON.stringify(passwords));
+            
+            // 重新渲染列表
+            renderPasswordList();
+            
+            // 清空表单
+            clearForm();
+        });
+        
+        // 渲染密码列表
+        function renderPasswordList() {
+            const container = document.getElementById('passwordList');
+            
+            if (passwords.length === 0) {
+                container.innerHTML = '<div class="empty-state">暂无密码条目</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            passwords.forEach((entry, index) => {
+                const passwordItem = document.createElement('div');
+                passwordItem.className = 'password-item';
+                passwordItem.innerHTML = `
+                    <div class="password-item-header">
+                        <div class="password-item-title">${entry.site}</div>
+                        <div class="password-item-actions">
+                            <button class="btn" onclick="editPassword(${index})">编辑</button>
+                            <button class="btn btn-danger" onclick="openDeleteModal(${index})">删除</button>
+                        </div>
+                    </div>
+                    <div>用户名: ${entry.username}</div>
+                    <div>分类: ${entry.category || '未分类'}</div>
+                    ${entry.url ? `<div>网站地址: <a href="${entry.url}" target="_blank">${entry.url}</a> (官网)</div>` : ''}
+                    <div class="password-display">
+                        <input type="password" id="password-${index}" value="${atob(entry.password)}" readonly>
+                        <span class="toggle-password" onclick="togglePassword(${index})">👁️</span>
+                    </div>
+                    <div>备注: ${entry.notes || '无'}</div>
+                    <div>更新时间: ${new Date(entry.updatedAt).toLocaleString()}</div>
+                `;
+                container.appendChild(passwordItem);
+            });
+        }
+        
+        // 切换密码可见性
+        function togglePassword(index) {
+            const passwordInput = document.getElementById(`password-${index}`);
+            const toggleBtn = passwordInput.nextElementSibling;
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+        
+        // 编辑密码
+        function editPassword(index) {
+            const entry = passwords[index];
+            
+            document.getElementById('site').value = entry.site;
+            document.getElementById('url').value = entry.url || '';
+            document.getElementById('url').value = entry.url || '';
+            document.getElementById('username').value = entry.username;
+            document.getElementById('password').value = atob(entry.password);
+            document.getElementById('category').value = entry.category || '';
+            document.getElementById('notes').value = entry.notes || '';
+            document.getElementById('editIndex').value = index;
+            
+            // 检测密码强度
+            checkPasswordStrength();
+            
+            // 滚动到表单顶部
+            document.querySelector('.card').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // 打开删除确认模态框
+        function openDeleteModal(index) {
+            deleteIndex = index;
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+        
+        // 关闭删除确认模态框
+        function closeDeleteModal() {
+            deleteIndex = -1;
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+        
+        // 确认删除
+        function confirmDelete() {
+            if (deleteIndex >= 0) {
+                passwords.splice(deleteIndex, 1);
+                localStorage.setItem('passwords', JSON.stringify(passwords));
+                renderPasswordList();
+                showNotification('密码已删除', 'success');
+                closeDeleteModal();
+            }
+        }
+        
+        // 清空表单
+        function clearForm() {
+            document.getElementById('passwordForm').reset();
+            document.getElementById('editIndex').value = '';
+            document.getElementById('strengthBar').style.width = '0%';
+            document.getElementById('strengthText').textContent = '密码强度';
+        }
+        
+        // 搜索密码
+        function searchPasswords() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (searchTerm === '') {
+                renderPasswordList();
+                return;
+            }
+            
+            const filteredPasswords = passwords.filter(entry => 
+                entry.site.toLowerCase().includes(searchTerm) || 
+                entry.username.toLowerCase().includes(searchTerm)
+            );
+            
+            const container = document.getElementById('passwordList');
+            
+            if (filteredPasswords.length === 0) {
+                container.innerHTML = '<div class="empty-state">未找到匹配的密码条目</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            filteredPasswords.forEach((entry, index) => {
+                // 找到原始索引
+                const originalIndex = passwords.indexOf(entry);
+                
+                const passwordItem = document.createElement('div');
+                passwordItem.className = 'password-item';
+                passwordItem.innerHTML = `
+                    <div class="password-item-header">
+                        <div class="password-item-title">${entry.site}</div>
+                        <div class="password-item-actions">
+                            <button class="btn" onclick="editPassword(${originalIndex})">编辑</button>
+                            <button class="btn btn-danger" onclick="openDeleteModal(${originalIndex})">删除</button>
+                        </div>
+                    </div>
+                    <div>用户名: ${entry.username}</div>
+                    <div>分类: ${entry.category || '未分类'}</div>
+                    ${entry.url ? `<div>网站地址: <a href="${entry.url}" target="_blank">${entry.url}</a> (官网)</div>` : ''}
+                    <div class="password-display">
+                        <input type="password" id="password-${originalIndex}" value="${atob(entry.password)}" readonly>
+                        <span class="toggle-password" onclick="togglePassword(${originalIndex})">👁️</span>
+                    </div>
+                    <div>备注: ${entry.notes || '无'}</div>
+                    <div>更新时间: ${new Date(entry.updatedAt).toLocaleString()}</div>
+                `;
+                container.appendChild(passwordItem);
+            });
+        }
+        
+        // 显示通知
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification ' + type;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

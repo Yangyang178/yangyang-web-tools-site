@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专注模式白噪音播放器</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            transition: all 0.5s;
+        }
+        
+        .container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            width: 80%;
+            max-width: 500px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .noise-option {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .noise-option:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .noise-option input {
+            margin-right: 15px;
+        }
+        
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--primary-color, #4CAF50);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .timer {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        
+        .focus-mode {
+            background-color: #2c3e50;
+            color: white;
+        }
+        
+        .focus-mode .container {
+            background-color: #34495e;
+        }
+        
+        .focus-mode h1 {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>专注模式白噪音播放器</h1>
+        
+        <div class="noise-options">
+            <div class="noise-option">
+                <input type="radio" name="noise" id="rain" value="rain" checked>
+                <label for="rain">雨声</label>
+            </div>
+            <div class="noise-option">
+                <input type="radio" name="noise" id="waves" value="waves">
+                <label for="waves">海浪声</label>
+            </div>
+            <div class="noise-option">
+                <input type="radio" name="noise" id="forest" value="forest">
+                <label for="forest">森林声</label>
+            </div>
+            <div class="noise-option">
+                <input type="radio" name="noise" id="coffee" value="coffee">
+                <label for="coffee">咖啡馆声</label>
+            </div>
+            <div class="noise-option">
+                <input type="radio" name="noise" id="fan" value="fan">
+                <label for="fan">风扇声</label>
+            </div>
+            <div class="noise-option">
+                <input type="radio" name="noise" id="thunder" value="thunder">
+                <label for="thunder">雷雨声</label>
+            </div>
+            <div class="noise-option">
+                <input type="radio" name="noise" id="stream" value="stream">
+                <label for="stream">溪流声</label>
+            </div>
+            <div class="noise-option">
+                <input type="radio" name="noise" id="fire" value="fire">
+                <label for="fire">篝火声</label>
+            </div>
+        </div>
+        
+        <div class="timer-settings">
+            <div class="time-input">
+                <label for="focus-minutes">专注时长 (分钟):</label>
+                <input type="number" id="focus-minutes" min="1" max="120" value="25">
+            </div>
+            <div class="timer">
+                <span id="minutes">25</span>:<span id="seconds">00</span>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="volume-control">
+                <label for="volume">音量:</label>
+                <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5">
+            </div>
+            <div class="theme-control">
+                <label for="theme-color">主题颜色:</label>
+                <input type="color" id="theme-color" value="#4CAF50">
+            </div>
+            <button id="startBtn">开始专注</button>
+            <button id="stopBtn" disabled>停止</button>
+        </div>
+    </div>
+
+    <script>
+        // 音频上下文和节点
+        let audioContext;
+        let noiseNode;
+        let gainNode;
+        let isPlaying = false;
+        let timerInterval;
+        let minutes = parseInt(document.getElementById('focus-minutes').value) || 25;
+        let seconds = 0;
+        let isFocusMode = false;
+        
+        // 初始化音频
+        function initAudio() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            gainNode = audioContext.createGain();
+            gainNode.gain.value = document.getElementById('volume').value || 0.5;
+            gainNode.connect(audioContext.destination);
+            
+            // 音量控制事件
+            document.getElementById('volume').addEventListener('input', function() {
+                if (gainNode) {
+                    gainNode.gain.value = this.value;
+                }
+            });
+        }
+        
+        // 生成白噪音
+        function generateNoise(type) {
+            if (noiseNode) {
+                noiseNode.stop();
+            }
+            
+            const bufferSize = 2 * audioContext.sampleRate;
+            const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            
+            // 根据类型生成不同的噪音
+            switch(type) {
+                case 'rain':
+                    // 雨声 - 多层随机噪声模拟真实雨声
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.random() * 0.3 - 0.15; // 基础雨声
+                        output[i] += Math.random() * 0.2 - 0.1; // 雨滴变化
+                        output[i] += Math.sin(i / 8000) * 0.05; // 远距离雨声
+                        if (i % 800 === 0) {
+                            output[i] += Math.random() * 0.3 - 0.15; // 大雨滴
+                        }
+                        if (i % 5000 === 0) {
+                            output[i] += Math.random() * 0.4 - 0.2; // 偶尔强雨
+                        }
+                    }
+                    break;
+                case 'waves':
+                    // 海浪声 - 真实海浪层次感
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.sin(i / 40) * 0.25; // 主波浪
+                        output[i] += Math.sin(i / 150) * 0.15; // 次波浪
+                        output[i] += Math.random() * 0.1 - 0.05; // 泡沫声
+                        if (i % 400 === 0) {
+                            output[i] += Math.random() * 0.5 - 0.25; // 大浪
+                        }
+                        if (i % 2000 === 0) {
+                            output[i] += Math.random() * 0.6 - 0.3; // 冲击声
+                        }
+                    }
+                    break;
+                case 'forest':
+                    // 森林声 - 真实环境音效
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.random() * 0.3 - 0.15; // 树叶沙沙声
+                        output[i] += Math.random() * 0.2 - 0.1; // 微风声
+                        if (i % 2500 === 0) {
+                            output[i] += Math.sin(i / 25) * 0.4; // 鸟鸣
+                        }
+                        if (i % 6000 === 0) {
+                            output[i] += Math.random() * 0.6 - 0.3; // 远处动物声
+                        }
+                        if (i % 10000 === 0) {
+                            output[i] += Math.random() * 0.8 - 0.4; // 树枝断裂声
+                        }
+                    }
+                    break;
+                case 'coffee':
+                    // 咖啡馆声 - 真实环境音效
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.random() * 0.2 - 0.1; // 基础环境声
+                        output[i] += Math.random() * 0.15 - 0.075; // 杯碟声
+                        if (i % 1800 === 0) {
+                            output[i] += Math.sin(i / 80) * 0.3; // 人声交谈
+                        }
+                        if (i % 4500 === 0) {
+                            output[i] += Math.random() * 0.5 - 0.25; // 笑声
+                        }
+                        if (i % 300 === 0) {
+                            output[i] += Math.random() * 0.1 - 0.05; // 咖啡机声
+                        }
+                    }
+                    break;
+                case 'fan':
+                    // 风扇声 - 真实电机声
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.sin(i / 600) * 0.15; // 电机基础声
+                        output[i] += Math.random() * 0.1 - 0.05; // 气流声
+                        if (i % 3000 === 0) {
+                            output[i] += Math.random() * 0.2 - 0.1; // 电机转速变化
+                        }
+                        if (i % 500 === 0) {
+                            output[i] += Math.random() * 0.05 - 0.025; // 轻微震动
+                        }
+                    }
+                    break;
+                case 'thunder':
+                    // 雷雨声 - 真实雷暴效果
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.random() * 0.25 - 0.125; // 基础雨声
+                        output[i] += Math.random() * 0.15 - 0.075; // 雨滴变化
+                        if (Math.random() < 0.0015) {
+                            output[i] += Math.random() * 1.2 - 0.6; // 近处雷声
+                        }
+                        if (i % 8000 === 0) {
+                            output[i] += Math.random() * 0.9 - 0.45; // 远处雷声
+                        }
+                        if (i % 300 === 0) {
+                            output[i] += Math.random() * 0.1 - 0.05; // 雨滴撞击声
+                        }
+                    }
+                    break;
+                case 'stream':
+                    // 溪流声 - 真实水流效果
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.random() * 0.3 - 0.15; // 基础水流
+                        output[i] += Math.sin(i / 180) * 0.2; // 主水流
+                        output[i] += Math.sin(i / 500) * 0.1; // 次级水流
+                        if (i % 2500 === 0) {
+                            output[i] += Math.random() * 0.4 - 0.2; // 水花
+                        }
+                        if (i % 100 === 0) {
+                            output[i] += Math.random() * 0.05 - 0.025; // 气泡
+                        }
+                    }
+                    break;
+                case 'fire':
+                    // 篝火声 - 真实燃烧效果
+                    for (let i = 0; i < bufferSize; i++) {
+                        output[i] = Math.random() * 0.15 - 0.075; // 基础火焰声
+                        output[i] += Math.random() * 0.1 - 0.05; // 火焰波动
+                        if (Math.random() < 0.004) {
+                            output[i] += Math.random() * 0.7 - 0.35; // 爆裂声
+                        }
+                        if (i % 1500 === 0) {
+                            output[i] += Math.random() * 0.5 - 0.25; // 木材断裂
+                        }
+                        if (i % 300 === 0) {
+                            output[i] += Math.random() * 0.08 - 0.04; // 火星声
+                        }
+                    }
+                    break;
+            }
+            
+            noiseNode = audioContext.createBufferSource();
+            noiseNode.buffer = noiseBuffer;
+            noiseNode.loop = true;
+            noiseNode.connect(gainNode);
+            noiseNode.start();
+        }
+        
+        // 开始播放
+        function startPlayback() {
+            if (!audioContext) {
+                initAudio();
+            }
+            
+            const selectedNoise = document.querySelector('input[name="noise"]:checked').value;
+            generateNoise(selectedNoise);
+            isPlaying = true;
+            
+            // 更新UI
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            
+            // 开始计时器
+            startTimer();
+            
+            // 进入专注模式
+            enterFocusMode();
+        }
+        
+        // 停止播放
+        function stopPlayback() {
+            if (noiseNode) {
+                noiseNode.stop();
+                noiseNode = null;
+            }
+            
+            isPlaying = false;
+            
+            // 更新UI
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            
+            // 停止计时器
+            stopTimer();
+            
+            // 退出专注模式
+            exitFocusMode();
+        }
+        
+        // 开始计时器
+        function startTimer() {
+            minutes = parseInt(document.getElementById('focus-minutes').value) || 25;
+            seconds = 0;
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                if (seconds === 0) {
+                    if (minutes === 0) {
+                        // 时间到
+                        clearInterval(timerInterval);
+                        stopPlayback();
+                        alert('专注时间结束！');
+                        return;
+                    }
+                    minutes--;
+                    seconds = 59;
+                } else {
+                    seconds--;
+                }
+                
+                updateTimerDisplay();
+            }, 1000);
+        }
+        
+        // 停止计时器
+        function stopTimer() {
+            clearInterval(timerInterval);
+            minutes = 25;
+            seconds = 0;
+            updateTimerDisplay();
+        }
+        
+        // 更新计时器显示
+        function updateTimerDisplay() {
+            document.getElementById('minutes').textContent = 
+                minutes < 10 ? '0' + minutes : minutes;
+            document.getElementById('seconds').textContent = 
+                seconds < 10 ? '0' + seconds : seconds;
+        }
+        
+        // 进入专注模式
+        function enterFocusMode() {
+            isFocusMode = true;
+            document.body.classList.add('focus-mode');
+        }
+        
+        // 退出专注模式
+        function exitFocusMode() {
+            isFocusMode = false;
+            document.body.classList.remove('focus-mode');
+        }
+        
+        // 主题颜色控制
+        document.getElementById('theme-color').addEventListener('input', function() {
+            document.documentElement.style.setProperty('--primary-color', this.value);
+        });
+        
+        // 事件监听
+        document.getElementById('startBtn').addEventListener('click', startPlayback);
+        document.getElementById('stopBtn').addEventListener('click', stopPlayback);
+    </script>
+</body>
+</html>

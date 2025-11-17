@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音乐节拍器</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --bg-color: #f8f9fa;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--bg-color);
+            color: #333;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            width: 90%;
+            max-width: 400px;
+        }
+        h1 {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-weight: 600;
+        }
+        .control-group {
+            margin: 1.5rem 0;
+            width: 100%;
+        }
+        .control-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .visualizer {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            margin: 1.5rem auto;
+            transition: transform 0.1s, background-color 0.3s;
+        }
+        button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0 0.5rem;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            outline: none;
+        }
+        input[type="color"] {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>音乐节拍器</h1>
+        <div class="visualizer" id="visualizer"></div>
+        <div class="control-group">
+            <label class="control-label" for="bpm">节拍速度</label>
+            <input type="range" id="bpm" min="40" max="208" value="120">
+            <span id="bpmValue">120 BPM</span>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="volume">音量</label>
+            <input type="range" id="volume" min="0" max="100" value="50">
+        </div>
+        <div class="control-group">
+            <label class="control-label">主题颜色</label>
+            <input type="color" id="colorPicker" value="#4CAF50">
+        </div>
+        <div class="btn-group">
+            <button id="startBtn">开始</button>
+            <button id="stopBtn">停止</button>
+        </div>
+    </div>
+
+    <script>
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let timer = null;
+        let isPlaying = false;
+        let currentVolume = 0.5;
+        
+        const bpmSlider = document.getElementById('bpm');
+        const bpmValue = document.getElementById('bpmValue');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const visualizer = document.getElementById('visualizer');
+        const volumeSlider = document.getElementById('volume');
+        const colorPicker = document.getElementById('colorPicker');
+        const root = document.documentElement;
+        
+        // 更新主题颜色
+        colorPicker.addEventListener('input', function() {
+            root.style.setProperty('--primary-color', this.value);
+        });
+        
+        // 更新音量
+        volumeSlider.addEventListener('input', function() {
+            currentVolume = this.value / 100;
+        });
+        
+        bpmSlider.addEventListener('input', function() {
+            bpmValue.textContent = this.value + ' BPM';
+            if (isPlaying) {
+                clearInterval(timer);
+                startMetronome();
+            }
+        });
+        
+        startBtn.addEventListener('click', function() {
+            if (!isPlaying) {
+                startMetronome();
+                isPlaying = true;
+            }
+        });
+        
+        stopBtn.addEventListener('click', function() {
+            clearInterval(timer);
+            isPlaying = false;
+            visualizer.style.transform = 'scale(1)';
+        });
+        
+        function startMetronome() {
+            const bpm = parseInt(bpmSlider.value);
+            const interval = 60000 / bpm; // 转换为毫秒
+            
+            timer = setInterval(function() {
+                playClick();
+                animateVisualizer();
+            }, interval);
+        }
+        
+        function playClick() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 800;
+            gainNode.gain.value = currentVolume;
+            
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+        
+        function animateVisualizer() {
+            visualizer.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                visualizer.style.transform = 'scale(1)';
+            }, 100);
+        }
+    </script>
+</body>
+</html>

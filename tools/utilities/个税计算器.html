@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个税计算器</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .calculator {
+            border: none;
+            padding: 30px;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        input, select {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        #calculate {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        #calculate:hover {
+            background-color: var(--secondary-color);
+        }
+        #reset {
+            background-color: #e9ecef;
+            color: var(--dark-color);
+        }
+        #reset:hover {
+            background-color: #dee2e6;
+        }
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--primary-color);
+        }
+        .result-item {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .result-label {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        .result-value {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .highlight {
+            color: var(--accent-color);
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>个税计算器</h1>
+        <div class="input-group">
+            <label for="period">计算周期:</label>
+            <select id="period" onchange="updatePlaceholder()">
+                <option value="monthly">月度计算</option>
+                <option value="yearly">年度计算</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="income" id="income-label">月收入(元):</label>
+            <input type="number" id="income" placeholder="请输入月收入">
+        </div>
+        <div class="btn-group">
+            <button id="calculate" onclick="calculateTax()">计算个税</button>
+            <button id="reset" onclick="resetForm()">重置</button>
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function updatePlaceholder() {
+            const period = document.getElementById('period').value;
+            const incomeLabel = document.getElementById('income-label');
+            const incomeInput = document.getElementById('income');
+            
+            if (period === 'yearly') {
+                incomeLabel.textContent = '年收入(元):';
+                incomeInput.placeholder = '请输入年收入';
+            } else {
+                incomeLabel.textContent = '月收入(元):';
+                incomeInput.placeholder = '请输入月收入';
+            }
+        }
+        
+        function resetForm() {
+            document.getElementById('income').value = '';
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('period').value = 'monthly';
+            updatePlaceholder();
+        }
+        
+        function calculateTax() {
+            const period = document.getElementById('period').value;
+            let income = parseFloat(document.getElementById('income').value);
+            
+            if (isNaN(income) || income < 0) {
+                document.getElementById('result').innerHTML = '请输入有效的收入金额';
+                return;
+            }
+            
+            // 如果是年收入，转换为月收入计算
+            if (period === 'yearly') {
+                income = income / 12;
+            }
+
+            // 个税起征点
+            const threshold = 5000;
+            // 应纳税所得额
+            const taxableIncome = income - threshold;
+            
+            if (taxableIncome <= 0) {
+                const displayIncome = period === 'yearly' 
+                    ? `${(income * 12).toFixed(2)} 元(年)` 
+                    : `${income.toFixed(2)} 元(月)`;
+                document.getElementById('result').innerHTML = 
+                    `<div class="result-item">
+                        <span class="result-label">收入:</span>
+                        <span class="result-value">${displayIncome}</span>
+                    </div>
+                    <div class="result-item highlight">无需缴纳个税</div>`;
+                return;
+            }
+
+            // 个税税率表
+            let taxRate, quickDeduction;
+            if (taxableIncome <= 3000) {
+                taxRate = 0.03;
+                quickDeduction = 0;
+            } else if (taxableIncome <= 12000) {
+                taxRate = 0.1;
+                quickDeduction = 210;
+            } else if (taxableIncome <= 25000) {
+                taxRate = 0.2;
+                quickDeduction = 1410;
+            } else if (taxableIncome <= 35000) {
+                taxRate = 0.25;
+                quickDeduction = 2660;
+            } else if (taxableIncome <= 55000) {
+                taxRate = 0.3;
+                quickDeduction = 4410;
+            } else if (taxableIncome <= 80000) {
+                taxRate = 0.35;
+                quickDeduction = 7160;
+            } else {
+                taxRate = 0.45;
+                quickDeduction = 15160;
+            }
+
+            // 计算个税
+            const monthlyTax = taxableIncome * taxRate - quickDeduction;
+            const monthlyAfterTaxIncome = income - monthlyTax;
+            
+            // 如果是年收入，计算年税额和年税后收入
+            const yearlyTax = period === 'yearly' ? monthlyTax * 12 : null;
+            const yearlyAfterTaxIncome = period === 'yearly' ? (income * 12) - yearlyTax : null;
+            
+            // 构建结果HTML
+            let resultHTML = '';
+            
+            if (period === 'yearly') {
+                resultHTML += `
+                    <div class="result-item">
+                        <span class="result-label">年收入:</span>
+                        <span class="result-value">${(income * 12).toFixed(2)} 元</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">月均收入:</span>
+                        <span class="result-value">${income.toFixed(2)} 元</span>
+                    </div>`;
+            } else {
+                resultHTML += `
+                    <div class="result-item">
+                        <span class="result-label">月收入:</span>
+                        <span class="result-value">${income.toFixed(2)} 元</span>
+                    </div>`;
+            }
+            
+            resultHTML += `
+                <div class="result-item">
+                    <span class="result-label">应纳税所得额:</span>
+                    <span class="result-value">${taxableIncome.toFixed(2)} 元</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">适用税率:</span>
+                    <span class="result-value">${taxRate * 100}%</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">速算扣除数:</span>
+                    <span class="result-value">${quickDeduction} 元</span>
+                </div>`;
+                
+            if (period === 'yearly') {
+                resultHTML += `
+                <div class="result-item highlight">
+                    <span class="result-label">年应缴个税:</span>
+                    <span class="result-value">${yearlyTax.toFixed(2)} 元</span>
+                </div>
+                <div class="result-item highlight">
+                    <span class="result-label">年税后收入:</span>
+                    <span class="result-value">${yearlyAfterTaxIncome.toFixed(2)} 元</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">月均个税:</span>
+                    <span class="result-value">${monthlyTax.toFixed(2)} 元</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">月均税后收入:</span>
+                    <span class="result-value">${monthlyAfterTaxIncome.toFixed(2)} 元</span>
+                </div>`;
+            } else {
+                resultHTML += `
+                <div class="result-item highlight">
+                    <span class="result-label">月应缴个税:</span>
+                    <span class="result-value">${monthlyTax.toFixed(2)} 元</span>
+                </div>
+                <div class="result-item highlight">
+                    <span class="result-label">月税后收入:</span>
+                    <span class="result-value">${monthlyAfterTaxIncome.toFixed(2)} 元</span>
+                </div>`;
+            }
+            
+            document.getElementById('result').innerHTML = resultHTML;
+        }
+    </script>
+</body>
+</html>

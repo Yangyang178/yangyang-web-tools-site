@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>压力自测表</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 800px;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .question {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            transform: scale(1);
+        }
+        
+        .question:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .question h3 {
+            margin-top: 0;
+            color: #5a67d8;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .option {
+            flex: 1;
+            min-width: 120px;
+            background: white;
+            padding: 12px 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
+        }
+        
+        .option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+        
+        .option input {
+            display: none;
+        }
+        
+        .option.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #5a67d8;
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button {
+            display: block;
+            margin: 40px auto 20px;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(-1px);
+        }
+        
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        button:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(50, 50);
+                opacity: 0;
+            }
+        }
+        
+        #result {
+            margin-top: 30px;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 18px;
+            display: none;
+            animation: slideIn 0.5s ease-out;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .low-stress {
+            background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+            color: #2e7d32;
+        }
+        
+        .moderate-stress {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            color: #f57f17;
+        }
+        
+        .high-stress {
+            background: linear-gradient(135deg, #ffcdd2 0%, #ef9a9a 100%);
+            color: #c62828;
+        }
+        
+        .result-title {
+            font-size: 2em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .result-score {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .result-message {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .options {
+                flex-direction: column;
+            }
+            
+            .option {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌈 压力自测表</h1>
+        <form id="stressTest">
+            <!-- 问题1 -->
+            <div class="question">
+                <h3>1. 我感到紧张或焦虑</h3>
+                <div class="options">
+                    <label class="option" data-value="0"><input type="radio" name="q1" value="0" required> 从不</label>
+                    <label class="option" data-value="1"><input type="radio" name="q1" value="1"> 很少</label>
+                    <label class="option" data-value="2"><input type="radio" name="q1" value="2"> 有时</label>
+                    <label class="option" data-value="3"><input type="radio" name="q1" value="3"> 经常</label>
+                    <label class="option" data-value="4"><input type="radio" name="q1" value="4"> 总是</label>
+                </div>
+            </div>
+            
+            <!-- 问题2 -->
+            <div class="question">
+                <h3>2. 我感到沮丧或情绪低落</h3>
+                <div class="options">
+                    <label class="option" data-value="0"><input type="radio" name="q2" value="0" required> 从不</label>
+                    <label class="option" data-value="1"><input type="radio" name="q2" value="1"> 很少</label>
+                    <label class="option" data-value="2"><input type="radio" name="q2" value="2"> 有时</label>
+                    <label class="option" data-value="3"><input type="radio" name="q2" value="3"> 经常</label>
+                    <label class="option" data-value="4"><input type="radio" name="q2" value="4"> 总是</label>
+                </div>
+            </div>
+            
+            <!-- 问题3 -->
+            <div class="question">
+                <h3>3. 我感到无法控制重要的事情</h3>
+                <div class="options">
+                    <label class="option" data-value="0"><input type="radio" name="q3" value="0" required> 从不</label>
+                    <label class="option" data-value="1"><input type="radio" name="q3" value="1"> 很少</label>
+                    <label class="option" data-value="2"><input type="radio" name="q3" value="2"> 有时</label>
+                    <label class="option" data-value="3"><input type="radio" name="q3" value="3"> 经常</label>
+                    <label class="option" data-value="4"><input type="radio" name="q3" value="4"> 总是</label>
+                </div>
+            </div>
+            
+            <!-- 问题4 -->
+            <div class="question">
+                <h3>4. 我感到充满活力</h3>
+                <div class="options">
+                    <label class="option" data-value="4"><input type="radio" name="q4" value="4" required> 从不</label>
+                    <label class="option" data-value="3"><input type="radio" name="q4" value="3"> 很少</label>
+                    <label class="option" data-value="2"><input type="radio" name="q4" value="2"> 有时</label>
+                    <label class="option" data-value="1"><input type="radio" name="q4" value="1"> 经常</label>
+                    <label class="option" data-value="0"><input type="radio" name="q4" value="0"> 总是</label>
+                </div>
+            </div>
+            
+            <!-- 问题5 -->
+            <div class="question">
+                <h3>5. 我感到难以放松</h3>
+                <div class="options">
+                    <label class="option" data-value="0"><input type="radio" name="q5" value="0" required> 从不</label>
+                    <label class="option" data-value="1"><input type="radio" name="q5" value="1"> 很少</label>
+                    <label class="option" data-value="2"><input type="radio" name="q5" value="2"> 有时</label>
+                    <label class="option" data-value="3"><input type="radio" name="q5" value="3"> 经常</label>
+                    <label class="option" data-value="4"><input type="radio" name="q5" value="4"> 总是</label>
+                </div>
+            </div>
+            
+            <!-- 问题6 -->
+            <div class="question">
+                <h3>6. 我感到不安或易怒</h3>
+                <div class="options">
+                    <label class="option" data-value="0"><input type="radio" name="q6" value="0" required> 从不</label>
+                    <label class="option" data-value="1"><input type="radio" name="q6" value="1"> 很少</label>
+                    <label class="option" data-value="2"><input type="radio" name="q6" value="2"> 有时</label>
+                    <label class="option" data-value="3"><input type="radio" name="q6" value="3"> 经常</label>
+                    <label class="option" data-value="4"><input type="radio" name="q6" value="4"> 总是</label>
+                </div>
+            </div>
+            
+            <!-- 问题7 -->
+            <div class="question">
+                <h3>7. 我对未来感到乐观</h3>
+                <div class="options">
+                    <label class="option" data-value="4"><input type="radio" name="q7" value="4" required> 从不</label>
+                    <label class="option" data-value="3"><input type="radio" name="q7" value="3"> 很少</label>
+                    <label class="option" data-value="2"><input type="radio" name="q7" value="2"> 有时</label>
+                    <label class="option" data-value="1"><input type="radio" name="q7" value="1"> 经常</label>
+                    <label class="option" data-value="0"><input type="radio" name="q7" value="0"> 总是</label>
+                </div>
+            </div>
+            
+            <!-- 问题8 -->
+            <div class="question">
+                <h3>8. 我感到有压力</h3>
+                <div class="options">
+                    <label class="option" data-value="0"><input type="radio" name="q8" value="0" required> 从不</label>
+                    <label class="option" data-value="1"><input type="radio" name="q8" value="1"> 很少</label>
+                    <label class="option" data-value="2"><input type="radio" name="q8" value="2"> 有时</label>
+                    <label class="option" data-value="3"><input type="radio" name="q8" value="3"> 经常</label>
+                    <label class="option" data-value="4"><input type="radio" name="q8" value="4"> 总是</label>
+                </div>
+            </div>
+            
+            <!-- 问题9 -->
+            <div class="question">
+                <h3>9. 我感到无法应对所有要做的事情</h3>
+                <div class="options">
+                    <label class="option" data-value="0"><input type="radio" name="q9" value="0" required> 从不</label>
+                    <label class="option" data-value="1"><input type="radio" name="q9" value="1"> 很少</label>
+                    <label class="option" data-value="2"><input type="radio" name="q9" value="2"> 有时</label>
+                    <label class="option" data-value="3"><input type="radio" name="q9" value="3"> 经常</label>
+                    <label class="option" data-value="4"><input type="radio" name="q9" value="4"> 总是</label>
+                </div>
+            </div>
+            
+            <!-- 问题10 -->
+            <div class="question">
+                <h3>10. 我感到自信</h3>
+                <div class="options">
+                    <label class="option" data-value="4"><input type="radio" name="q10" value="4" required> 从不</label>
+                    <label class="option" data-value="3"><input type="radio" name="q10" value="3"> 很少</label>
+                    <label class="option" data-value="2"><input type="radio" name="q10" value="2"> 有时</label>
+                    <label class="option" data-value="1"><input type="radio" name="q10" value="1"> 经常</label>
+                    <label class="option" data-value="0"><input type="radio" name="q10" value="0"> 总是</label>
+                </div>
+            </div>
+            
+            <button type="submit">✨ 提交测试</button>
+        </form>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // 为选项添加点击动画效果
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                // 移除同组其他选项的选中状态
+                const groupName = this.querySelector('input').name;
+                document.querySelectorAll(`input[name='${groupName}']`).forEach(input => {
+                    input.parentElement.classList.remove('selected');
+                });
+                
+                // 添加当前选项的选中状态
+                this.classList.add('selected');
+                
+                // 添加脉冲动画
+                this.style.animation = 'none';
+                setTimeout(() => {
+                    this.style.animation = 'pulse 0.3s';
+                }, 10);
+            });
+        });
+        
+        // 添加脉冲动画关键帧
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        document.getElementById('stressTest').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 计算总分
+            let totalScore = 0;
+            for (let i = 1; i <= 10; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                if (selected) {
+                    totalScore += parseInt(selected.value);
+                }
+            }
+            
+            // 显示结果
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            
+            // 根据分数显示不同结果
+            if (totalScore <= 15) {
+                resultDiv.className = 'low-stress';
+                resultDiv.innerHTML = `
+                    <div class="result-title">🎉 您的压力水平：较低</div>
+                    <div class="result-score">总分：${totalScore}/40</div>
+                    <div class="result-message">恭喜您！您的压力水平处于较低范围，说明您目前的心理状态较为轻松。继续保持良好的生活习惯和积极的心态。</div>
+                `;
+            } else if (totalScore <= 25) {
+                resultDiv.className = 'moderate-stress';
+                resultDiv.innerHTML = `
+                    <div class="result-title">😊 您的压力水平：中等</div>
+                    <div class="result-score">总分：${totalScore}/40</div>
+                    <div class="result-message">您的压力水平处于中等范围，建议您关注自己的情绪变化，适当放松，寻找适合自己的减压方式。</div>
+                `;
+            } else {
+                resultDiv.className = 'high-stress';
+                resultDiv.innerHTML = `
+                    <div class="result-title">💪 您的压力水平：较高</div>
+                    <div class="result-score">总分：${totalScore}/40</div>
+                    <div class="result-message">您的压力水平较高，建议您重视自己的心理状态，尝试通过运动、冥想、与朋友交流等方式缓解压力，必要时寻求专业帮助。</div>
+                `;
+            }
+            
+            // 滚动到结果区域
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>

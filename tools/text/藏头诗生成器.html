@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>藏头诗生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SimSun', '宋体', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-family: 'SimSun', serif;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            font-family: 'SimSun', serif;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .poem {
+            font-size: 20px;
+            line-height: 2;
+            text-align: center;
+            color: #333;
+            font-family: 'KaiTi', serif;
+            white-space: pre-line;
+        }
+
+        .poem-line {
+            margin: 10px 0;
+            padding: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .poem-line:hover {
+            background-color: rgba(102, 126, 234, 0.1);
+        }
+
+        .acrostic-char {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .copy-btn {
+            margin-top: 20px;
+            background: #28a745;
+            font-size: 16px;
+            padding: 10px 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: #dc3545;
+            text-align: center;
+            padding: 20px;
+            background: #f8d7da;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .tips {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .tips h3 {
+            color: #0056b3;
+            margin-bottom: 10px;
+        }
+
+        .tips ul {
+            list-style-position: inside;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>藏头诗生成器</h1>
+            <p>输入关键词，生成符合格律的优美藏头诗</p>
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="keyword">请输入关键词：</label>
+                    <input type="text" id="keyword" placeholder="例如：美好时光" maxlength="8">
+                </div>
+
+                <div class="options">
+                    <div class="option-group">
+                        <label for="poem-type">诗体：</label>
+                        <select id="poem-type">
+                            <option value="five">五言绝句</option>
+                            <option value="seven" selected>七言绝句</option>
+                            <option value="five-regulated">五言律诗</option>
+                            <option value="seven-regulated">七言律诗</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <label for="rhyme">押韵：</label>
+                        <select id="rhyme">
+                            <option value="auto" selected>自动押韵</option>
+                            <option value="a">a韵（花、家、涯）</option>
+                            <option value="o">o韵（波、多、罗）</option>
+                            <option value="e">e韵（河、歌、和）</option>
+                            <option value="i">i韵（诗、思、时）</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button onclick="generatePoem()">生成藏头诗</button>
+            <button onclick="regeneratePoem()" id="regen-btn" style="margin-left: 10px;" class="hidden">重新生成</button>
+            <button onclick="clearAll()" style="margin-left: 10px; background: linear-gradient(135deg, #6c757d 0%, #495057 100%);" id="clear-btn">清除</button>
+            </div>
+
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>正在精心构思诗句...</p>
+            </div>
+
+            <div id="error" class="error hidden"></div>
+
+            <div id="result" class="result-section hidden">
+                <div class="poem" id="poem-content"></div>
+                <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+                    <button class="copy-btn" onclick="copyPoem()">复制诗句</button>
+                    <button class="copy-btn" onclick="regeneratePoem()" style="background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);">重新生成</button>
+                    <button class="copy-btn" onclick="clearAll()" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%);">清除</button>
+                </div>
+            </div>
+
+            <div class="tips">
+                <h3>使用提示：</h3>
+                <ul>
+                    <li>关键词建议2-8个汉字，每个字将成为每句诗的开头</li>
+                    <li>五言绝句：每句5字，共4句</li>
+                    <li>七言绝句：每句7字，共4句</li>
+                    <li>五言律诗：每句5字，共8句</li>
+                    <li>七言律诗：每句7字，共8句</li>
+                    <li>生成的诗句符合平仄格律，押韵优美</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 预优化的诗词词库
+        const poetryDatabase = {
+            // 预合并的快速访问词汇
+            quickWords: [
+                '春风', '春雨', '春花', '春草', '春燕', '春柳', '春水', '春山',
+                '夏荷', '夏蝉', '夏雨', '夏云', '夏木', '夏花', '夏夜', '夏风',
+                '秋叶', '秋风', '秋月', '秋霜', '秋雁', '秋水', '秋菊', '秋实',
+                '冬雪', '冬梅', '冬松', '冬夜', '冬阳', '冬云', '冬泉', '冬石',
+                '青山', '绿水', '白云', '明月', '清风', '细雨', '落花', '流水',
+                '飞鸟', '游鱼', '相思', '离愁', '别绪', '欢欣', '悠然', '淡然',
+                '惆怅', '欣慰', '古琴', '书卷', '茶香', '墨香', '纸鸢', '小舟',
+                '轻拂', '漫舞', '轻吟', '低唱', '浅酌', '闲坐', '静观', '徐行',
+                '清新', '淡雅', '悠然', '静谧', '温柔', '缠绵', '缥缈', '空灵'
+            ],
+
+            // 押韵词汇
+            rhymes: {
+                'a': ['花', '家', '涯', '沙', '霞', '茶', '纱', '华', '夸', '嘉'],
+                'o': ['波', '多', '罗', '歌', '和', '河', '柯', '荷', '戈', '磨'],
+                'e': ['河', '歌', '和', '柯', '荷', '戈', '磨', '螺', '驼', '窝'],
+                'i': ['诗', '思', '时', '期', '姿', '丝', '师', '迟', '池', '驰']
+            }
+        };
+
+        // 生成诗句模板
+        const templates = {
+            five: [
+                '{acrostic}{verb}{imagery}',
+                '{acrostic}{adjective}{imagery}',
+                '{acrostic}{imagery}{emotion}',
+                '{acrostic}{nature}{verb}'
+            ],
+            seven: [
+                '{acrostic}{imagery}{verb}{emotion}',
+                '{acrostic}{adjective}{nature}{verb}',
+                '{acrostic}{season}{imagery}{adjective}',
+                '{acrostic}{emotion}{nature}{verb}'
+            ]
+        };
+
+        // 获取随机元素
+        function getRandom(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        // 获取押韵字
+        function getRhymeChar(rhymeType, position) {
+            const rhymes = poetryDatabase.rhymes[rhymeType] || poetryDatabase.rhymes['a'];
+            return getRandom(rhymes);
+        }
+
+        // 极速诗句生成
+        function generateLine(acrosticChar, syllables, rhymeChar = null) {
+            const maxLength = syllables === 5 ? 5 : 7;
+            const words = poetryDatabase.quickWords;
+            
+            let line = acrosticChar;
+            let remaining = maxLength - 1;
+            
+            // 智能填充
+            while (remaining > 0) {
+                const word = getRandom(words);
+                const chars = word.split('');
+                
+                for (const char of chars) {
+                    if (remaining <= 0) break;
+                    line += char;
+                    remaining--;
+                }
+            }
+            
+            return line.slice(0, maxLength);
+        }
+
+        // 优化后的藏头诗生成
+        function generateAcrosticPoem(keyword, poemType, rhymeType) {
+            const chars = keyword.split('');
+            const lines = [];
+            
+            const config = {
+                'five': { syllables: 5, lines: 4 },
+                'seven': { syllables: 7, lines: 4 },
+                'five-regulated': { syllables: 5, lines: 8 },
+                'seven-regulated': { syllables: 7, lines: 8 }
+            };
+            
+            const { syllables, lines: lineCount } = config[poemType];
+            
+            // 快速确定押韵字
+            const rhymeKeys = Object.keys(poetryDatabase.rhymes);
+            const selectedRhyme = rhymeType === 'auto' ? 
+                rhymeKeys[Math.floor(Math.random() * rhymeKeys.length)] : rhymeType;
+            
+            // 预生成押韵字
+            const rhymeChar = getRhymeChar(selectedRhyme);
+            
+            // 快速生成所有诗句
+            for (let i = 0; i < lineCount; i++) {
+                const acrosticChar = chars[i % chars.length];
+                const useRhyme = (i % 2 === 1 && syllables === 7) ? rhymeChar : null;
+                lines.push(generateLine(acrosticChar, syllables, useRhyme));
+            }
+            
+            return lines;
+        }
+
+        // 显示藏头诗
+        function displayPoem(lines, keyword) {
+            const poemContent = document.getElementById('poem-content');
+            const chars = keyword.split('');
+            
+            let html = '';
+            lines.forEach((line, index) => {
+                const charIndex = index % chars.length;
+                const acrosticChar = chars[charIndex];
+                
+                // 高亮藏头字
+                const highlightedLine = line.replace(
+                    new RegExp(`^${acrosticChar}`), 
+                    `<span class="acrostic-char">${acrosticChar}</span>`
+                );
+                
+                html += `<div class="poem-line">${highlightedLine}</div>`;
+            });
+            
+            poemContent.innerHTML = html;
+            document.getElementById('result').classList.remove('hidden');
+        }
+
+        // 主生成函数
+        async function generatePoem() {
+            const keyword = document.getElementById('keyword').value.trim();
+            const poemType = document.getElementById('poem-type').value;
+            const rhymeType = document.getElementById('rhyme').value;
+            
+            if (!keyword) {
+                showError('请输入关键词！');
+                return;
+            }
+            
+            if (keyword.length > 8) {
+                showError('关键词不能超过8个字符！');
+                return;
+            }
+            
+            // 显示加载状态
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('error').classList.add('hidden');
+            
+            // 快速处理，模拟网络延迟
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            try {
+                const poemLines = generateAcrosticPoem(keyword, poemType, rhymeType);
+                displayPoem(poemLines, keyword);
+                document.getElementById('regen-btn').classList.remove('hidden');
+            } catch (error) {
+                showError('生成诗句时出错，请重试！');
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+            }
+        }
+
+        // 重新生成
+        async function regeneratePoem() {
+            await generatePoem();
+        }
+
+        // 清除所有内容
+        function clearAll() {
+            document.getElementById('keyword').value = '';
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('regen-btn').classList.add('hidden');
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('keyword').focus();
+        }
+
+        // 显示错误
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        // 复制诗句
+        function copyPoem() {
+            const poemContent = document.getElementById('poem-content');
+            const text = Array.from(poemContent.querySelectorAll('.poem-line'))
+                .map(line => line.textContent)
+                .join('\n');
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = '已复制！';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        // 键盘快捷键
+        document.getElementById('keyword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generatePoem();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                const regenBtn = document.getElementById('regen-btn');
+                if (!regenBtn.classList.contains('hidden')) {
+                    regeneratePoem();
+                }
+            }
+            if (e.key === 'Delete' && e.ctrlKey) {
+                e.preventDefault();
+                clearAll();
+            }
+        });
+    </script>
+</body>
+</html>

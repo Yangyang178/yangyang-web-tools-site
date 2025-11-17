@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word转HTML工具</title>
+    <script src="https://unpkg.com/jszip@3.7.1/dist/jszip.min.js"></script>
+    <script src="https://unpkg.com/docx-preview@0.1.4/dist/docx-preview.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --accent-color: #ff4e50;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        .output-section {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .upload-section {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .drop-area {
+            width: 100%;
+            min-height: 120px;
+            padding: 10px;
+            text-align: center;
+            border: 2px dashed var(--secondary-color);
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            max-width: calc(100% - 20px);
+            margin-left: auto;
+            margin-right: auto;
+        }
+            
+            .drop-area:hover {
+                background-color: rgba(255, 255, 255, 1);
+                border-style: solid;
+            }
+            
+            .drop-area.dragover {
+                background-color: rgba(37, 117, 252, 0.1);
+                border-style: solid;
+                border-color: var(--primary-color);
+            }
+            
+            .drop-area p {
+                font-size: 18px;
+                color: var(--dark-color);
+                margin: 0 0 20px 0;
+            }
+            
+            #wordFile {
+                width: 80%;
+                max-width: 300px;
+                padding: 15px;
+                border: 2px solid #ced4da;
+                border-radius: 8px;
+                background-color: white;
+            }
+            
+            button {
+                padding: 10px 20px;
+                background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+                color: white;
+                border: none;
+                border-radius: 50px;
+                cursor: pointer;
+                margin: 8px 5px;
+                font-weight: bold;
+                font-size: 14px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            button:before {
+                content: "";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.5);
+                transform: translate(-50%, -50%);
+                transition: width 0.6s, height 0.6s;
+            }
+            
+            button:active:before {
+                width: 300px;
+                height: 300px;
+            }
+            
+            button:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            }
+            
+            button:active {
+                transform: translateY(1px);
+            }
+            
+            /* 波纹动画效果 */
+            .ripple {
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.7);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                pointer-events: none;
+            }
+            
+            @keyframes ripple {
+                to {
+                    transform: scale(2.5);
+                    opacity: 0;
+                }
+            }
+            
+            textarea {
+                width: 100%;
+                height: 250px;
+                padding: 15px;
+                box-sizing: border-box;
+                border: 2px solid #ced4da;
+                border-radius: 8px;
+                resize: vertical;
+                font-family: 'Courier New', monospace;
+                background-color: rgba(255, 255, 255, 0.9);
+                transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            }
+            
+            textarea:focus {
+                border-color: var(--secondary-color);
+                box-shadow: 0 0 0 0.2rem rgba(37, 117, 252, 0.25);
+                outline: none;
+            }
+            
+            #htmlOutput {
+                width: 100%;
+                min-height: 350px;
+                padding: 15px;
+                border: 2px solid #ced4da;
+                border-radius: 8px;
+                background-color: rgba(255, 255, 255, 0.9);
+                font-family: 'Courier New', monospace;
+                transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            }
+            
+            #htmlOutput:focus {
+                border-color: var(--secondary-color);
+                box-shadow: 0 0 0 0.2rem rgba(37, 117, 252, 0.25);
+                outline: none;
+            }
+            
+            #previewOutput {
+                min-height: 300px;
+                max-height: 500px;
+                padding: 15px;
+                border: 2px solid #ced4da;
+                border-radius: 8px;
+                background-color: rgba(255, 255, 255, 0.9);
+                transition: border-color 0.3s ease, box-shadow 0.3s ease;
+                overflow-y: auto;
+            }
+
+            #htmlOutput {
+                width: 100%;
+                min-height: 300px;
+                max-height: 500px;
+                padding: 15px;
+                border: 2px solid #ced4da;
+                border-radius: 8px;
+                background-color: rgba(255, 255, 255, 0.9);
+                font-family: 'Courier New', monospace;
+                transition: border-color 0.3s ease, box-shadow 0.3s ease;
+                overflow-y: auto;
+            }
+            
+            #previewOutput:focus {
+                outline: 2px solid var(--primary-color);
+                border-color: var(--primary-color);
+            }
+            
+            #previewOutput p:first-child {
+                margin-top: 0;
+            }
+            
+            #previewOutput p:last-child {
+                margin-bottom: 0;
+            }
+            
+            .action-btn {
+                transition: all 0.3s ease;
+            }
+            
+            .action-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+            
+            .action-btn:active {
+                transform: translateY(0);
+            }
+            
+            #previewOutput:focus {
+                outline: 2px solid var(--primary-color);
+                border-color: var(--primary-color);
+            }
+            
+            #previewOutput p:first-child {
+                margin-top: 0;
+            }
+            
+            #previewOutput p:last-child {
+                margin-bottom: 0;
+            }
+            
+            .action-btn {
+                transition: all 0.3s ease;
+            }
+            
+            .action-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+            
+            .action-btn:active {
+                transform: translateY(0);
+            }
+            
+            .tab {
+                overflow: hidden;
+                border: none;
+                background: transparent;
+                border-radius: 10px 10px 0 0;
+                margin-bottom: -1px;
+                z-index: 1;
+            }
+            
+            .tab button {
+                background: linear-gradient(to bottom, #e9ecef, #dee2e6);
+                float: left;
+                border: none;
+                outline: none;
+                cursor: pointer;
+                padding: 12px 20px;
+                transition: all 0.3s ease;
+                color: var(--dark-color);
+                font-weight: bold;
+                border-radius: 10px 10px 0 0;
+                margin: 0 5px;
+                box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            }
+            
+            .tab button:hover {
+                background: linear-gradient(to bottom, #dee2e6, #ced4da);
+                transform: translateY(-3px);
+            }
+            
+            .tab button.active {
+                background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+                color: white;
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            }
+            
+            .tabcontent {
+                display: none;
+                padding: 10px;
+                border: none;
+                border-radius: 0 0 8px 8px;
+                background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+                animation: fadeIn 0.5s ease-in-out;
+                max-width: 100%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            h1 {
+                text-align: center;
+                color: var(--primary-color);
+                margin-bottom: 20px;
+                font-size: 2em;
+                text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            }
+            
+            h2 {
+                color: var(--secondary-color);
+                border-bottom: 2px solid var(--secondary-color);
+                padding-bottom: 8px;
+                margin-top: 0;
+                font-size: 1.5em;
+            }
+            
+            .footer {
+                text-align: center;
+                margin-top: 30px;
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 0.9em;
+            }
+        </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Word转HTML工具</h1>
+        
+        <div class="upload-section">
+            <h2>上传Word文件</h2>
+            <div id="dropArea" class="drop-area">
+                <p>拖拽Word文件到此处或点击选择文件</p>
+                <input type="file" id="wordFile" accept=".docx">
+            </div>
+            <button onclick="processWord()" class="action-btn">处理Word</button>
+            <button onclick="clearUploadedFile()" class="action-btn" style="background: linear-gradient(to right, #8e9eab, #eef2f3);">清除上传文件</button>
+        </div>
+        
+        <div class="output-section">
+            <h2>输出结果</h2>
+            <div class="tab">
+                <button class="tablinks active" onclick="openTab(event, 'preview')">预览</button>
+                <button class="tablinks" onclick="openTab(event, 'source')">HTML源码</button>
+            </div>
+            
+            <div id="preview" class="tabcontent" style="display: block;">
+                <div id="previewOutput" contenteditable="true" style="min-height: 300px; border: 1px dashed #ccc; padding: 10px;">
+                    <p style="color: #999; font-style: italic;">转换后的内容将显示在这里，您可以直接点击编辑...</p>
+                </div>
+                <div style="margin-top: 10px;">
+                    <button onclick="saveEditedContent()" class="action-btn">保存编辑内容</button>
+                    <button onclick="downloadHTML()" class="action-btn">下载HTML文件</button>
+                    <button onclick="copyHTML()" class="action-btn">复制HTML代码</button>
+                    <button onclick="clearContent()" class="action-btn" style="background: linear-gradient(to right, #ff416c, #ff4b2b);">清空内容</button>
+                </div>
+            </div>
+            
+            <div id="source" class="tabcontent">
+                <textarea id="htmlOutput" placeholder="转换后的HTML代码将显示在这里..."></textarea>
+                <button onclick="downloadHTML()" class="action-btn">下载HTML文件</button>
+                <button onclick="copyHTML()" class="action-btn">复制HTML代码</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>© 2023 Word转HTML工具 | 设计美观、功能强大</p>
+    </div>
+
+    <script>
+        // 初始化docx-preview库
+        document.addEventListener('DOMContentLoaded', function() {
+            // 确保docx对象可用
+            if (typeof docx === 'undefined') {
+                console.error('docx-preview库未正确加载');
+            }
+            
+            // 为所有按钮添加点击动画效果
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // 添加点击波纹效果
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    
+                    // 计算点击位置
+                    const rect = button.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size/2;
+                    const y = e.clientY - rect.top - size/2;
+                    
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    
+                    this.appendChild(ripple);
+                    
+                    // 移除波纹元素
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+            
+            // 初始化拖拽上传功能
+            initDragAndDrop();
+            
+            // 启用实时保存功能
+            enableAutoSave();
+        });
+        
+        function initDragAndDrop() {
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('wordFile');
+            
+            // 点击上传区域时触发文件选择
+            dropArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            // 拖拽事件处理
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('dragover');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('dragover');
+            }
+            
+            // 处理拖拽文件
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length) {
+                    handleFiles(files);
+                }
+            }
+            
+            // 处理选择的文件
+            fileInput.addEventListener('change', function() {
+                if (this.files.length) {
+                    handleFiles(this.files);
+                }
+            });
+            
+            function handleFiles(files) {
+                const file = files[0];
+                
+                // 检查文件类型
+                if (!file.name.endsWith('.docx')) {
+                    alert('请选择.docx格式的Word文件');
+                    return;
+                }
+                
+                // 设置文件到input元素
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+                
+                // 显示文件名
+                dropArea.querySelector('p').textContent = `已选择文件: ${file.name}`;
+            }
+        }
+        
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        
+        async function processWord() {
+            const fileInput = document.getElementById('wordFile');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('请先选择Word文件');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            if (!file.name.endsWith('.docx')) {
+                alert('请选择.docx格式的Word文件');
+                return;
+            }
+            
+            try {
+                console.log('开始处理Word文件:', file.name);
+                
+                // 检查docx对象是否可用
+                if (typeof docx === 'undefined' || typeof docx.renderAsync === 'undefined') {
+                    throw new Error('docx-preview库未正确加载或初始化');
+                }
+                
+                // 使用docx-preview库处理Word文件
+                const previewOutput = document.getElementById('previewOutput');
+                previewOutput.innerHTML = '';
+                
+                // 渲染Word文档到预览区域
+                console.log('开始调用docx.renderAsync');
+                await docx.renderAsync(file, previewOutput, undefined, {
+                    className: "docx", // 默认和文档样式类的类名/前缀
+                    inWrapper: true,    // 启用围绕文档内容渲染包装器
+                    ignoreWidth: false, // 禁用页面渲染宽度
+                    ignoreHeight: false,// 福用页面渲染高度
+                    ignoreFonts: false, // 禁用字体渲染
+                    breakPages: true,   // 在分页符上启用分页
+                    ignoreLastRenderedPageBreak: true, // 尝试忽略LastRenderedPageBreak元素
+                    experimental: false, // 启用实验性功能
+                    trimXmlDeclaration: true, // 如果为真，xml声明将在解析之前从xml文档中删除
+                });
+                console.log('docx.renderAsync调用完成');
+                
+                // 确保预览区域本身是可编辑的
+                previewOutput.contentEditable = 'true';
+                
+                // 获取生成的HTML代码
+                const htmlCode = previewOutput.innerHTML;
+                console.log('生成的HTML代码长度:', htmlCode.length);
+                // 为下载的HTML添加编辑功能
+                const editableHtmlCode = htmlCode.replace(/<([a-zA-Z][a-zA-Z0-9]*)/g, '<$1 contenteditable="true"');
+                document.getElementById('htmlOutput').value = `<!DOCTYPE html>\n<html>\n<head>\n    <meta charset="UTF-8">\n    <title>转换后的Word文档</title>\n</head>\n<body>\n${editableHtmlCode}\n</body>\n</html>`;
+                
+                console.log('Word文件处理完成');
+            } catch (error) {
+                console.error('Word处理错误:', error);
+                alert('处理Word文件时出错: ' + error.message + ' (错误详情请查看浏览器控制台)');
+            }
+        }
+        
+        function downloadHTML() {
+            const htmlCode = document.getElementById('htmlOutput').value;
+            if (!htmlCode) {
+                alert('没有可下载的HTML内容');
+                return;
+            }
+            
+            const blob = new Blob([htmlCode], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'converted_document.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function copyHTML() {
+            const textarea = document.getElementById('htmlOutput');
+            textarea.select();
+            document.execCommand('copy');
+            alert('HTML代码已复制到剪贴板');
+        }
+        
+        function saveEditedContent() {
+            const editedContent = document.getElementById('previewOutput').innerHTML;
+            const htmlCode = `<!DOCTYPE html>\n<html>\n<head>\n    <meta charset="UTF-8">\n    <title>转换后的Word文档</title>\n</head>\n<body>\n${editedContent}\n</body>\n</html>`;
+            document.getElementById('htmlOutput').value = htmlCode;
+            alert('编辑内容已保存');
+        }
+        
+        function clearContent() {
+            if (confirm('确定要清空所有内容吗？')) {
+                document.getElementById('previewOutput').innerHTML = '<p style="color: #999; font-style: italic;">转换后的内容将显示在这里，您可以直接点击编辑...</p>';
+                document.getElementById('htmlOutput').value = '';
+            }
+        }
+        
+        // 实时保存功能
+        function enableAutoSave() {
+            const previewOutput = document.getElementById('previewOutput');
+            previewOutput.addEventListener('input', function() {
+                // 防抖处理，避免频繁保存
+                clearTimeout(previewOutput.saveTimeout);
+                previewOutput.saveTimeout = setTimeout(function() {
+                    saveEditedContent();
+                }, 2000); // 2秒后自动保存
+            });
+        }
+        
+        // 清除上传文件功能
+        function clearUploadedFile() {
+            const fileInput = document.getElementById('wordFile');
+            const dropArea = document.getElementById('dropArea');
+            
+            // 清空文件输入框
+            fileInput.value = '';
+            
+            // 重置拖拽区域显示文本
+            dropArea.querySelector('p').textContent = '拖拽Word文件到此处或点击选择文件';
+            
+            alert('已清除上传文件');
+        }
+    </script>
+</body>
+</html>

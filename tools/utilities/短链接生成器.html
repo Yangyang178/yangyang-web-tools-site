@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>短链接生成器</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4, #45B7D1, #96CEB4, #FFEAA7);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+        
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #FF6B6B;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #4ECDC4;
+            font-size: 1.1em;
+        }
+        
+        input[type="url"], input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 3px solid #ddd;
+            border-radius: 12px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        input[type="url"]:focus, input[type="text"]:focus {
+            border-color: #FF6B6B;
+            outline: none;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+            transform: scale(1.02);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .short-url {
+            font-weight: 600;
+            color: #FF6B6B;
+            word-break: break-all;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        
+        .error {
+            color: #FF6B6B;
+            margin-top: 15px;
+            font-weight: 500;
+            text-align: center;
+            animation: shake 0.5s ease;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .copy-btn, .clear-btn {
+            background: linear-gradient(135deg, #4ECDC4, #45B7D1);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .copy-btn:hover, .clear-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .copy-btn:active, .clear-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .features {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .features h2 {
+            color: #45B7D1;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .features ul {
+            padding-left: 25px;
+            margin: 0;
+        }
+        
+        .features li {
+            margin-bottom: 12px;
+            color: #555;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        
+        .features li:hover {
+            transform: translateX(5px);
+            color: #FF6B6B;
+        }
+        
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .button-group button {
+            width: auto;
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 短链接生成器</h1>
+        <div class="features">
+            <h2>功能说明</h2>
+            <ul>
+                <li><strong>🔗 生成短链接</strong> - 将长链接转换为短链接，便于分享</li>
+                <li><strong>📝 自定义别名</strong> - 可以为短链接设置易记的自定义别名</li>
+                <li><strong>💾 本地存储</strong> - 所有生成的短链接都保存在浏览器本地存储中</li>
+                <li><strong>📑 复制功能</strong> - 一键复制生成的短链接</li>
+                <li><strong>🔄 重定向</strong> - 访问短链接时自动跳转到原始链接</li>
+                <li><strong>🧹 清除功能</strong> - 可以清除当前生成的链接</li>
+            </ul>
+        </div>
+        <div class="input-group">
+            <label for="originalUrl">请输入长链接:</label>
+            <input type="url" id="originalUrl" placeholder="https://example.com/very/long/url/that/needs/to/be/shortened" required>
+        </div>
+        <div class="input-group">
+            <label for="customAlias">自定义短链接 (可选):</label>
+            <input type="text" id="customAlias" placeholder="例如: my-link (可留空自动生成)">
+        </div>
+        <button onclick="generateShortUrl()">生成短链接</button>
+        
+        <div id="error" class="error"></div>
+        
+        <div id="result" class="result">
+            <p>生成的短链接:</p>
+            <div class="short-url" id="shortUrl"></div>
+            <div class="button-group">
+                <button class="copy-btn" onclick="copyToClipboard()">复制链接</button>
+                <button class="clear-btn" onclick="clearCurrentLink()">清除链接</button>
+            </div>
+        </div>
+        
+
+    </div>
+
+    <script>
+        // 从localStorage加载短链接数据库
+        let urlDatabase = JSON.parse(localStorage.getItem('urlDatabase')) || {};
+        
+        // 生成短链接
+        function generateShortUrl() {
+            const originalUrl = document.getElementById('originalUrl').value.trim();
+            const customAlias = document.getElementById('customAlias').value.trim();
+            const errorDiv = document.getElementById('error');
+            const resultDiv = document.getElementById('result');
+            
+            // 清除之前的结果
+            errorDiv.textContent = '';
+            resultDiv.style.display = 'none';
+            
+            // 验证URL
+            if (!originalUrl) {
+                errorDiv.textContent = '请输入有效的URL';
+                return;
+            }
+            
+            try {
+                new URL(originalUrl);
+            } catch (e) {
+                errorDiv.textContent = '请输入有效的URL格式';
+                return;
+            }
+            
+            // 生成短链接
+            let shortUrl;
+            if (customAlias) {
+                // 检查自定义别名是否已存在
+                if (urlDatabase[customAlias]) {
+                    errorDiv.textContent = '该自定义别名已存在，请选择其他名称';
+                    return;
+                }
+                shortUrl = customAlias;
+            } else {
+                // 生成随机短链接
+                shortUrl = generateRandomString(6);
+                // 确保生成的短链接不重复
+                while (urlDatabase[shortUrl]) {
+                    shortUrl = generateRandomString(6);
+                }
+            }
+            
+            // 保存到数据库
+            urlDatabase[shortUrl] = originalUrl;
+            localStorage.setItem('urlDatabase', JSON.stringify(urlDatabase));
+            
+            // 显示结果
+            const shortUrlElement = document.getElementById('shortUrl');
+            const fullShortUrl = window.location.href.split('#')[0] + '#' + shortUrl;
+            shortUrlElement.textContent = fullShortUrl;
+            resultDiv.style.display = 'block';
+            
+
+            
+
+        }
+        
+        // 生成随机字符串
+        function generateRandomString(length) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+        
+        // 复制到剪贴板
+        function copyToClipboard() {
+            const shortUrl = document.getElementById('shortUrl').textContent;
+            copyText(shortUrl);
+        }
+        
+        // 复制文本工具函数
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('链接已复制到剪贴板!');
+            }).catch(err => {
+                console.error('复制失败:', err);
+                // 降级方案
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('链接已复制到剪贴板!');
+            });
+        }
+        
+        // 页面加载时检查URL哈希以进行重定向
+        window.addEventListener('load', function() {
+            // 检查是否有哈希进行重定向
+            const hash = window.location.hash.substr(1);
+            if (hash && urlDatabase[hash]) {
+                // 确认用户是否要重定向
+                if (confirm(`是否要重定向到: ${urlDatabase[hash]}?`)) {
+                    window.location.href = urlDatabase[hash];
+                }
+            }
+        });
+        
+        // 监听URL变化
+        window.addEventListener('hashchange', function() {
+            const hash = window.location.hash.substr(1);
+            if (hash && urlDatabase[hash]) {
+                if (confirm(`是否要重定向到: ${urlDatabase[hash]}?`)) {
+                    window.location.href = urlDatabase[hash];
+                }
+            }
+        });
+        
+        // 清除当前链接
+        function clearCurrentLink() {
+            const shortUrlElement = document.getElementById('shortUrl');
+            const resultDiv = document.getElementById('result');
+            const originalUrlInput = document.getElementById('originalUrl');
+            
+            // 检查是否有内容需要清除
+            if (shortUrlElement && shortUrlElement.textContent) {
+                // 清除显示的短链接
+                shortUrlElement.textContent = '';
+                // 隐藏结果区域
+                if (resultDiv) {
+                    resultDiv.style.display = 'none';
+                }
+                // 清除长链接输入框
+                if (originalUrlInput) {
+                    originalUrlInput.value = '';
+                }
+                alert('当前链接已清除');
+            } else {
+                alert('没有当前链接需要清除');
+            }
+        }
+        
+
+    </script>
+</body>
+</html>

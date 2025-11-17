@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正则表达式交互式学习工具</title>
+    <style>
+        :root {
+            --primary: #6200ee;
+            --primary-light: #9e47ff;
+            --secondary: #03dac6;
+            --error: #b00020;
+            --background: #f5f5f5;
+            --surface: #ffffff;
+            --on-primary: #ffffff;
+            --on-secondary: #000000;
+            --on-surface: #000000;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            background-color: var(--surface);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        label {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 8px;
+            display: block;
+            font-size: 1.1rem;
+        }
+        
+        textarea, input {
+             width: calc(100% - 30px);
+             padding: 12px;
+             font-size: 16px;
+             border: 2px solid #ddd;
+             border-radius: 8px;
+             transition: all 0.3s;
+             background-color: #f9f9f9;
+             margin: 0 15px;
+             box-sizing: border-box;
+         }
+         
+         textarea {
+             min-height: 120px;
+             resize: vertical;
+         }
+        
+        textarea:focus, input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(98, 0, 238, 0.2);
+            outline: none;
+        }
+        
+        .match {
+            background-color: var(--secondary);
+            color: var(--on-secondary);
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .current {
+            background-color: var(--primary);
+            color: var(--on-primary);
+            padding: 2px 4px;
+            border-radius: 4px;
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(98, 0, 238, 0.3);
+            transition: all 0.3s;
+        }
+        
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #test {
+            background-color: var(--primary);
+            color: var(--on-primary);
+        }
+        
+        #step {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        #reset {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            color: #666666;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        button:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
+        }
+        
+        #result {
+             border: 2px solid #ddd;
+             padding: 15px;
+             min-height: 150px;
+             max-height: 300px;
+             overflow-y: auto;
+             white-space: pre-wrap;
+             font-family: 'Courier New', Courier, monospace;
+             font-size: 16px;
+             line-height: 1.6;
+             border-radius: 8px;
+             background-color: #f9f9f9;
+             transition: all 0.3s;
+             margin: 0 15px;
+             width: calc(100% - 30px);
+             box-sizing: border-box;
+         }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .success-message {
+            color: var(--primary);
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌈 正则表达式交互式学习工具 🌈</h1>
+        
+        <div>
+            <label for="text">📝 输入文本:</label>
+            <textarea id="text" rows="5" placeholder="在此输入要匹配的文本..."></textarea>
+        </div>
+        
+        <div>
+            <label for="regex">🔍 正则表达式:</label>
+            <input id="regex" type="text" placeholder="输入正则表达式...">
+        </div>
+        
+        <div class="controls">
+            <button id="test">✨ 测试匹配</button>
+            <button id="step" disabled>⏭️ 下一步</button>
+            <button id="reset">🔄 重置</button>
+        </div>
+        
+        <div>
+            <label>📊 匹配结果:</label>
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const textEl = document.getElementById('text');
+        const regexEl = document.getElementById('regex');
+        const resultEl = document.getElementById('result');
+        const testBtn = document.getElementById('test');
+        const stepBtn = document.getElementById('step');
+        const resetBtn = document.getElementById('reset');
+        
+        let matches = [];
+        let currentMatchIndex = 0;
+        
+        testBtn.addEventListener('click', testRegex);
+        stepBtn.addEventListener('click', showNextMatch);
+        resetBtn.addEventListener('click', resetAll);
+        
+        function testRegex() {
+            const text = textEl.value;
+            const regexStr = regexEl.value;
+            
+            try {
+                const regex = new RegExp(regexStr, 'g');
+                matches = [];
+                let match;
+                
+                while ((match = regex.exec(text)) !== null) {
+                    matches.push({
+                        index: match.index,
+                        length: match[0].length,
+                        text: match[0]
+                    });
+                }
+                
+                if (matches.length === 0) {
+                    resultEl.innerHTML = '没有找到匹配项';
+                    stepBtn.disabled = true;
+                } else {
+                    resultEl.innerHTML = `找到 ${matches.length} 个匹配项`;
+                    currentMatchIndex = 0;
+                    stepBtn.disabled = false;
+                    showNextMatch();
+                }
+            } catch (e) {
+                resultEl.innerHTML = `正则表达式错误: ${e.message}`;
+                stepBtn.disabled = true;
+            }
+        }
+        
+        function showNextMatch() {
+            if (currentMatchIndex >= matches.length) {
+                resultEl.innerHTML += '<br>所有匹配项已显示完毕';
+                stepBtn.disabled = true;
+                return;
+            }
+            
+            const match = matches[currentMatchIndex];
+            const text = textEl.value;
+            
+            // 高亮当前匹配项
+            let highlightedText = text.substring(0, match.index) +
+                `<span class="current">${text.substring(match.index, match.index + match.length)}</span>` +
+                text.substring(match.index + match.length);
+            
+            // 高亮之前的所有匹配项
+            for (let i = 0; i < currentMatchIndex; i++) {
+                const prevMatch = matches[i];
+                highlightedText = highlightedText.replace(
+                    `<span class="current">${prevMatch.text}</span>`,
+                    `<span class="match">${prevMatch.text}</span>`
+                );
+            }
+            
+            resultEl.innerHTML = highlightedText;
+            resultEl.innerHTML += `<br><br>匹配项 ${currentMatchIndex + 1}/${matches.length}: "${match.text}" (位置 ${match.index}-${match.index + match.length - 1})`;
+            
+            currentMatchIndex++;
+        }
+        
+        function resetAll() {
+            resultEl.innerHTML = '';
+            matches = [];
+            currentMatchIndex = 0;
+            stepBtn.disabled = true;
+        }
+    </script>
+</body>
+</html>

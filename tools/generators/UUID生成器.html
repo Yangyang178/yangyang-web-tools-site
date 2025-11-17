@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UUID生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .uuid-section {
+            margin-bottom: 30px;
+        }
+
+        .uuid-type {
+            margin-bottom: 20px;
+        }
+
+        .uuid-type h3 {
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .uuid-display {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .uuid-output {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            background: #f8f9fa;
+            word-break: break-all;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .batch-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .batch-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .batch-input {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100px;
+        }
+
+        .batch-output {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .uuid-display {
+                flex-direction: column;
+            }
+            
+            .controls {
+                justify-content: center;
+            }
+            
+            .batch-controls {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 UUID生成器</h1>
+        
+        <div class="uuid-section">
+            <div class="uuid-type">
+                <h3>UUID v4 (随机)</h3>
+                <div class="uuid-display">
+                    <div class="uuid-output" id="uuid4-output">点击生成按钮创建UUID</div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="generateUUID4()">生成 UUID v4</button>
+                    <button class="btn btn-secondary" onclick="copyToClipboard('uuid4-output')">复制</button>
+                    <button class="btn btn-success" onclick="generateMultipleUUID4()">生成10个</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="batch-section">
+            <h3>批量生成</h3>
+            <div class="batch-controls">
+                <label>数量:</label>
+                <input type="number" class="batch-input" id="batch-count" value="10" min="1" max="1000">
+                <button class="btn btn-primary" onclick="generateBatch()">批量生成</button>
+                <button class="btn btn-secondary" onclick="copyBatch()">复制全部</button>
+                <button class="btn btn-success" onclick="clearBatch()">清空</button>
+            </div>
+            <div class="batch-output" id="batch-output">批量生成的UUID将显示在这里...</div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">已复制到剪贴板!</div>
+
+    <script>
+        // 生成UUID v4
+        function generateUUID4() {
+            const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+            
+            document.getElementById('uuid4-output').textContent = uuid;
+            return uuid;
+        }
+
+        // 生成多个UUID v4
+        function generateMultipleUUID4() {
+            const uuids = [];
+            for (let i = 0; i < 10; i++) {
+                uuids.push(generateUUID4());
+            }
+            document.getElementById('uuid4-output').textContent = uuids.join('\n');
+        }
+
+        // 批量生成UUID
+        function generateBatch() {
+            const count = parseInt(document.getElementById('batch-count').value) || 10;
+            const maxCount = Math.min(count, 1000); // 限制最大数量
+            const uuids = [];
+            
+            for (let i = 0; i < maxCount; i++) {
+                const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0;
+                    const v = c == 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+                uuids.push(uuid);
+            }
+            
+            document.getElementById('batch-output').textContent = uuids.join('\n');
+        }
+
+        // 复制到剪贴板
+        async function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            try {
+                await navigator.clipboard.writeText(text);
+                showToast('已复制到剪贴板!');
+            } catch (err) {
+                // 降级方案
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('已复制到剪贴板!');
+            }
+        }
+
+        // 复制批量生成的UUID
+        async function copyBatch() {
+            await copyToClipboard('batch-output');
+        }
+
+        // 清空批量输出
+        function clearBatch() {
+            document.getElementById('batch-output').textContent = '批量生成的UUID将显示在这里...';
+        }
+
+        // 显示提示消息
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 页面加载时生成一个UUID
+        window.onload = function() {
+            generateUUID4();
+        };
+
+        // 键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'g':
+                        e.preventDefault();
+                        generateUUID4();
+                        break;
+                    case 'c':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            copyToClipboard('uuid4-output');
+                        }
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

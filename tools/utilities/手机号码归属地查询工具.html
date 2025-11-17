@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手机号码归属地查询</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            text-align: center;
+        }
+        input {
+            padding: 10px;
+            width: 200px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            min-height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>手机号码归属地查询</h1>
+        <input type="text" id="phoneNumber" placeholder="请输入手机号码" maxlength="11">
+        <button onclick="checkLocation()">查询</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // 手机号段与归属地对照表
+        const phonePrefixMap = {
+            '130': '河北', '131': '河北', '132': '河北', '133': '上海', '134': '广东',
+            '135': '广东', '136': '广东', '137': '广东', '138': '广东', '139': '广东',
+            '145': '北京', '147': '北京', '149': '北京', '150': '北京', '151': '北京',
+            '152': '江苏', '153': '山东', '155': '安徽', '156': '湖北', '157': '山东',
+            '158': '江苏', '159': '江苏', '165': '云南', '166': '贵州', '170': '虚拟运营商',
+            '171': '虚拟运营商', '172': '虚拟运营商', '173': '虚拟运营商', '174': '虚拟运营商',
+            '175': '虚拟运营商', '176': '虚拟运营商', '177': '虚拟运营商', '178': '虚拟运营商',
+            '180': '江苏', '181': '江苏', '182': '江苏', '183': '江苏', '184': '江苏',
+            '185': '山东', '186': '山东', '187': '山东', '188': '广东', '189': '广东',
+            '190': '北京', '191': '北京', '192': '北京', '193': '北京', '195': '北京',
+            '196': '北京', '197': '北京', '198': '广东', '199': '广东', '166': '贵州',
+            '167': '贵州', '168': '贵州', '169': '贵州', '162': '江苏', '163': '江苏',
+            '164': '江苏', '165': '云南', '166': '贵州', '167': '贵州', '168': '贵州'
+        };
+
+        function checkLocation() {
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const resultDiv = document.getElementById('result');
+            
+            // 验证手机号格式
+            if (!/^1[3-9]\d{9}$/.test(phoneNumber)) {
+                resultDiv.innerHTML = '请输入有效的11位手机号码';
+                return;
+            }
+            
+            // 获取前三位
+            const prefix = phoneNumber.substring(0, 3);
+            
+            // 查询归属地
+            const location = phonePrefixMap[prefix] || '未知归属地';
+            
+            resultDiv.innerHTML = `手机号码 ${phoneNumber} 的归属地是: <strong>${location}</strong>`;
+        }
+    </script>
+</body>
+</html>

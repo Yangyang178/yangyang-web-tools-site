@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>艺术字生成器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px dashed #ccc;
+            min-height: 100px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+            <h1 style="color: #4a4a4a; text-shadow: 1px 1px 3px rgba(0,0,0,0.2);">艺术字生成器</h1>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="text-input" style="color: #4a4a4a;">输入文字:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <textarea id="text-input" placeholder="请输入要转换的文字..." style="border: 1px solid #c3cfe2; background-color: rgba(255,255,255,0.8); flex: 1;"></textarea>
+                        <button id="clear-text-btn" style="background: linear-gradient(to right, #ff9a9e 0%, #fad0c4 100%); border: none; color: white; padding: 0 15px;">清除</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="font-family" style="color: #4a4a4a;">字体样式:</label>
+                    <select id="font-family" style="border: 1px solid #c3cfe2; background-color: rgba(255,255,255,0.8);">
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="'Times New Roman', serif">Times New Roman</option>
+                        <option value="'Courier New', monospace">Courier New</option>
+                        <option value="'Comic Sans MS', cursive">Comic Sans MS</option>
+                        <option value="'Brush Script MT', cursive">Brush Script</option>
+                        <option value="'Palatino Linotype', 'Book Antiqua', serif">Palatino</option>
+                        <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                        <option value="'Georgia', serif">Georgia</option>
+                        <option value="'Garamond', serif">Garamond</option>
+                        <option value="'Impact', sans-serif">Impact</option>
+                        <option value="'Verdana', sans-serif">Verdana</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="font-size" style="color: #4a4a4a;">字体大小 (px):</label>
+                    <input type="range" id="font-size" min="12" max="100" value="24" style="width: 100%;">
+                    <span id="font-size-value">24px</span>
+                </div>
+                
+                <div class="control-group">
+                    <label for="text-color" style="color: #4a4a4a;">文字颜色:</label>
+                    <input type="color" id="text-color" value="#000000">
+                </div>
+                
+                <div class="control-group">
+                    <label for="text-shadow" style="color: #4a4a4a;">文字阴影:</label>
+                    <input type="checkbox" id="text-shadow">
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button id="generate-btn" style="background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%); border: none; color: white;">生成艺术字</button>
+                    <button id="clear-btn" style="background: linear-gradient(to right, #ff758c 0%, #ff7eb3 100%); border: none; color: white;">清除</button>
+                </div>
+            </div>
+        
+        <div class="output" id="output">
+            <p>生成的艺术字将显示在这里...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const textInput = document.getElementById('text-input');
+            const fontFamily = document.getElementById('font-family');
+            const fontSize = document.getElementById('font-size');
+            const fontSizeValue = document.getElementById('font-size-value');
+            const textColor = document.getElementById('text-color');
+            const textShadow = document.getElementById('text-shadow');
+            const generateBtn = document.getElementById('generate-btn');
+            const output = document.getElementById('output');
+            
+            // 更新字体大小显示
+            fontSize.addEventListener('input', function() {
+                fontSizeValue.textContent = this.value + 'px';
+            });
+            
+            // 生成艺术字
+            generateBtn.addEventListener('click', function() {
+                const text = textInput.value.trim();
+                
+                if (!text) {
+                    alert('请输入要转换的文字！');
+                    return;
+                }
+                
+                output.innerHTML = '';
+                
+                const characters = text.split('');
+                
+                characters.forEach(char => {
+                    const span = document.createElement('span');
+                    span.textContent = char;
+                    span.style.fontFamily = fontFamily.value;
+                    span.style.fontSize = fontSize.value + 'px';
+                    span.style.color = textColor.value;
+                    span.style.margin = '0 5px';
+                    
+                    if (textShadow.checked) {
+                        span.style.textShadow = `2px 2px 4px rgba(0, 0, 0, 0.5)`;
+                    }
+                    
+                    output.appendChild(span);
+                });
+            });
+            
+            document.getElementById('clear-text-btn').addEventListener('click', function() {
+                textInput.value = '';
+            });
+            
+            document.getElementById('clear-btn').addEventListener('click', function() {
+                output.innerHTML = '<p>生成的艺术字将显示在这里...</p>';
+                fontSize.value = 24;
+                document.getElementById('font-size-value').textContent = '24px';
+                textColor.value = '#000000';
+                textShadow.checked = false;
+            });
+        });
+    </script>
+</body>
+</html>

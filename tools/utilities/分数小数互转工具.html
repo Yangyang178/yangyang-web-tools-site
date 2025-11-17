@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分数小数互转工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+            padding: 45px;
+            max-width: 700px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .title {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 35px;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .converter-section {
+            margin-bottom: 35px;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.05) 0%, rgba(0, 242, 254, 0.05) 100%);
+            border-radius: 20px;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .converter-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            border-radius: 20px;
+            padding: 2px;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            z-index: -1;
+        }
+
+        .section-title {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, #667eea, #764ba2, #f093fb) border-box;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            text-align: center;
+        }
+
+        .input-field:focus {
+            outline: none;
+            transform: translateY(-2px);
+            box-shadow: 
+                0 10px 25px rgba(102, 126, 234, 0.2),
+                0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .fraction-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            min-height: 60px;
+        }
+
+        .fraction-line {
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0 10px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 15px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .btn-convert {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-convert:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+            box-shadow: 0 8px 25px rgba(168, 237, 234, 0.3);
+        }
+
+        .btn-clear:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(168, 237, 234, 0.4);
+        }
+
+        .result-area {
+            background: linear-gradient(135deg, rgba(168, 237, 234, 0.1) 0%, rgba(254, 214, 227, 0.1) 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid transparent;
+            position: relative;
+            text-align: center;
+        }
+
+        .result-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            border-radius: 15px;
+            padding: 2px;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            z-index: -1;
+        }
+
+        .result-content {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .error {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(238, 90, 36, 0.1) 100%);
+        }
+
+        .error::before {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+
+        .error .result-content {
+            color: #dc3545;
+        }
+
+        .tips {
+            background: linear-gradient(135deg, rgba(168, 237, 234, 0.2) 0%, rgba(254, 214, 227, 0.2) 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 25px;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .tips::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            border-radius: 20px;
+            padding: 2px;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            z-index: -1;
+        }
+
+        .tips-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+
+        .tips-content {
+            color: #555;
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 10px;
+            }
+            
+            .input-row {
+                flex-direction: column;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .title {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🔢 分数小数互转工具</h1>
+        
+        <!-- 小数转分数 -->
+        <div class="converter-section">
+            <h2 class="section-title">📊 小数转分数</h2>
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="decimalInput">输入小数：</label>
+                    <input type="text" id="decimalInput" class="input-field" placeholder="例如：0.75">
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-convert" onclick="convertToFraction()">
+                    🔄 转换为分数
+                </button>
+                <button class="btn btn-clear" onclick="clearDecimal()">
+                    🗑️ 清空
+                </button>
+            </div>
+            <div id="fractionResult" class="result-area" style="display: none;">
+                <div class="result-content"></div>
+            </div>
+        </div>
+
+        <!-- 分数转小数 -->
+        <div class="converter-section">
+            <h2 class="section-title">🧮 分数转小数</h2>
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="numerator">分子：</label>
+                    <input type="text" id="numerator" class="input-field" placeholder="分子">
+                </div>
+                <div class="fraction-display">
+                    <span id="numeratorDisplay">?</span>
+                    <div class="fraction-line"></div>
+                    <span id="denominatorDisplay">?</span>
+                </div>
+                <div class="input-group">
+                    <label for="denominator">分母：</label>
+                    <input type="text" id="denominator" class="input-field" placeholder="分母">
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-convert" onclick="convertToDecimal()">
+                    🔄 转换为小数
+                </button>
+                <button class="btn btn-clear" onclick="clearFraction()">
+                    🗑️ 清空
+                </button>
+            </div>
+            <div id="decimalResult" class="result-area" style="display: none;">
+                <div class="result-content"></div>
+            </div>
+        </div>
+
+        <div class="tips">
+            <div class="tips-title">💡 使用说明</div>
+            <div class="tips-content">
+                • <strong>小数转分数：</strong>输入小数（如0.75），自动转换为最简分数（3/4）<br>
+                • <strong>分数转小数：</strong>输入分子和分母，计算对应的小数值<br>
+                • <strong>支持功能：</strong>自动约分、循环小数识别、负数处理<br>
+                • <strong>输入格式：</strong>支持整数、小数、负数等多种格式
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 更新分数显示
+        function updateFractionDisplay() {
+            const numerator = document.getElementById('numerator').value || '?';
+            const denominator = document.getElementById('denominator').value || '?';
+            document.getElementById('numeratorDisplay').textContent = numerator;
+            document.getElementById('denominatorDisplay').textContent = denominator;
+        }
+
+        // 监听输入变化
+        document.getElementById('numerator').addEventListener('input', updateFractionDisplay);
+        document.getElementById('denominator').addEventListener('input', updateFractionDisplay);
+
+        // 小数转分数
+        function convertToFraction() {
+            const decimalInput = document.getElementById('decimalInput').value.trim();
+            if (!decimalInput) {
+                showResult('fractionResult', '请输入要转换的小数', true);
+                return;
+            }
+
+            try {
+                const decimal = parseFloat(decimalInput);
+                if (isNaN(decimal)) {
+                    throw new Error('请输入有效的数字');
+                }
+
+                const fraction = decimalToFraction(decimal);
+                showResult('fractionResult', `${decimalInput} = ${fraction.display}`);
+            } catch (error) {
+                showResult('fractionResult', '转换失败：' + error.message, true);
+            }
+        }
+
+        // 分数转小数
+        function convertToDecimal() {
+            const numeratorInput = document.getElementById('numerator').value.trim();
+            const denominatorInput = document.getElementById('denominator').value.trim();
+
+            if (!numeratorInput || !denominatorInput) {
+                showResult('decimalResult', '请输入分子和分母', true);
+                return;
+            }
+
+            try {
+                const numerator = parseFloat(numeratorInput);
+                const denominator = parseFloat(denominatorInput);
+
+                if (isNaN(numerator) || isNaN(denominator)) {
+                    throw new Error('请输入有效的数字');
+                }
+
+                if (denominator === 0) {
+                    throw new Error('分母不能为零');
+                }
+
+                const decimal = numerator / denominator;
+                const result = fractionToDecimal(numerator, denominator);
+                showResult('decimalResult', `${numeratorInput}/${denominatorInput} = ${result}`);
+            } catch (error) {
+                showResult('decimalResult', '转换失败：' + error.message, true);
+            }
+        }
+
+        // 清空小数输入
+        function clearDecimal() {
+            document.getElementById('decimalInput').value = '';
+            document.getElementById('fractionResult').style.display = 'none';
+        }
+
+        // 清空分数输入
+        function clearFraction() {
+            document.getElementById('numerator').value = '';
+            document.getElementById('denominator').value = '';
+            updateFractionDisplay();
+            document.getElementById('decimalResult').style.display = 'none';
+        }
+
+        // 显示结果
+        function showResult(resultId, text, isError = false) {
+            const resultDiv = document.getElementById(resultId);
+            const resultContent = resultDiv.querySelector('.result-content');
+            
+            resultContent.textContent = text;
+            resultDiv.className = isError ? 'result-area error' : 'result-area';
+            resultDiv.style.display = 'block';
+        }
+
+        // 求最大公约数
+        function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b !== 0) {
+                const temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return a;
+        }
+
+        // 小数转分数
+        function decimalToFraction(decimal) {
+            const isNegative = decimal < 0;
+            decimal = Math.abs(decimal);
+
+            // 处理整数
+            if (decimal % 1 === 0) {
+                return {
+                    numerator: isNegative ? -decimal : decimal,
+                    denominator: 1,
+                    display: `${isNegative ? '-' : ''}${decimal}/1`
+                };
+            }
+
+            // 转换为字符串处理小数位数
+            const decimalStr = decimal.toString();
+            const decimalPlaces = decimalStr.split('.')[1].length;
+            
+            // 转换为分数
+            let numerator = Math.round(decimal * Math.pow(10, decimalPlaces));
+            let denominator = Math.pow(10, decimalPlaces);
+
+            // 约分
+            const commonDivisor = gcd(numerator, denominator);
+            numerator /= commonDivisor;
+            denominator /= commonDivisor;
+
+            if (isNegative) {
+                numerator = -numerator;
+            }
+
+            return {
+                numerator: numerator,
+                denominator: denominator,
+                display: `${numerator}/${denominator}`
+            };
+        }
+
+        // 分数转小数（处理循环小数）
+        function fractionToDecimal(numerator, denominator) {
+            if (denominator === 0) {
+                throw new Error('分母不能为零');
+            }
+
+            const isNegative = (numerator < 0) !== (denominator < 0);
+            numerator = Math.abs(numerator);
+            denominator = Math.abs(denominator);
+
+            const integerPart = Math.floor(numerator / denominator);
+            let remainder = numerator % denominator;
+
+            if (remainder === 0) {
+                return isNegative ? `-${integerPart}` : `${integerPart}`;
+            }
+
+            let decimalPart = '';
+            const remainderMap = new Map();
+            let position = 0;
+
+            while (remainder !== 0 && !remainderMap.has(remainder)) {
+                remainderMap.set(remainder, position);
+                remainder *= 10;
+                const digit = Math.floor(remainder / denominator);
+                decimalPart += digit;
+                remainder %= denominator;
+                position++;
+
+                // 限制小数位数，避免过长
+                if (position > 10) {
+                    break;
+                }
+            }
+
+            let result = `${integerPart}.${decimalPart}`;
+
+            // 检测循环小数
+            if (remainder !== 0 && remainderMap.has(remainder)) {
+                const cycleStart = remainderMap.get(remainder);
+                const nonRepeating = decimalPart.substring(0, cycleStart);
+                const repeating = decimalPart.substring(cycleStart);
+                result = `${integerPart}.${nonRepeating}(${repeating})`;
+            }
+
+            return isNegative ? `-${result}` : result;
+        }
+
+        // 回车键快捷转换
+        document.getElementById('decimalInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertToFraction();
+            }
+        });
+
+        document.getElementById('numerator').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertToDecimal();
+            }
+        });
+
+        document.getElementById('denominator').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertToDecimal();
+            }
+        });
+    </script>
+</body>
+</html>

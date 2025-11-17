@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间感知测试器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .mode-selector {
+            margin-bottom: 30px;
+        }
+
+        .mode-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .mode-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .test-area {
+            margin: 30px 0;
+            padding: 30px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .timer-display {
+            font-size: 4em;
+            font-weight: bold;
+            color: #333;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .status-display {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .test-status {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .target-time-display {
+            font-size: 1.3em;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .custom-duration-input {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .custom-duration-input input {
+            padding: 10px 15px;
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            font-size: 1em;
+            width: 150px;
+            text-align: center;
+        }
+
+        .custom-duration-input input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .instruction {
+            font-size: 1.2em;
+            color: #555;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #dee2e6;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-area {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .accuracy-display {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .accuracy-excellent { color: #28a745; }
+        .accuracy-good { color: #17a2b8; }
+        .accuracy-fair { color: #ffc107; }
+        .accuracy-poor { color: #dc3545; }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .history {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .history-header h3 {
+            margin: 0;
+        }
+
+        .clear-history-btn {
+            padding: 8px 16px;
+            font-size: 0.9em;
+            min-width: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .contact-section {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+        }
+
+        .contact-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .contact-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+        }
+
+        .modal h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+
+        .contact-info {
+            margin: 20px 0;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .contact-item i {
+            font-size: 1.5rem;
+            margin-right: 15px;
+            color: #667eea;
+        }
+
+        .contact-item strong {
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .contact-item span {
+            color: #666;
+            font-family: 'Courier New', monospace;
+        }
+
+        .contact-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .timer-display {
+                font-size: 3em;
+            }
+
+            .mode-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .control-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⏱️ 时间感知测试器</h1>
+        <p class="subtitle">测试并提高您对时间的感知准确性</p>
+
+        <div class="mode-selector">
+            <h3>选择测试时长</h3>
+            <div class="mode-buttons">
+                <button class="mode-btn active" data-duration="5">5秒</button>
+                <button class="mode-btn" data-duration="10">10秒</button>
+                <button class="mode-btn" data-duration="15">15秒</button>
+                <button class="mode-btn" data-duration="30">30秒</button>
+                <button class="mode-btn" data-duration="60">1分钟</button>
+                <button class="mode-btn" data-duration="custom">自定义</button>
+            </div>
+            <div id="custom-duration-input" class="custom-duration-input hidden">
+                <input type="number" id="custom-seconds" placeholder="输入秒数" min="1" max="300" value="20">
+                <button id="set-custom-btn" class="btn btn-secondary">确定</button>
+            </div>
+        </div>
+
+        <div class="test-area">
+            <div id="status-display" class="status-display">
+                <div id="test-status" class="test-status">准备开始测试</div>
+                <div id="target-time-display" class="target-time-display">目标时长：5秒</div>
+            </div>
+            <div id="instruction" class="instruction">
+                点击"开始测试"按钮，然后在您认为达到指定时间时点击"停止"按钮
+            </div>
+            <div class="control-buttons">
+                <button id="start-btn" class="btn btn-primary">开始测试</button>
+                <button id="stop-btn" class="btn btn-secondary" disabled>停止</button>
+                <button id="reset-btn" class="btn btn-secondary">重置</button>
+            </div>
+        </div>
+
+        <div id="result-area" class="result-area hidden">
+            <h3>测试结果</h3>
+            <div id="accuracy-display" class="accuracy-display"></div>
+            <div id="result-details"></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label">总测试次数</div>
+                <div id="total-tests" class="stat-value">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">平均准确率</div>
+                <div id="avg-accuracy" class="stat-value">0%</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">最佳准确率</div>
+                <div id="best-accuracy" class="stat-value">0%</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">连续改进</div>
+                <div id="improvement-streak" class="stat-value">0</div>
+            </div>
+        </div>
+
+        <div class="history">
+            <div class="history-header">
+                <h3>测试历史</h3>
+                <button id="clear-history-btn" class="btn btn-secondary clear-history-btn">清除历史</button>
+            </div>
+            <div id="history-list"></div>
+        </div>
+
+        <!-- 联系我们按钮 -->
+        <div class="contact-section">
+            <button class="contact-btn" onclick="openContactModal()">
+                📞 联系我们
+            </button>
+        </div>
+    </div>
+
+    <script>
+        class TimePerceptionTester {
+            constructor() {
+                this.currentDuration = 5;
+                this.startTime = null;
+                this.endTime = null;
+                this.isRunning = false;
+                this.timer = null;
+                this.elapsedTime = 0;
+                this.testHistory = JSON.parse(localStorage.getItem('timePerceptionHistory') || '[]');
+                
+                this.initializeElements();
+                this.bindEvents();
+                this.updateStats();
+                this.updateHistory();
+            }
+
+            initializeElements() {
+                this.statusDisplay = document.getElementById('status-display');
+                this.testStatus = document.getElementById('test-status');
+                this.targetTimeDisplay = document.getElementById('target-time-display');
+                this.instruction = document.getElementById('instruction');
+                this.startBtn = document.getElementById('start-btn');
+                this.stopBtn = document.getElementById('stop-btn');
+                this.resetBtn = document.getElementById('reset-btn');
+                this.resultArea = document.getElementById('result-area');
+                this.accuracyDisplay = document.getElementById('accuracy-display');
+                this.resultDetails = document.getElementById('result-details');
+                this.modeButtons = document.querySelectorAll('.mode-btn');
+                this.customDurationInput = document.getElementById('custom-duration-input');
+                this.customSecondsInput = document.getElementById('custom-seconds');
+                this.setCustomBtn = document.getElementById('set-custom-btn');
+                this.clearHistoryBtn = document.getElementById('clear-history-btn');
+            }
+
+            bindEvents() {
+                this.modeButtons.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const duration = e.target.dataset.duration;
+                        if (duration === 'custom') {
+                            this.showCustomInput();
+                        } else {
+                            this.selectMode(parseInt(duration));
+                        }
+                    });
+                });
+
+                this.setCustomBtn.addEventListener('click', () => {
+                    const customDuration = parseInt(this.customSecondsInput.value);
+                    if (customDuration && customDuration >= 1 && customDuration <= 300) {
+                        this.selectMode(customDuration, true);
+                        this.hideCustomInput();
+                    } else {
+                        alert('请输入1-300之间的有效秒数');
+                    }
+                });
+
+                this.customSecondsInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.setCustomBtn.click();
+                    }
+                });
+
+                this.clearHistoryBtn.addEventListener('click', () => {
+                    this.clearHistory();
+                });
+
+                this.startBtn.addEventListener('click', () => this.startTest());
+                this.stopBtn.addEventListener('click', () => this.stopTest());
+                this.resetBtn.addEventListener('click', () => this.resetTest());
+            }
+
+            selectMode(duration, isCustom = false) {
+                this.currentDuration = duration;
+                this.modeButtons.forEach(btn => btn.classList.remove('active'));
+                
+                if (isCustom) {
+                    document.querySelector('[data-duration="custom"]').classList.add('active');
+                } else {
+                    document.querySelector(`[data-duration="${duration}"]`).classList.add('active');
+                }
+                
+                this.resetTest();
+                this.updateTargetDisplay();
+                this.instruction.textContent = `点击"开始测试"按钮，然后在您认为过了${duration}秒时点击"停止"按钮`;
+            }
+
+            showCustomInput() {
+                this.customDurationInput.classList.remove('hidden');
+                this.customSecondsInput.focus();
+            }
+
+            hideCustomInput() {
+                this.customDurationInput.classList.add('hidden');
+            }
+
+            updateTargetDisplay() {
+                this.targetTimeDisplay.textContent = `目标时长：${this.currentDuration}秒`;
+            }
+
+            startTest() {
+                this.startTime = Date.now();
+                this.isRunning = true;
+                
+                this.startBtn.disabled = true;
+                this.stopBtn.disabled = false;
+                this.resetBtn.disabled = true;
+                
+                this.testStatus.textContent = '正在测试...';
+                this.testStatus.style.color = '#667eea';
+                this.instruction.textContent = `当您认为过了${this.currentDuration}秒时，请点击停止按钮`;
+                this.resultArea.classList.add('hidden');
+            }
+
+            stopTest() {
+                if (!this.isRunning) return;
+                
+                this.endTime = Date.now();
+                this.isRunning = false;
+                
+                this.startBtn.disabled = false;
+                this.stopBtn.disabled = true;
+                this.resetBtn.disabled = false;
+                
+                this.testStatus.textContent = '测试完成';
+                this.testStatus.style.color = '#28a745';
+                
+                const actualTime = (this.endTime - this.startTime) / 1000;
+                this.calculateResult(actualTime);
+            }
+
+            resetTest() {
+                this.isRunning = false;
+                this.startTime = null;
+                this.endTime = null;
+                
+                this.startBtn.disabled = false;
+                this.stopBtn.disabled = true;
+                this.resetBtn.disabled = false;
+                
+                this.testStatus.textContent = '准备开始测试';
+                this.testStatus.style.color = '#333';
+                this.instruction.textContent = `点击"开始测试"按钮，然后在您认为过了${this.currentDuration}秒时点击"停止"按钮`;
+                this.resultArea.classList.add('hidden');
+            }
+
+            updateDisplay() {
+                // 移除了计时器显示功能，让用户完全依靠内在时间感知
+            }
+
+            calculateResult(actualTime) {
+                const targetTime = this.currentDuration;
+                const difference = Math.abs(actualTime - targetTime);
+                const accuracy = Math.max(0, 100 - (difference / targetTime) * 100);
+                
+                // 保存测试结果
+                const result = {
+                    timestamp: new Date().toISOString(),
+                    targetTime: targetTime,
+                    actualTime: actualTime,
+                    accuracy: accuracy,
+                    difference: difference
+                };
+                
+                this.testHistory.unshift(result);
+                if (this.testHistory.length > 50) {
+                    this.testHistory = this.testHistory.slice(0, 50);
+                }
+                
+                localStorage.setItem('timePerceptionHistory', JSON.stringify(this.testHistory));
+                
+                this.displayResult(result);
+                this.updateStats();
+                this.updateHistory();
+            }
+
+            displayResult(result) {
+                const { targetTime, actualTime, accuracy, difference } = result;
+                
+                // 显示准确率
+                let accuracyClass = 'accuracy-poor';
+                let accuracyText = '需要改进';
+                
+                if (accuracy >= 90) {
+                    accuracyClass = 'accuracy-excellent';
+                    accuracyText = '优秀！';
+                } else if (accuracy >= 75) {
+                    accuracyClass = 'accuracy-good';
+                    accuracyText = '良好';
+                } else if (accuracy >= 60) {
+                    accuracyClass = 'accuracy-fair';
+                    accuracyText = '一般';
+                }
+                
+                this.accuracyDisplay.className = `accuracy-display ${accuracyClass}`;
+                this.accuracyDisplay.textContent = `${accuracy.toFixed(1)}% - ${accuracyText}`;
+                
+                // 显示详细结果
+                const isEarly = actualTime < targetTime;
+                const timingText = isEarly ? '提前' : '延迟';
+                
+                this.resultDetails.innerHTML = `
+                    <p><strong>目标时间：</strong>${targetTime}秒</p>
+                    <p><strong>实际时间：</strong>${actualTime.toFixed(2)}秒</p>
+                    <p><strong>时间差：</strong>${timingText} ${difference.toFixed(2)}秒</p>
+                    <p><strong>建议：</strong>${this.getAdvice(accuracy, isEarly)}</p>
+                `;
+                
+                this.resultArea.classList.remove('hidden');
+            }
+
+            getAdvice(accuracy, isEarly) {
+                if (accuracy >= 90) {
+                    return '时间感知非常准确！继续保持这种专注度。';
+                } else if (accuracy >= 75) {
+                    return '时间感知良好，可以尝试更长的时间段来挑战自己。';
+                } else if (accuracy >= 60) {
+                    const timing = isEarly ? '尝试更耐心地等待' : '可以更快做出判断';
+                    return `时间感知有待提高，${timing}。多练习会有帮助。`;
+                } else {
+                    const timing = isEarly ? '过于急躁' : '反应过慢';
+                    return `时间感知需要大幅改进，您可能${timing}。建议从较短的时间段开始练习。`;
+                }
+            }
+
+            updateStats() {
+                const totalTests = this.testHistory.length;
+                document.getElementById('total-tests').textContent = totalTests;
+                
+                if (totalTests === 0) {
+                    document.getElementById('avg-accuracy').textContent = '0%';
+                    document.getElementById('best-accuracy').textContent = '0%';
+                    document.getElementById('improvement-streak').textContent = '0';
+                    return;
+                }
+                
+                // 平均准确率
+                const avgAccuracy = this.testHistory.reduce((sum, test) => sum + test.accuracy, 0) / totalTests;
+                document.getElementById('avg-accuracy').textContent = `${avgAccuracy.toFixed(1)}%`;
+                
+                // 最佳准确率
+                const bestAccuracy = Math.max(...this.testHistory.map(test => test.accuracy));
+                document.getElementById('best-accuracy').textContent = `${bestAccuracy.toFixed(1)}%`;
+                
+                // 连续改进计算
+                let streak = 0;
+                for (let i = 1; i < Math.min(totalTests, 10); i++) {
+                    if (this.testHistory[i-1].accuracy > this.testHistory[i].accuracy) {
+                        streak++;
+                    } else {
+                        break;
+                    }
+                }
+                document.getElementById('improvement-streak').textContent = streak;
+            }
+
+            updateHistory() {
+                const historyList = document.getElementById('history-list');
+                historyList.innerHTML = '';
+                
+                this.testHistory.slice(0, 10).forEach((test, index) => {
+                    const date = new Date(test.timestamp);
+                    const timeStr = date.toLocaleTimeString('zh-CN', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    });
+                    
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    
+                    const isEarly = test.actualTime < test.targetTime;
+                    const timingIcon = isEarly ? '⚡' : '🐌';
+                    
+                    historyItem.innerHTML = `
+                        <div>
+                            <strong>${test.targetTime}秒测试</strong> ${timingIcon}
+                            <small style="color: #666;">${timeStr}</small>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: bold; color: ${test.accuracy >= 75 ? '#28a745' : test.accuracy >= 60 ? '#ffc107' : '#dc3545'};">
+                                ${test.accuracy.toFixed(1)}%
+                            </div>
+                            <small style="color: #666;">
+                                ${test.actualTime.toFixed(2)}s
+                            </small>
+                        </div>
+                    `;
+                    
+                    historyList.appendChild(historyItem);
+                });
+                
+                if (this.testHistory.length === 0) {
+                    historyList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">暂无测试记录</p>';
+                }
+            }
+
+            clearHistory() {
+                if (this.testHistory.length === 0) {
+                    alert('暂无历史记录可清除');
+                    return;
+                }
+
+                if (confirm('确定要清除所有测试历史记录吗？此操作不可撤销。')) {
+                    this.testHistory = [];
+                    localStorage.removeItem('timePerceptionHistory');
+                    this.updateStats();
+                    this.updateHistory();
+                    alert('历史记录已清除');
+                }
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            new TimePerceptionTester();
+        });
+
+        // 联系我们功能
+        function openContactModal() {
+            document.getElementById('contactModal').style.display = 'block';
+        }
+
+        function closeContactModal() {
+            document.getElementById('contactModal').style.display = 'none';
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('contactModal');
+            if (event.target === modal) {
+                closeContactModal();
+            }
+        }
+
+        // ESC键关闭模态框
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeContactModal();
+            }
+        });
+    </script>
+
+    <!-- 联系我们模态框 -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeContactModal()">&times;</span>
+            <h2>📞 联系我们</h2>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i>📧</i>
+                    <strong>QQ邮箱:</strong>
+                    <span>1990909398@qq.com</span>
+                </div>
+                <div class="contact-item">
+                    <i>💬</i>
+                    <strong>微信号:</strong>
+                    <span>y8849112640</span>
+                </div>
+            </div>
+            <div class="contact-message">
+                向我们发送消息<br>
+                如果您有任何问题或建议，请通过下面的邮箱或微信联系我们
+            </div>
+        </div>
+    </div>
+</body>
+</html>

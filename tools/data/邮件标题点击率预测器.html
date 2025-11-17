@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邮件标题点击率预测器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(255, 255, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 25%, #45b7d1 50%, #96ceb4 75%, #feca57 100%);
+            background-size: 300% 300%;
+            animation: gradientShift 8s ease infinite;
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header * {
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            font-weight: 800;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+        }
+
+        .main-content {
+            padding: 50px 40px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%);
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: #2d3748;
+            font-size: 16px;
+            letter-spacing: 0.3px;
+        }
+
+        .subject-input {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
+            font-size: 16px;
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.06),
+                0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .subject-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.06),
+                0 0 0 3px rgba(102, 126, 234, 0.1),
+                0 4px 12px rgba(102, 126, 234, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .industry-select {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
+            font-size: 16px;
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.06),
+                0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .industry-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.06),
+                0 0 0 3px rgba(102, 126, 234, 0.1),
+                0 4px 12px rgba(102, 126, 234, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 25%, #45b7d1 50%, #96ceb4 75%, #feca57 100%);
+            background-size: 300% 300%;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 8px 25px rgba(102, 126, 234, 0.3),
+                0 3px 10px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: gradientShift 6s ease infinite;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.5px;
+        }
+
+        .analyze-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 
+                0 12px 35px rgba(102, 126, 234, 0.4),
+                0 6px 20px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .analyze-btn:hover::before {
+            left: 100%;
+        }
+
+        .analyze-btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            animation: none;
+        }
+
+        .analyze-btn:disabled:hover {
+            transform: none;
+            box-shadow: 
+                0 8px 25px rgba(102, 126, 234, 0.3),
+                0 3px 10px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .button-group .analyze-btn,
+        .button-group .reset-btn,
+        .button-group .clear-btn {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 50%, #ff4757 100%);
+            background-size: 200% 200%;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 8px 25px rgba(255, 107, 107, 0.3),
+                0 3px 10px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: gradientShift 6s ease infinite;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.5px;
+        }
+
+        .clear-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .clear-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 
+                0 12px 35px rgba(255, 107, 107, 0.4),
+                0 6px 20px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .clear-btn:hover::before {
+            left: 100%;
+        }
+
+        .clear-btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 50%, #3498db 100%);
+            background-size: 200% 200%;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 8px 25px rgba(78, 205, 196, 0.3),
+                0 3px 10px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: gradientShift 6s ease infinite;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.5px;
+        }
+
+        .reset-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 
+                0 12px 35px rgba(78, 205, 196, 0.4),
+                0 6px 20px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .reset-btn:hover::before {
+            left: 100%;
+        }
+
+        .reset-btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .results-section {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .prediction-card {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 50%, #d299c2 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 10s ease infinite;
+            padding: 35px 25px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            box-shadow: 
+                0 15px 35px rgba(168, 237, 234, 0.3),
+                0 5px 15px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prediction-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .prediction-card * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .ctr-score {
+            font-size: 3.5em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            letter-spacing: -1px;
+        }
+
+        .ctr-label {
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .score-item {
+            background: linear-gradient(145deg, #ffffff 0%, #f1f3f4 100%);
+            padding: 20px 15px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 
+                0 8px 20px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .score-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .score-item:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 
+                0 15px 30px rgba(0, 0, 0, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .score-item:hover::before {
+            opacity: 1;
+        }
+
+        .score-item h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-top: 5px;
+        }
+
+        .suggestions-section {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 1px solid rgba(255, 234, 167, 0.5);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 25px;
+            box-shadow: 
+                0 10px 25px rgba(255, 234, 167, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .suggestions-section::before {
+            content: '💡';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 3em;
+            opacity: 0.1;
+            transform: rotate(15deg);
+        }
+
+        .suggestions-title {
+            color: #856404;
+            font-weight: 700;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .suggestions-title::before {
+            content: '💡';
+            font-size: 1.2em;
+        }
+
+        .suggestion-item {
+            background: linear-gradient(145deg, #ffffff 0%, #fffbf0 100%);
+            padding: 18px 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid #ffc107;
+            box-shadow: 
+                0 4px 12px rgba(255, 193, 7, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .suggestion-item:hover {
+            transform: translateX(5px);
+            box-shadow: 
+                0 6px 20px rgba(255, 193, 7, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .suggestion-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .suggestion-type {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 5px;
+        }
+
+        .optimized-examples {
+            background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+            border: 1px solid rgba(190, 229, 235, 0.5);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 25px;
+            box-shadow: 
+                0 10px 25px rgba(190, 229, 235, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .optimized-examples::before {
+            content: '✨';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 3em;
+            opacity: 0.1;
+            transform: rotate(-15deg);
+        }
+
+        .examples-title {
+            color: #0c5460;
+            font-weight: 700;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .examples-title::before {
+            content: '✨';
+            font-size: 1.2em;
+        }
+
+        .example-item {
+            background: linear-gradient(145deg, #ffffff 0%, #f0f9ff 100%);
+            padding: 18px 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid #17a2b8;
+            box-shadow: 
+                0 4px 12px rgba(23, 162, 184, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .example-item:hover {
+            transform: translateX(5px);
+            box-shadow: 
+                0 6px 20px rgba(23, 162, 184, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        .example-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .example-subject {
+            font-weight: 600;
+            color: #0c5460;
+            margin-bottom: 5px;
+        }
+
+        .example-ctr {
+            color: #17a2b8;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .score-breakdown {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .button-group .analyze-btn,
+            .button-group .reset-btn,
+            .button-group .clear-btn {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 邮件标题点击率预测器</h1>
+            <p>AI智能分析邮件标题，预测点击率并提供优化建议</p>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="subjectLine">邮件标题</label>
+                    <input type="text" id="subjectLine" class="subject-input" 
+                           placeholder="请输入您的邮件标题..." maxlength="100">
+                </div>
+
+                <div class="input-group">
+                    <label for="industry">行业类型</label>
+                    <select id="industry" class="industry-select">
+                        <option value="general">通用</option>
+                        <option value="ecommerce">电商零售</option>
+                        <option value="finance">金融服务</option>
+                        <option value="education">教育培训</option>
+                        <option value="healthcare">医疗健康</option>
+                        <option value="technology">科技互联网</option>
+                        <option value="travel">旅游出行</option>
+                        <option value="food">餐饮美食</option>
+                        <option value="fashion">时尚美妆</option>
+                        <option value="real-estate">房地产</option>
+                        <option value="automotive">汽车</option>
+                    </select>
+                </div>
+
+                <div class="button-group">
+                    <button id="analyzeBtn" class="analyze-btn">🔍 分析预测</button>
+                    <button id="resetBtn" class="reset-btn">🔄 重置</button>
+                    <button id="clearBtn" class="clear-btn">🗑️ 清除</button>
+                </div>
+            </div>
+
+            <div id="resultsSection" class="results-section">
+                <div class="prediction-card">
+                    <div id="ctrScore" class="ctr-score">--</div>
+                    <div class="ctr-label">预测点击率</div>
+                </div>
+
+                <div class="score-breakdown">
+                    <div class="score-item">
+                        <h4>长度得分</h4>
+                        <div id="lengthScore" class="score-value">--</div>
+                    </div>
+                    <div class="score-item">
+                        <h4>情感得分</h4>
+                        <div id="emotionScore" class="score-value">--</div>
+                    </div>
+                    <div class="score-item">
+                        <h4>紧迫性得分</h4>
+                        <div id="urgencyScore" class="score-value">--</div>
+                    </div>
+                    <div class="score-item">
+                        <h4>个性化得分</h4>
+                        <div id="personalizationScore" class="score-value">--</div>
+                    </div>
+                </div>
+
+                <div id="suggestionsSection" class="suggestions-section">
+                    <div class="suggestions-title">💡 优化建议</div>
+                    <div id="suggestionsList"></div>
+                </div>
+
+                <div id="examplesSection" class="optimized-examples">
+                    <div class="examples-title">✨ 优化示例</div>
+                    <div id="examplesList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class EmailCTRPredictor {
+            constructor() {
+                this.initializeEventListeners();
+                this.industryMultipliers = {
+                    'general': 1.0,
+                    'ecommerce': 1.15,
+                    'finance': 0.85,
+                    'education': 0.95,
+                    'healthcare': 0.90,
+                    'technology': 1.05,
+                    'travel': 1.20,
+                    'food': 1.10,
+                    'fashion': 1.25,
+                    'real-estate': 0.80,
+                    'automotive': 0.95
+                };
+
+                this.powerWords = [
+                    '免费', '限时', '独家', '秘密', '惊喜', '新品', '折扣', '优惠',
+                    '立即', '马上', '今天', '最后', '仅限', '专属', 'VIP', '会员',
+                    '热门', '推荐', '必看', '重要', '紧急', '通知', '提醒', '邀请',
+                    'free', 'limited', 'exclusive', 'secret', 'new', 'discount',
+                    'urgent', 'important', 'last chance', 'today only'
+                ];
+
+                this.emotionalWords = [
+                    '爱', '喜欢', '惊艳', '震撼', '感动', '温暖', '幸福', '快乐',
+                    '兴奋', '激动', '满意', '放心', '安心', '舒适', '享受', '体验',
+                    'love', 'amazing', 'wonderful', 'exciting', 'happy', 'enjoy'
+                ];
+
+                this.personalWords = [
+                    '您', '你的', '专为', '定制', '个人', '专属', '私人', '量身',
+                    'your', 'personal', 'custom', 'exclusive', 'just for you'
+                ];
+            }
+
+            initializeEventListeners() {
+                const analyzeBtn = document.getElementById('analyzeBtn');
+                const resetBtn = document.getElementById('resetBtn');
+                const clearBtn = document.getElementById('clearBtn');
+                const subjectInput = document.getElementById('subjectLine');
+
+                analyzeBtn.addEventListener('click', () => this.analyzeSubjectLine());
+                resetBtn.addEventListener('click', () => this.resetAll());
+                clearBtn.addEventListener('click', () => this.clearAll());
+                
+                subjectInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.analyzeSubjectLine();
+                    }
+                });
+
+                subjectInput.addEventListener('input', () => {
+                    const hasText = subjectInput.value.trim().length > 0;
+                    analyzeBtn.disabled = !hasText;
+                    // 根据输入状态控制按钮显示
+                    const resetBtn = document.getElementById('resetBtn');
+                    if (hasText || document.getElementById('resultsSection').style.display !== 'none') {
+                        resetBtn.style.display = 'block';
+                        clearBtn.style.display = 'block';
+                    } else {
+                        resetBtn.style.display = 'none';
+                        clearBtn.style.display = 'none';
+                    }
+                });
+
+                // 初始化时检查是否需要显示按钮
+                const hasInitialText = subjectInput.value.trim().length > 0;
+                if (hasInitialText) {
+                    resetBtn.style.display = 'block';
+                    clearBtn.style.display = 'block';
+                } else {
+                    resetBtn.style.display = 'none';
+                    clearBtn.style.display = 'none';
+                }
+            }
+
+            analyzeSubjectLine() {
+                const subjectLine = document.getElementById('subjectLine').value.trim();
+                const industry = document.getElementById('industry').value;
+
+                if (!subjectLine) {
+                    alert('请输入邮件标题');
+                    return;
+                }
+
+                // 显示加载状态
+                const analyzeBtn = document.getElementById('analyzeBtn');
+                analyzeBtn.textContent = '分析中...';
+                analyzeBtn.disabled = true;
+
+                // 模拟AI分析延迟
+                setTimeout(() => {
+                    const analysis = this.performAnalysis(subjectLine, industry);
+                    this.displayResults(analysis, subjectLine);
+                    
+                    analyzeBtn.textContent = '🔍 分析预测';
+                    analyzeBtn.disabled = false;
+                }, 1500);
+            }
+
+            performAnalysis(subjectLine, industry) {
+                const lengthScore = this.calculateLengthScore(subjectLine);
+                const emotionScore = this.calculateEmotionScore(subjectLine);
+                const urgencyScore = this.calculateUrgencyScore(subjectLine);
+                const personalizationScore = this.calculatePersonalizationScore(subjectLine);
+
+                // 基础CTR计算
+                let baseCTR = (lengthScore + emotionScore + urgencyScore + personalizationScore) / 4;
+                
+                // 应用行业调整
+                const industryMultiplier = this.industryMultipliers[industry] || 1.0;
+                const finalCTR = Math.min(baseCTR * industryMultiplier, 45); // 最高45%
+
+                return {
+                    ctr: Math.round(finalCTR * 10) / 10,
+                    lengthScore: Math.round(lengthScore),
+                    emotionScore: Math.round(emotionScore),
+                    urgencyScore: Math.round(urgencyScore),
+                    personalizationScore: Math.round(personalizationScore),
+                    suggestions: this.generateSuggestions(subjectLine, lengthScore, emotionScore, urgencyScore, personalizationScore),
+                    examples: this.generateOptimizedExamples(subjectLine, industry)
+                };
+            }
+
+            calculateLengthScore(subject) {
+                const length = subject.length;
+                // 最佳长度：30-50字符
+                if (length >= 30 && length <= 50) return 25;
+                if (length >= 20 && length <= 60) return 20;
+                if (length >= 10 && length <= 70) return 15;
+                return 10;
+            }
+
+            calculateEmotionScore(subject) {
+                const lowerSubject = subject.toLowerCase();
+                let score = 10; // 基础分
+
+                // 检查情感词汇
+                const emotionalWordCount = this.emotionalWords.filter(word => 
+                    lowerSubject.includes(word.toLowerCase())
+                ).length;
+
+                score += emotionalWordCount * 5;
+
+                // 检查标点符号
+                if (subject.includes('!')) score += 3;
+                if (subject.includes('?')) score += 2;
+                if (subject.includes('...')) score += 2;
+
+                return Math.min(score, 25);
+            }
+
+            calculateUrgencyScore(subject) {
+                const lowerSubject = subject.toLowerCase();
+                let score = 5; // 基础分
+
+                // 检查紧迫性词汇
+                const urgencyWords = ['限时', '今天', '马上', '立即', '最后', '仅限', 'limited', 'today', 'urgent', 'last'];
+                const urgencyWordCount = urgencyWords.filter(word => 
+                    lowerSubject.includes(word.toLowerCase())
+                ).length;
+
+                score += urgencyWordCount * 6;
+
+                // 检查数字（通常表示限制或时间）
+                if (/\d+/.test(subject)) score += 3;
+
+                return Math.min(score, 25);
+            }
+
+            calculatePersonalizationScore(subject) {
+                const lowerSubject = subject.toLowerCase();
+                let score = 8; // 基础分
+
+                // 检查个性化词汇
+                const personalWordCount = this.personalWords.filter(word => 
+                    lowerSubject.includes(word.toLowerCase())
+                ).length;
+
+                score += personalWordCount * 4;
+
+                // 检查是否包含品牌名或具体产品
+                if (subject.match(/[A-Z][a-z]+/)) score += 3;
+
+                return Math.min(score, 25);
+            }
+
+            generateSuggestions(subject, lengthScore, emotionScore, urgencyScore, personalizationScore) {
+                const suggestions = [];
+
+                if (lengthScore < 20) {
+                    if (subject.length < 30) {
+                        suggestions.push({
+                            type: '长度优化',
+                            text: '标题过短，建议增加到30-50个字符，可以添加更多描述性词汇或价值主张。'
+                        });
+                    } else {
+                        suggestions.push({
+                            type: '长度优化',
+                            text: '标题过长，建议缩短到50个字符以内，突出核心信息。'
+                        });
+                    }
+                }
+
+                if (emotionScore < 15) {
+                    suggestions.push({
+                        type: '情感增强',
+                        text: '添加情感词汇如"惊喜"、"独家"、"必看"等，或使用感叹号增加情感色彩。'
+                    });
+                }
+
+                if (urgencyScore < 15) {
+                    suggestions.push({
+                        type: '紧迫感提升',
+                        text: '添加时间限制词汇如"限时"、"今天"、"最后机会"等，创造紧迫感。'
+                    });
+                }
+
+                if (personalizationScore < 15) {
+                    suggestions.push({
+                        type: '个性化改进',
+                        text: '使用"您的"、"专属"、"定制"等个性化词汇，让用户感觉更贴近。'
+                    });
+                }
+
+                if (suggestions.length === 0) {
+                    suggestions.push({
+                        type: '整体优化',
+                        text: '标题整体表现良好！可以尝试A/B测试不同版本，进一步优化效果。'
+                    });
+                }
+
+                return suggestions;
+            }
+
+            generateOptimizedExamples(originalSubject, industry) {
+                const examples = [];
+                const industryKeywords = {
+                    'ecommerce': ['新品', '折扣', '限时特价', '会员专享'],
+                    'finance': ['理财', '投资', '收益', '专业服务'],
+                    'education': ['学习', '课程', '提升', '技能'],
+                    'healthcare': ['健康', '专业', '关爱', '服务'],
+                    'technology': ['创新', '智能', '高效', '解决方案'],
+                    'travel': ['旅行', '探索', '体验', '优惠'],
+                    'food': ['美味', '新鲜', '特色', '优惠'],
+                    'fashion': ['时尚', '新款', '潮流', '独家'],
+                    'real-estate': ['优质', '投资', '机会', '专业'],
+                    'automotive': ['新车', '优惠', '服务', '品质']
+                };
+
+                const keywords = industryKeywords[industry] || ['优质', '专属', '限时', '推荐'];
+                const keyword = keywords[Math.floor(Math.random() * keywords.length)];
+
+                // 生成3个优化示例
+                examples.push({
+                    subject: `🎉 ${keyword}${originalSubject.substring(0, 20)}... - 限时优惠！`,
+                    ctr: '28.5%'
+                });
+
+                examples.push({
+                    subject: `【专属邀请】您的${keyword}${originalSubject.substring(0, 15)}等您查看`,
+                    ctr: '26.8%'
+                });
+
+                examples.push({
+                    subject: `⚡ 今天最后机会：${originalSubject.substring(0, 25)}`,
+                    ctr: '24.3%'
+                });
+
+                return examples;
+            }
+
+            displayResults(analysis, originalSubject) {
+                // 显示结果区域
+                document.getElementById('resultsSection').style.display = 'block';
+
+                // 显示CTR分数
+                document.getElementById('ctrScore').textContent = analysis.ctr + '%';
+
+                // 显示各项得分
+                document.getElementById('lengthScore').textContent = analysis.lengthScore;
+                document.getElementById('emotionScore').textContent = analysis.emotionScore;
+                document.getElementById('urgencyScore').textContent = analysis.urgencyScore;
+                document.getElementById('personalizationScore').textContent = analysis.personalizationScore;
+
+                // 显示建议
+                const suggestionsList = document.getElementById('suggestionsList');
+                suggestionsList.innerHTML = '';
+                analysis.suggestions.forEach(suggestion => {
+                    const suggestionDiv = document.createElement('div');
+                    suggestionDiv.className = 'suggestion-item';
+                    suggestionDiv.innerHTML = `
+                        <div class="suggestion-type">${suggestion.type}</div>
+                        <div>${suggestion.text}</div>
+                    `;
+                    suggestionsList.appendChild(suggestionDiv);
+                });
+
+                // 显示优化示例
+                const examplesList = document.getElementById('examplesList');
+                examplesList.innerHTML = '';
+                analysis.examples.forEach(example => {
+                    const exampleDiv = document.createElement('div');
+                    exampleDiv.className = 'example-item';
+                    exampleDiv.innerHTML = `
+                        <div class="example-subject">${example.subject}</div>
+                        <div class="example-ctr">预测点击率: ${example.ctr}</div>
+                    `;
+                    examplesList.appendChild(exampleDiv);
+                });
+
+                // 确保按钮可见
+                document.getElementById('resetBtn').style.display = 'block';
+                document.getElementById('clearBtn').style.display = 'block';
+
+                // 滚动到结果区域
+                document.getElementById('resultsSection').scrollIntoView({ 
+                    behavior: 'smooth' 
+                });
+            }
+
+            resetAll() {
+                // 重置输入框
+                document.getElementById('subjectLine').value = '';
+                document.getElementById('industry').value = 'general';
+
+                // 隐藏结果区域
+                document.getElementById('resultsSection').style.display = 'none';
+
+                // 隐藏按钮
+                document.getElementById('resetBtn').style.display = 'none';
+                document.getElementById('clearBtn').style.display = 'none';
+
+                // 禁用分析按钮
+                document.getElementById('analyzeBtn').disabled = true;
+
+                // 重置按钮文本
+                document.getElementById('analyzeBtn').textContent = '🔍 分析预测';
+
+                // 聚焦到输入框
+                document.getElementById('subjectLine').focus();
+
+                // 平滑滚动到顶部
+                document.querySelector('.input-section').scrollIntoView({ 
+                    behavior: 'smooth' 
+                });
+            }
+
+            clearAll() {
+                // 仅清除输入框内容
+                document.getElementById('subjectLine').value = '';
+
+                // 禁用分析按钮
+                document.getElementById('analyzeBtn').disabled = true;
+
+                // 聚焦到输入框
+                document.getElementById('subjectLine').focus();
+            }
+        }
+
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            new EmailCTRPredictor();
+        });
+    </script>
+</body>
+</html>

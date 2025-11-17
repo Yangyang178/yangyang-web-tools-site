@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>皮肤水分流失计算器</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: linear-gradient(145deg, #a1c4fd, #c2e9fb);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 20px 20px 60px #6a9ccc, -20px -20px 60px #d4f9ff;
+            width: 100%;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            text-align: center;
+            color: #333333;
+            margin-top: 0;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 1.1rem;
+        }
+        input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            box-sizing: border-box;
+            background: #e0f7fa;
+            box-shadow: inset 5px 5px 10px #b0cfd4, inset -5px -5px 10px #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        input:focus {
+            outline: none;
+            box-shadow: inset 5px 5px 10px #5a8fd9, inset -5px -5px 10px #c0deff;
+            transform: scale(1.02);
+        }
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.4);
+        }
+        button:active {
+            transform: translateY(1px);
+        }
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        button:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(50, 50);
+                opacity: 0;
+            }
+        }
+        #result {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            transform: scale(0);
+            transition: transform 0.5s ease;
+        }
+        #result.show {
+            transform: scale(1);
+        }
+        .formula {
+            background: linear-gradient(145deg, #d4fc79, #96e6a1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
+        }
+        .formula h3 {
+            margin-top: 0;
+            color: #4b6cb7;
+            text-align: center;
+        }
+        .formula p {
+            margin: 10px 0;
+            color: #555;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>皮肤水分流失计算器</h1>
+        <div class="input-group">
+            <label for="age">年龄 (岁):</label>
+            <input type="number" id="age" min="0" max="120">
+        </div>
+        <div class="input-group">
+            <label for="weight">体重 (kg):</label>
+            <input type="number" id="weight" min="0" step="0.1">
+        </div>
+        <div class="input-group">
+            <label for="height">身高 (cm):</label>
+            <input type="number" id="height" min="0" step="0.1">
+        </div>
+        <div class="input-group">
+            <label for="temperature">环境温度 (°C):</label>
+            <input type="number" id="temperature" min="-50" max="50" step="0.1">
+        </div>
+        <div class="input-group">
+            <label for="humidity">环境湿度 (%):</label>
+            <input type="number" id="humidity" min="0" max="100">
+        </div>
+        <div class="input-group">
+            <label for="activity">活动水平 (1-5):</label>
+            <input type="number" id="activity" min="1" max="5">
+        </div>
+        <button onclick="calculateWaterLoss()">计算水分流失</button>
+        <div id="result"></div>
+        <div class="formula">
+            <h3>计算公式:</h3>
+            <p>基础代谢率 (BMR) = 10 × 体重(kg) + 6.25 × 身高(cm) - 5 × 年龄(岁) + 5</p>
+            <p>水分流失 = BMR × 活动水平 × 温度系数 × 湿度系数</p>
+            <p>其中: 温度系数 = 1 + (|环境温度-25| × 0.03), 湿度系数 = 1 + ((50-环境湿度)/100)</p>
+        </div>
+    </div>
+
+    <script>
+        function calculateWaterLoss() {
+            // 获取输入值
+            const age = parseFloat(document.getElementById('age').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const humidity = parseFloat(document.getElementById('humidity').value);
+            const activity = parseFloat(document.getElementById('activity').value);
+
+            // 验证输入
+            if (isNaN(age) || isNaN(weight) || isNaN(height) || isNaN(temperature) || isNaN(humidity) || isNaN(activity)) {
+                document.getElementById('result').innerHTML = '请填写所有字段';
+                return;
+            }
+
+            if (activity < 1 || activity > 5) {
+                document.getElementById('result').innerHTML = '活动水平应在1-5之间';
+                return;
+            }
+
+            // 计算基础代谢率 (BMR)
+            const bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+
+            // 计算温度系数
+            const temperatureFactor = 1 + (Math.abs(temperature - 25) * 0.03);
+
+            // 计算湿度系数
+            const humidityFactor = 1 + ((50 - humidity) / 100);
+
+            // 计算水分流失 (单位: 毫升/天)
+            const waterLoss = bmr * (activity / 10) * temperatureFactor * humidityFactor;
+
+            // 显示结果
+            const resultElement = document.getElementById('result');
+            resultElement.innerHTML = 
+                `您的每日皮肤水分流失约为: ${waterLoss.toFixed(2)} 毫升`;
+            
+            // 添加动画效果
+            resultElement.classList.remove('show');
+            void resultElement.offsetWidth; // 触发重排
+            resultElement.classList.add('show');
+        }
+    </script>
+</body>
+</html>

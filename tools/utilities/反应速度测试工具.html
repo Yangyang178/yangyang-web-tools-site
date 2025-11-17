@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反应速度测试</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #FF9A9E 0%, #FAD0C4 100%);
+            overflow: hidden;
+            animation: bgAnimation 10s infinite alternate;
+        }
+        
+        @keyframes bgAnimation {
+            0% { background: linear-gradient(135deg, #FF9A9E 0%, #FAD0C4 100%); }
+            25% { background: linear-gradient(135deg, #A1C4FD 0%, #C2E9FB 100%); }
+            50% { background: linear-gradient(135deg, #D4FC79 0%, #96E6A1 100%); }
+            75% { background: linear-gradient(135deg, #F6D365 0%, #FDA085 100%); }
+            100% { background: linear-gradient(135deg, #84FAB0 0%, #8FD3F4 100%); }
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(12px);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+            min-width: 450px;
+            animation: containerGlow 3s infinite alternate;
+        }
+        
+        @keyframes containerGlow {
+            0% { box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25); }
+            100% { box-shadow: 0 12px 40px rgba(255, 105, 180, 0.5); }
+        }
+        
+        h1 {
+            color: #333;
+            text-shadow: 0 2px 8px rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+            font-size: 2.8em;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titlePulse 2s infinite;
+        }
+        
+        @keyframes titlePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        #target {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: pulse 2s infinite, float 4s infinite ease-in-out;
+            z-index: 1000;
+        }
+        
+        #target:hover {
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+        
+        #target:active {
+            transform: translate(-50%, -50%) scale(0.8);
+        }
+        
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); }
+            50% { transform: translate(-50%, -50%) scale(1.1); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6); }
+            100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4); }
+        }
+        
+        @keyframes float {
+            0% { transform: translate(-50%, -50%) translateY(0px); }
+            50% { transform: translate(-50%, -50%) translateY(-15px); }
+            100% { transform: translate(-50%, -50%) translateY(0px); }
+        }
+        
+        @keyframes hit {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.7; }
+            100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        }
+        
+        .hit-animation {
+            animation: hit 0.6s ease-out;
+        }
+        
+        #startButton {
+            padding: 18px 50px;
+            font-size: 20px;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            margin: 25px 0;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            transition: all 0.4s ease;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #startButton::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: 0.5s;
+        }
+        
+        #startButton:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        #startButton:hover::before {
+            left: 100%;
+        }
+        
+        #startButton:active {
+            transform: translateY(0) scale(0.98);
+        }
+        
+        #startButton:disabled {
+            background: linear-gradient(45deg, #cccccc, #999999);
+            transform: none;
+            cursor: not-allowed;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        #resetButton {
+            padding: 12px 30px;
+            font-size: 16px;
+            background: linear-gradient(45deg, #4ECDC4, #3399FF);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            font-weight: bold;
+            display: none;
+        }
+        
+        #resetButton:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        #resetButton:active {
+            transform: translateY(0) scale(0.98);
+        }
+        
+        .test-area {
+            width: 100%;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            position: relative;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        #target {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: pulse 2s infinite, float 4s infinite ease-in-out;
+            z-index: 1000;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        #countdown {
+            font-size: 60px;
+            font-weight: bold;
+            color: #FF6B6B;
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.7);
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 999;
+            animation: countdownPulse 0.5s infinite alternate;
+        }
+        
+        @keyframes countdownPulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+        
+        .input-group {
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        label {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 10px;
+            text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
+            font-weight: bold;
+        }
+        
+        #testCount {
+            padding: 15px;
+            font-size: 18px;
+            border: 3px solid #4ECDC4;
+            border-radius: 15px;
+            width: 120px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        #testCount:focus {
+            outline: none;
+            border-color: #FF6B6B;
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+            transform: scale(1.05);
+        }
+        
+        #result {
+            font-size: 28px;
+            margin: 25px 0;
+            min-height: 40px;
+            color: #333;
+            text-shadow: 0 2px 6px rgba(255, 255, 255, 0.8);
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 15px;
+            border-radius: 15px;
+            animation: resultGlow 1.5s infinite alternate;
+        }
+        
+        @keyframes resultGlow {
+            0% { box-shadow: 0 2px 6px rgba(255, 255, 255, 0.8); }
+            100% { box-shadow: 0 2px 15px rgba(255, 107, 107, 0.6); }
+        }
+        
+        #history {
+            margin-top: 25px;
+            font-size: 18px;
+            color: #333;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: left;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+        }
+        
+        .test-sequence {
+            font-size: 22px;
+            margin: 20px 0;
+            color: #333;
+            text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 12px;
+            border-radius: 12px;
+        }
+        
+        .stats-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .stats-item:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ 反应速度测试 ✨</h1>
+        <div class="input-group">
+            <label for="testCount">测试次数: </label>
+            <input type="number" id="testCount" value="5" min="1" max="50">
+        </div>
+        <button id="startButton">开始测试</button>
+        <button id="resetButton">重置</button>
+        <div class="test-area">
+            <div id="countdown"></div>
+            <div id="target"></div>
+        </div>
+        <div class="test-sequence" id="testSequence">测试进度: 0/0</div>
+        <div id="result"></div>
+        <div id="history"></div>
+    </div>
+
+    <script>
+        const target = document.getElementById('target');
+        const startButton = document.getElementById('startButton');
+        const resetButton = document.getElementById('resetButton');
+        const countdown = document.getElementById('countdown');
+        const result = document.getElementById('result');
+        const history = document.getElementById('history');
+        const testCountInput = document.getElementById('testCount');
+        const testSequence = document.getElementById('testSequence');
+        
+        let startTime;
+        let reactionTimes = [];
+        let testCount = 0;
+        let currentTest = 0;
+        let countdownInterval;
+        
+        startButton.addEventListener('click', () => {
+            // 获取测试次数
+            testCount = parseInt(testCountInput.value) || 5;
+            if (testCount < 1) testCount = 1;
+            if (testCount > 50) testCount = 50;
+            
+            // 重置数据
+            reactionTimes = [];
+            currentTest = 0;
+            result.textContent = '';
+            history.innerHTML = '';
+            testSequence.textContent = `测试进度: ${currentTest}/${testCount}`;
+            
+            startButton.disabled = true;
+            testCountInput.disabled = true;
+            resetButton.style.display = 'inline-block';
+            
+            // 开始三秒倒计时
+            startCountdown();
+        });
+        
+        resetButton.addEventListener('click', () => {
+            // 清除倒计时
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            
+            // 重置所有状态
+            startButton.disabled = false;
+            testCountInput.disabled = false;
+            resetButton.style.display = 'none';
+            target.style.display = 'none';
+            countdown.style.display = 'none';
+            
+            // 重置数据
+            reactionTimes = [];
+            currentTest = 0;
+            result.textContent = '';
+            history.innerHTML = '';
+            testSequence.textContent = `测试进度: 0/0`;
+        });
+        
+        function startCountdown() {
+            let count = 3;
+            countdown.textContent = count;
+            countdown.style.display = 'block';
+            target.style.display = 'none';
+            
+            countdownInterval = setInterval(() => {
+                count--;
+                countdown.textContent = count;
+                
+                if (count <= 0) {
+                    clearInterval(countdownInterval);
+                    countdown.style.display = 'none';
+                    runTest();
+                }
+            }, 1000);
+        }
+        
+        function runTest() {
+            if (currentTest >= testCount) {
+                // 所有测试完成
+                startButton.disabled = false;
+                testCountInput.disabled = false;
+                target.style.display = 'none';
+                updateHistory();
+                return;
+            }
+            
+            testSequence.textContent = `测试进度: ${currentTest + 1}/${testCount}`;
+            
+            // 随机延迟1-3秒后显示目标
+            const delay = Math.random() * 2000 + 1000;
+            
+            setTimeout(() => {
+                // 随机颜色
+                const colors = ['#FF5733', '#33FF57', '#3357FF', '#F333FF', '#FF33A1'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                target.style.backgroundColor = randomColor;
+                target.style.display = 'block';
+                startTime = new Date().getTime();
+            }, delay);
+        }
+        
+        target.addEventListener('click', () => {
+            // 添加点击动画
+            target.classList.add('hit-animation');
+            
+            const endTime = new Date().getTime();
+            const reactionTime = endTime - startTime;
+            
+            reactionTimes.push(reactionTime);
+            currentTest++;
+            
+            result.textContent = `反应时间: ${reactionTime} 毫秒`;
+            
+            // 移除动画类
+            setTimeout(() => {
+                target.classList.remove('hit-animation');
+                target.style.display = 'none';
+            }, 300);
+            
+            // 继续下一次测试或结束
+            setTimeout(runTest, 500);
+        });
+        
+        function updateHistory() {
+            if (reactionTimes.length > 0) {
+                const average = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length;
+                const minTime = Math.min(...reactionTimes);
+                const maxTime = Math.max(...reactionTimes);
+                
+                // 计算标准差
+                const variance = reactionTimes.reduce((sum, time) => sum + Math.pow(time - average, 2), 0) / reactionTimes.length;
+                const stdDeviation = Math.sqrt(variance);
+                
+                history.innerHTML = `
+                    <p>测试次数: ${reactionTimes.length}</p>
+                    <p>平均反应时间: ${average.toFixed(2)} 毫秒</p>
+                    <p>最佳反应时间: ${minTime} 毫秒</p>
+                    <p>最慢反应时间: ${maxTime} 毫秒</p>
+                    <p>标准差: ${stdDeviation.toFixed(2)} 毫秒</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交互式万花筒</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .title {
+            color: white;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 10px rgba(255,255,255,0.2); }
+            to { text-shadow: 2px 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.4); }
+        }
+
+        .kaleidoscope-container {
+            position: relative;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(255,255,255,0.3), inset 0 0 50px rgba(0,0,0,0.2);
+            border: 5px solid rgba(255,255,255,0.3);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        #kaleidoscope {
+            display: block;
+            cursor: crosshair;
+            border-radius: 50%;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            padding: 15px 25px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .control-label {
+            color: white;
+            font-size: 0.9em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .slider {
+            width: 100px;
+            height: 5px;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.3);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn.active {
+            background: rgba(255,255,255,0.4);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .color-modes {
+            display: flex;
+            gap: 10px;
+        }
+
+        .info {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9em;
+            text-align: center;
+            background: rgba(0,0,0,0.2);
+            padding: 10px 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        @media (max-width: 768px) {
+            .title { font-size: 2em; }
+            .controls { 
+                flex-direction: column; 
+                gap: 10px;
+                padding: 15px;
+            }
+            .color-modes { 
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">✨ 交互式万花筒 ✨</h1>
+        
+        <div class="kaleidoscope-container">
+            <canvas id="kaleidoscope" width="400" height="400"></canvas>
+        </div>
+        
+        <div class="controls">
+            <div class="control-row">
+                <div class="control-group">
+                    <label class="control-label">旋转速度</label>
+                    <input type="range" class="slider" id="speedSlider" min="0.1" max="5" step="0.1" value="1">
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">镜像数量</label>
+                    <input type="range" class="slider" id="segmentSlider" min="3" max="12" step="1" value="6">
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">粒子数量</label>
+                    <input type="range" class="slider" id="particleSlider" min="5" max="50" step="1" value="20">
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">鼠标影响</label>
+                    <input type="range" class="slider" id="mouseInfluenceSlider" min="0.01" max="0.2" step="0.01" value="0.08">
+                </div>
+            </div>
+            
+            <div class="control-row">
+                <div class="control-group">
+                    <label class="control-label">图案类型</label>
+                    <div class="color-modes">
+                        <button class="btn active" data-pattern="particles">粒子</button>
+                        <button class="btn" data-pattern="geometric">几何</button>
+                        <button class="btn" data-pattern="stars">星形</button>
+                        <button class="btn" data-pattern="flowers">花朵</button>
+                        <button class="btn" data-pattern="crystals">水晶</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">颜色模式</label>
+                    <div class="color-modes">
+                        <button class="btn active" data-mode="rainbow">彩虹</button>
+                        <button class="btn" data-mode="warm">暖色</button>
+                        <button class="btn" data-mode="cool">冷色</button>
+                        <button class="btn" data-mode="neon">霓虹</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-row">
+                <button class="btn" id="playPauseBtn">⏸️ 暂停</button>
+                <button class="btn" id="resetBtn">🔄 重置</button>
+                <button class="btn" id="shakeBtn">🎲 摇晃</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="info">
+        💡 移动鼠标感受强烈吸引力 | 点击添加新粒子 | 尝试不同图案和颜色 | 摇晃模拟真实万花筒
+    </div>
+
+    <script>
+        class Kaleidoscope {
+            constructor() {
+                this.canvas = document.getElementById('kaleidoscope');
+                this.ctx = this.canvas.getContext('2d');
+                this.centerX = this.canvas.width / 2;
+                this.centerY = this.canvas.height / 2;
+                this.radius = Math.min(this.centerX, this.centerY);
+                
+                // 参数设置
+                this.segments = 6;
+                this.speed = 1;
+                this.particleCount = 20;
+                this.colorMode = 'rainbow';
+                this.patternType = 'particles';
+                this.mouseInfluence = 0.08;
+                this.rotation = 0;
+                this.mouseX = this.centerX;
+                this.mouseY = this.centerY;
+                this.isPlaying = true;
+                this.shakeIntensity = 0;
+                
+                // 粒子数组
+                this.particles = [];
+                this.glassBeads = [];
+                
+                // 颜色方案
+                this.colorSchemes = {
+                    rainbow: ['#ff0000', '#ff8000', '#ffff00', '#80ff00', '#00ff00', '#00ff80', '#00ffff', '#0080ff', '#0000ff', '#8000ff', '#ff00ff', '#ff0080'],
+                    warm: ['#ff6b6b', '#ffa500', '#ffd700', '#ff69b4', '#ff1493', '#dc143c', '#b22222', '#8b0000'],
+                    cool: ['#00bfff', '#1e90ff', '#0000ff', '#4169e1', '#6495ed', '#87ceeb', '#87cefa', '#b0e0e6'],
+                    neon: ['#ff073a', '#39ff14', '#00ffff', '#ff00ff', '#ffff00', '#ff8c00', '#9400d3', '#00ff00']
+                };
+                
+                this.init();
+                this.setupEventListeners();
+                this.animate();
+            }
+            
+            init() {
+                this.createParticles();
+                this.createGlassBeads();
+            }
+            
+            createParticles() {
+                this.particles = [];
+                for (let i = 0; i < this.particleCount; i++) {
+                    this.particles.push(this.createSingleParticle());
+                }
+            }
+            
+            createSingleParticle() {
+                return {
+                    x: Math.random() * this.canvas.width,
+                    y: Math.random() * this.canvas.height,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: (Math.random() - 0.5) * 2,
+                    size: Math.random() * 8 + 2,
+                    color: this.getRandomColor(),
+                    life: 1,
+                    decay: Math.random() * 0.02 + 0.005,
+                    angle: Math.random() * Math.PI * 2,
+                    rotationSpeed: (Math.random() - 0.5) * 0.1
+                };
+            }
+            
+            createGlassBeads() {
+                this.glassBeads = [];
+                for (let i = 0; i < 8; i++) {
+                    this.glassBeads.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        vx: (Math.random() - 0.5) * 1,
+                        vy: (Math.random() - 0.5) * 1,
+                        size: Math.random() * 15 + 10,
+                        color: this.getRandomColor(),
+                        opacity: 0.7 + Math.random() * 0.3,
+                        reflectivity: Math.random() * 0.5 + 0.3
+                    });
+                }
+            }
+            
+            getRandomColor() {
+                const colors = this.colorSchemes[this.colorMode];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            setupEventListeners() {
+                // 鼠标移动
+                this.canvas.addEventListener('mousemove', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    this.mouseX = e.clientX - rect.left;
+                    this.mouseY = e.clientY - rect.top;
+                });
+                
+                // 鼠标点击添加粒子
+                this.canvas.addEventListener('click', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    for (let i = 0; i < 5; i++) {
+                        this.particles.push({
+                            x: x + (Math.random() - 0.5) * 20,
+                            y: y + (Math.random() - 0.5) * 20,
+                            vx: (Math.random() - 0.5) * 4,
+                            vy: (Math.random() - 0.5) * 4,
+                            size: Math.random() * 10 + 3,
+                            color: this.getRandomColor(),
+                            life: 1,
+                            decay: Math.random() * 0.02 + 0.005
+                        });
+                    }
+                });
+                
+                // 控制面板事件
+                document.getElementById('speedSlider').addEventListener('input', (e) => {
+                    this.speed = parseFloat(e.target.value);
+                });
+                
+                document.getElementById('segmentSlider').addEventListener('input', (e) => {
+                    this.segments = parseInt(e.target.value);
+                });
+                
+                document.getElementById('particleSlider').addEventListener('input', (e) => {
+                    this.particleCount = parseInt(e.target.value);
+                    this.createParticles();
+                });
+                
+                document.getElementById('mouseInfluenceSlider').addEventListener('input', (e) => {
+                    this.mouseInfluence = parseFloat(e.target.value);
+                });
+                
+                // 图案类型按钮
+                document.querySelectorAll('[data-pattern]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('[data-pattern]').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.patternType = e.target.dataset.pattern;
+                    });
+                });
+                
+                // 颜色模式按钮
+                document.querySelectorAll('[data-mode]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.colorMode = e.target.dataset.mode;
+                        this.particles.forEach(particle => {
+                            particle.color = this.getRandomColor();
+                        });
+                        this.glassBeads.forEach(bead => {
+                            bead.color = this.getRandomColor();
+                        });
+                    });
+                });
+                
+                // 播放/暂停按钮
+                document.getElementById('playPauseBtn').addEventListener('click', (e) => {
+                    this.isPlaying = !this.isPlaying;
+                    e.target.textContent = this.isPlaying ? '⏸️ 暂停' : '▶️ 播放';
+                });
+                
+                // 重置按钮
+                document.getElementById('resetBtn').addEventListener('click', () => {
+                    this.createParticles();
+                    this.createGlassBeads();
+                    this.rotation = 0;
+                    this.shakeIntensity = 0;
+                });
+                
+                // 摇晃按钮
+                document.getElementById('shakeBtn').addEventListener('click', () => {
+                    this.shake();
+                });
+            }
+            
+            shake() {
+                this.shakeIntensity = 20;
+                // 给所有粒子和玻璃珠添加随机冲击
+                this.particles.forEach(particle => {
+                    particle.vx += (Math.random() - 0.5) * 10;
+                    particle.vy += (Math.random() - 0.5) * 10;
+                });
+                this.glassBeads.forEach(bead => {
+                    bead.vx += (Math.random() - 0.5) * 5;
+                    bead.vy += (Math.random() - 0.5) * 5;
+                });
+            }
+            
+            updateParticles() {
+                if (!this.isPlaying) return;
+                
+                // 摇晃衰减
+                if (this.shakeIntensity > 0) {
+                    this.shakeIntensity *= 0.95;
+                }
+                
+                this.particles.forEach((particle, index) => {
+                    // 增强的鼠标吸引力
+                    const dx = this.mouseX - particle.x;
+                    const dy = this.mouseY - particle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 150) {
+                        const force = this.mouseInfluence / (distance + 1);
+                        particle.vx += dx * force;
+                        particle.vy += dy * force;
+                    }
+                    
+                    // 摇晃效果
+                    if (this.shakeIntensity > 0) {
+                        particle.vx += (Math.random() - 0.5) * this.shakeIntensity * 0.1;
+                        particle.vy += (Math.random() - 0.5) * this.shakeIntensity * 0.1;
+                    }
+                    
+                    // 更新位置
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.angle += particle.rotationSpeed;
+                    
+                    // 边界反弹
+                    if (particle.x < 0 || particle.x > this.canvas.width) {
+                        particle.vx *= -0.8;
+                        particle.x = Math.max(0, Math.min(this.canvas.width, particle.x));
+                    }
+                    if (particle.y < 0 || particle.y > this.canvas.height) {
+                        particle.vy *= -0.8;
+                        particle.y = Math.max(0, Math.min(this.canvas.height, particle.y));
+                    }
+                    
+                    // 生命周期
+                    particle.life -= particle.decay;
+                    if (particle.life <= 0) {
+                        this.particles[index] = this.createSingleParticle();
+                    }
+                    
+                    // 添加阻尼
+                    particle.vx *= 0.98;
+                    particle.vy *= 0.98;
+                });
+                
+                // 更新玻璃珠
+                this.glassBeads.forEach(bead => {
+                    // 轻微的鼠标影响
+                    const dx = this.mouseX - bead.x;
+                    const dy = this.mouseY - bead.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        const force = this.mouseInfluence * 0.3 / (distance + 1);
+                        bead.vx += dx * force;
+                        bead.vy += dy * force;
+                    }
+                    
+                    // 摇晃效果
+                    if (this.shakeIntensity > 0) {
+                        bead.vx += (Math.random() - 0.5) * this.shakeIntensity * 0.05;
+                        bead.vy += (Math.random() - 0.5) * this.shakeIntensity * 0.05;
+                    }
+                    
+                    bead.x += bead.vx;
+                    bead.y += bead.vy;
+                    
+                    // 边界反弹
+                    if (bead.x < bead.size || bead.x > this.canvas.width - bead.size) {
+                        bead.vx *= -0.9;
+                        bead.x = Math.max(bead.size, Math.min(this.canvas.width - bead.size, bead.x));
+                    }
+                    if (bead.y < bead.size || bead.y > this.canvas.height - bead.size) {
+                        bead.vy *= -0.9;
+                        bead.y = Math.max(bead.size, Math.min(this.canvas.height - bead.size, bead.y));
+                    }
+                    
+                    // 阻尼
+                    bead.vx *= 0.99;
+                    bead.vy *= 0.99;
+                });
+            }
+            
+            drawPattern(x, y, particle) {
+                this.ctx.save();
+                this.ctx.translate(x, y);
+                this.ctx.rotate(particle.angle);
+                this.ctx.globalAlpha = particle.life;
+                this.ctx.fillStyle = particle.color;
+                this.ctx.shadowColor = particle.color;
+                this.ctx.shadowBlur = particle.size;
+                
+                switch (this.patternType) {
+                    case 'particles':
+                        this.ctx.beginPath();
+                        this.ctx.arc(0, 0, particle.size, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        break;
+                        
+                    case 'geometric':
+                        this.ctx.beginPath();
+                        const sides = 6;
+                        for (let i = 0; i < sides; i++) {
+                            const angle = (i / sides) * Math.PI * 2;
+                            const px = Math.cos(angle) * particle.size;
+                            const py = Math.sin(angle) * particle.size;
+                            if (i === 0) this.ctx.moveTo(px, py);
+                            else this.ctx.lineTo(px, py);
+                        }
+                        this.ctx.closePath();
+                        this.ctx.fill();
+                        break;
+                        
+                    case 'stars':
+                        this.ctx.beginPath();
+                        const spikes = 5;
+                        const outerRadius = particle.size;
+                        const innerRadius = particle.size * 0.4;
+                        for (let i = 0; i < spikes * 2; i++) {
+                            const angle = (i / (spikes * 2)) * Math.PI * 2;
+                            const radius = i % 2 === 0 ? outerRadius : innerRadius;
+                            const px = Math.cos(angle) * radius;
+                            const py = Math.sin(angle) * radius;
+                            if (i === 0) this.ctx.moveTo(px, py);
+                            else this.ctx.lineTo(px, py);
+                        }
+                        this.ctx.closePath();
+                        this.ctx.fill();
+                        break;
+                        
+                    case 'flowers':
+                        const petals = 8;
+                        for (let i = 0; i < petals; i++) {
+                            this.ctx.save();
+                            this.ctx.rotate((i / petals) * Math.PI * 2);
+                            this.ctx.beginPath();
+                            this.ctx.ellipse(0, particle.size * 0.3, particle.size * 0.3, particle.size * 0.8, 0, 0, Math.PI * 2);
+                            this.ctx.fill();
+                            this.ctx.restore();
+                        }
+                        break;
+                        
+                    case 'crystals':
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(0, -particle.size);
+                        this.ctx.lineTo(particle.size * 0.7, -particle.size * 0.3);
+                        this.ctx.lineTo(particle.size * 0.7, particle.size * 0.3);
+                        this.ctx.lineTo(0, particle.size);
+                        this.ctx.lineTo(-particle.size * 0.7, particle.size * 0.3);
+                        this.ctx.lineTo(-particle.size * 0.7, -particle.size * 0.3);
+                        this.ctx.closePath();
+                        this.ctx.fill();
+                        break;
+                }
+                
+                // 添加光晕效果
+                this.ctx.globalAlpha = particle.life * 0.3;
+                this.ctx.beginPath();
+                this.ctx.arc(0, 0, particle.size * 2, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                this.ctx.restore();
+            }
+            
+            drawGlassBead(x, y, bead) {
+                this.ctx.save();
+                this.ctx.translate(x, y);
+                this.ctx.globalAlpha = bead.opacity;
+                
+                // 主体
+                const gradient = this.ctx.createRadialGradient(
+                    -bead.size * 0.3, -bead.size * 0.3, 0,
+                    0, 0, bead.size
+                );
+                gradient.addColorStop(0, 'rgba(255,255,255,0.8)');
+                gradient.addColorStop(0.3, bead.color);
+                gradient.addColorStop(1, 'rgba(0,0,0,0.3)');
+                
+                this.ctx.fillStyle = gradient;
+                this.ctx.beginPath();
+                this.ctx.arc(0, 0, bead.size, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // 高光
+                this.ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                this.ctx.beginPath();
+                this.ctx.arc(-bead.size * 0.3, -bead.size * 0.3, bead.size * 0.3, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // 反射光
+                this.ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                this.ctx.beginPath();
+                this.ctx.arc(bead.size * 0.2, bead.size * 0.2, bead.size * 0.2, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                this.ctx.restore();
+            }
+            drawKaleidoscope() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 创建径向渐变背景
+                const gradient = this.ctx.createRadialGradient(
+                    this.centerX, this.centerY, 0,
+                    this.centerX, this.centerY, this.radius
+                );
+                gradient.addColorStop(0, 'rgba(0,0,0,0.1)');
+                gradient.addColorStop(1, 'rgba(0,0,0,0.8)');
+                this.ctx.fillStyle = gradient;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                this.ctx.save();
+                this.ctx.translate(this.centerX, this.centerY);
+                
+                // 绘制万花筒镜像
+                for (let i = 0; i < this.segments; i++) {
+                    this.ctx.save();
+                    this.ctx.rotate((Math.PI * 2 / this.segments) * i);
+                    
+                    // 创建扇形裁剪区域
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, 0);
+                    this.ctx.arc(0, 0, this.radius, 0, Math.PI / this.segments);
+                    this.ctx.closePath();
+                    this.ctx.clip();
+                    
+                    // 绘制玻璃珠
+                    this.glassBeads.forEach(bead => {
+                        const x = bead.x - this.centerX;
+                        const y = bead.y - this.centerY;
+                        this.drawGlassBead(x, y, bead);
+                    });
+                    
+                    // 绘制粒子/图案
+                    this.particles.forEach(particle => {
+                        const x = particle.x - this.centerX;
+                        const y = particle.y - this.centerY;
+                        this.drawPattern(x, y, particle);
+                    });
+                    
+                    this.ctx.restore();
+                }
+                
+                this.ctx.restore();
+                
+                // 绘制中心装饰
+                this.ctx.save();
+                this.ctx.translate(this.centerX, this.centerY);
+                this.ctx.rotate(this.rotation);
+                
+                const centerGradient = this.ctx.createRadialGradient(0, 0, 0, 0, 0, 30);
+                centerGradient.addColorStop(0, 'rgba(255,255,255,0.8)');
+                centerGradient.addColorStop(1, 'rgba(255,255,255,0)');
+                this.ctx.fillStyle = centerGradient;
+                this.ctx.beginPath();
+                this.ctx.arc(0, 0, 30, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                this.ctx.restore();
+            }
+            
+            animate() {
+                if (this.isPlaying) {
+                    this.rotation += 0.01 * this.speed;
+                }
+                this.updateParticles();
+                this.drawKaleidoscope();
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+        
+        // 启动万花筒
+        window.addEventListener('load', () => {
+            new Kaleidoscope();
+        });
+        
+        // 防止右键菜单
+        document.addEventListener('contextmenu', e => e.preventDefault());
+    </script>
+</body>
+</html>

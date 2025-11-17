@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星座运势查询 | 娱乐工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="../vendor/fontawesome/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                        accent: '#fbbf24',
+                        dark: '#0f172a',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .starry-bg {
+                background-image: radial-gradient(circle at 10% 20%, rgba(14, 21, 47, 0.8) 0%, rgba(7, 10, 23, 0.95) 90%);
+            }
+            .constellation-card {
+                transition: all 0.3s ease;
+            }
+            .constellation-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+            }
+            .constellation-card.selected {
+                border-color: #fbbf24;
+                box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+            }
+            .fade-in {
+                animation: fadeIn 0.8s ease-in-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+    </style>
+</head>
+<body class="starry-bg min-h-screen font-inter text-light flex flex-col items-center py-8 px-4">
+    <div class="max-w-3xl w-full mx-auto">
+        <!-- 标题区域 -->
+        <header class="text-center mb-10">
+            <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary mb-2">星座运势查询</h1>
+            <p class="text-gray-300 text-lg">探索你的今日与本周运势，开启幸运之旅 ✨</p>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <main class="bg-dark/60 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-gray-800/50 shadow-xl">
+            <!-- 选择区域 -->
+            <section class="mb-10">
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-100">选择你的星座</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3" id="constellationGrid">
+                        <!-- 星座卡片将通过JS动态生成 -->
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-100">选择运势类型</h2>
+                    <div class="flex space-x-4">
+                        <button id="todayBtn" class="flex-1 py-3 px-4 rounded-lg bg-primary/80 hover:bg-primary transition-all font-medium">今日运势</button>
+                        <button id="weekBtn" class="flex-1 py-3 px-4 rounded-lg bg-gray-700/50 hover:bg-gray-600/50 transition-all font-medium">本周运势</button>
+                    </div>
+                </div>
+
+                <button id="queryBtn" class="w-full py-4 rounded-xl bg-gradient-to-r from-secondary to-primary hover:opacity-90 transition-all font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <i class="fa fa-search"></i> 查询运势
+                </button>
+            </section>
+
+            <!-- 结果显示区域 -->
+            <section id="resultSection" class="hidden fade-in">
+                <div class="text-center mb-6">
+                    <h2 id="resultTitle" class="text-2xl font-bold mb-1"></h2>
+                    <p id="resultDate" class="text-gray-400"></p>
+                </div>
+
+                <div class="bg-gray-900/40 rounded-xl p-6 border border-gray-800">
+                    <div class="grid md:grid-cols-3 gap-6 mb-6">
+                        <div class="text-center p-4 bg-gray-800/30 rounded-lg">
+                            <p class="text-gray-400 text-sm mb-1">幸运颜色</p>
+                            <p id="luckyColor" class="font-semibold text-lg"></p>
+                        </div>
+                        <div class="text-center p-4 bg-gray-800/30 rounded-lg">
+                            <p class="text-gray-400 text-sm mb-1">幸运数字</p>
+                            <p id="luckyNumber" class="font-semibold text-lg"></p>
+                        </div>
+                        <div class="text-center p-4 bg-gray-800/30 rounded-lg">
+                            <p class="text-gray-400 text-sm mb-1">运势指数</p>
+                            <div class="flex items-center justify-center gap-1">
+                                <span id="fortuneScore" class="font-semibold text-lg"></span>
+                                <div class="flex" id="starsRating">
+                                    <!-- 星级评分将通过JS动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold mb-2 text-gray-100">综合运势</h3>
+                        <p id="generalFortune" class="text-gray-300 leading-relaxed"></p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2 text-gray-100">爱情运势</h3>
+                            <p id="loveFortune" class="text-gray-300 leading-relaxed"></p>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2 text-gray-100">事业财运</h3>
+                            <p id="careerFortune" class="text-gray-300 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="mt-10 text-center text-gray-400 text-sm">
+            <p>✨ 星座运势仅供娱乐，祝你天天开心！ ✨</p>
+        </footer>
+    </div>
+
+    <script>
+        // 星座数据
+        const constellations = [
+            { name: '白羊座', date: '3.21-4.19', icon: '♈' },
+            { name: '金牛座', date: '4.20-5.20', icon: '♉' },
+            { name: '双子座', date: '5.21-6.21', icon: '♊' },
+            { name: '巨蟹座', date: '6.22-7.22', icon: '♋' },
+            { name: '狮子座', date: '7.23-8.22', icon: '♌' },
+            { name: '处女座', date: '8.23-9.22', icon: '♍' },
+            { name: '天秤座', date: '9.23-10.23', icon: '♎' },
+            { name: '天蝎座', date: '10.24-11.22', icon: '♏' },
+            { name: '射手座', date: '11.23-12.21', icon: '♐' },
+            { name: '摩羯座', date: '12.22-1.19', icon: '♑' },
+            { name: '水瓶座', date: '1.20-2.18', icon: '♒' },
+            { name: '双鱼座', date: '2.19-3.20', icon: '♓' }
+        ];
+
+        // 模拟运势数据生成函数
+        function generateFortune(constellation, type) {
+            const today = new Date();
+            const luckyColors = ['红色', '橙色', '黄色', '绿色', '蓝色', '靛色', '紫色', '粉色', '金色', '银色', '黑色', '白色'];
+            const luckyNumber = Math.floor(Math.random() * 100) + 1;
+            const fortuneScore = Math.floor(Math.random() * 40) + 60; // 60-100
+            const starCount = Math.floor(fortuneScore / 20);
+
+            // 运势文本库
+            const generalTexts = [
+                `${constellation}的你今天状态不错，保持积极心态，好运自然来。`,
+                `今天可能会遇到一些小挑战，但对你来说都是成长的机会。`,
+                `人际关系运势上升，适合拓展社交圈，认识新朋友。`,
+                `注意休息，保持良好的作息习惯，精力充沛才能抓住机遇。`,
+                `你的直觉很准，今天可以相信自己的第一感觉做决定。`,
+                `适合学习新知识或技能，吸收能力特别强。`,
+                `财务方面有小惊喜，可能是意料之外的收入或节省开支。`,
+                `健康状况良好，但仍需注意饮食均衡和适度运动。`
+            ];
+
+            const loveTexts = [
+                `单身的你有机会遇到心仪对象，多参加社交活动吧。`,
+                `已有伴侣的你，今天与对方的感情更加深厚，适合安排一次浪漫约会。`,
+                `沟通是今天的关键，坦诚表达自己的想法能增进感情。`,
+                `给对方一些空间，适当的距离能让感情更长久。`,
+                `注意控制情绪，避免因小事与伴侣发生争执。`,
+                `今天可能会收到来自爱慕者的暗示，保持敏锐的观察力。`,
+                `感情稳定发展，是巩固关系的好时机。`,
+                `放下过去的感情包袱，才能迎接新的爱情。`
+            ];
+
+            const careerTexts = [
+                `工作效率很高，适合处理复杂任务，容易获得上司赏识。`,
+                `团队合作运势佳，与同事配合默契，能顺利完成项目。`,
+                `有机会获得新的工作机会或晋升空间，保持积极态度。`,
+                `财务状况稳定，投资需谨慎，不宜冒险。`,
+                `今天适合制定工作计划或财务预算，为未来做准备。`,
+                `注意职场人际关系，避免卷入不必要的纷争。`,
+                `创意灵感涌现，适合提出新想法或方案。`,
+                `工作压力较大，适当放松才能保持高效状态。`
+            ];
+
+            // 本周运势文本会更长一些
+            if (type === 'week') {
+                generalTexts.forEach((text, index) => {
+                    generalTexts[index] = text + ' 本周整体运势呈上升趋势，尤其是下半周，会有不错的机遇等着你把握。周三和周五是你的幸运日，适合做重要决定或开始新计划。'
+                });
+                loveTexts.forEach((text, index) => {
+                    loveTexts[index] = text + ' 本周在感情上会有新的进展，单身者有机会遇到条件不错的对象，有伴侣者则感情更加稳定甜蜜。'
+                });
+                careerTexts.forEach((text, index) => {
+                    careerTexts[index] = text + ' 本周工作上会有新的挑战，但同时也伴随着机遇，只要勇于尝试，就能获得不错的回报。财运方面平稳，有小幅度增长。'
+                });
+            }
+
+            return {
+                date: type === 'today' ? `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日` : 
+                      `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日 - ${today.getMonth() + 1}月${today.getDate() + 6}日`,
+                luckyColor: luckyColors[Math.floor(Math.random() * luckyColors.length)],
+                luckyNumber: luckyNumber,
+                fortuneScore: fortuneScore,
+                starCount: starCount,
+                general: generalTexts[Math.floor(Math.random() * generalTexts.length)],
+                love: loveTexts[Math.floor(Math.random() * loveTexts.length)],
+                career: careerTexts[Math.floor(Math.random() * careerTexts.length)]
+            };
+        }
+
+        // DOM元素
+        const constellationGrid = document.getElementById('constellationGrid');
+        const todayBtn = document.getElementById('todayBtn');
+        const weekBtn = document.getElementById('weekBtn');
+        const queryBtn = document.getElementById('queryBtn');
+        const resultSection = document.getElementById('resultSection');
+        const resultTitle = document.getElementById('resultTitle');
+        const resultDate = document.getElementById('resultDate');
+        const luckyColor = document.getElementById('luckyColor');
+        const luckyNumber = document.getElementById('luckyNumber');
+        const fortuneScore = document.getElementById('fortuneScore');
+        const starsRating = document.getElementById('starsRating');
+        const generalFortune = document.getElementById('generalFortune');
+        const loveFortune = document.getElementById('loveFortune');
+        const careerFortune = document.getElementById('careerFortune');
+
+        // 状态变量
+        let selectedConstellation = null;
+        let selectedType = 'today';
+
+        // 初始化星座卡片
+        function initConstellationGrid() {
+            constellations.forEach(constellation => {
+                const card = document.createElement('div');
+                card.className = 'constellation-card border border-gray-700 rounded-xl p-4 text-center cursor-pointer hover:border-primary/50';
+                card.innerHTML = `
+                    <div class="text-3xl mb-2">${constellation.icon}</div>
+                    <h3 class="font-semibold">${constellation.name}</h3>
+                    <p class="text-xs text-gray-400">${constellation.date}</p>
+                `;
+                card.addEventListener('click', () => {
+                    // 移除其他卡片的选中状态
+                    document.querySelectorAll('.constellation-card').forEach(c => {
+                        c.classList.remove('selected');
+                    });
+                    // 添加当前卡片的选中状态
+                    card.classList.add('selected');
+                    selectedConstellation = constellation.name;
+                    // 启用查询按钮
+                    queryBtn.disabled = false;
+                });
+                constellationGrid.appendChild(card);
+            });
+        }
+
+        // 初始化事件监听
+        function initEventListeners() {
+            // 今日/本周按钮切换
+            todayBtn.addEventListener('click', () => {
+                selectedType = 'today';
+                todayBtn.className = 'flex-1 py-3 px-4 rounded-lg bg-primary/80 hover:bg-primary transition-all font-medium';
+                weekBtn.className = 'flex-1 py-3 px-4 rounded-lg bg-gray-700/50 hover:bg-gray-600/50 transition-all font-medium';
+            });
+
+            weekBtn.addEventListener('click', () => {
+                selectedType = 'week';
+                weekBtn.className = 'flex-1 py-3 px-4 rounded-lg bg-primary/80 hover:bg-primary transition-all font-medium';
+                todayBtn.className = 'flex-1 py-3 px-4 rounded-lg bg-gray-700/50 hover:bg-gray-600/50 transition-all font-medium';
+            });
+
+            // 查询按钮点击事件
+            queryBtn.addEventListener('click', () => {
+                if (!selectedConstellation) return;
+
+                // 生成运势数据
+                const fortune = generateFortune(selectedConstellation, selectedType);
+
+                // 更新结果区域
+                resultTitle.textContent = `${selectedConstellation}${selectedType === 'today' ? '今日' : '本周'}运势`;
+                resultDate.textContent = fortune.date;
+                luckyColor.textContent = fortune.luckyColor;
+                luckyNumber.textContent = fortune.luckyNumber;
+                fortuneScore.textContent = `${fortune.fortuneScore}分`;
+
+                // 更新星级评分
+                starsRating.innerHTML = '';
+                for (let i = 0; i < 5; i++) {
+                    const star = document.createElement('i');
+                    star.className = `fa fa-star ${i < fortune.starCount ? 'text-yellow-400' : 'text-gray-600'}`;
+                    starsRating.appendChild(star);
+                }
+
+                // 更新运势文本
+                generalFortune.textContent = fortune.general;
+                loveFortune.textContent = fortune.love;
+                careerFortune.textContent = fortune.career;
+
+                // 显示结果区域
+                resultSection.classList.remove('hidden');
+                // 重置动画
+                resultSection.classList.remove('fade-in');
+                void resultSection.offsetWidth; // 触发重排
+                resultSection.classList.add('fade-in');
+
+                // 滚动到结果区域
+                resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initConstellationGrid();
+            initEventListeners();
+        });
+    </script>
+</body>
+</html>

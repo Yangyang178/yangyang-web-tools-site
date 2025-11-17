@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>车牌归属地查询工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+        body {
+            background: #001f3f;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #fff;
+            font-size: 2rem;
+            background: linear-gradient(90deg, #b36b6e, #af908d, #6d83b3, #88a9b3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .input-group {
+            margin: 25px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        input {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            width: 40%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            outline: none;
+        }
+        .province-select {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            width: 25%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            outline: none;
+            background: white;
+        }
+        .btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 6px 15px rgba(37, 117, 252, 0.4);
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(37, 117, 252, 0.6);
+        }
+        .btn:active {
+            transform: translateY(0) scale(0.95);
+        }
+        .result-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .result-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .result-content {
+            font-size: 1.2rem;
+            color: #555;
+        }
+        .example-plates {
+            margin: 20px 0;
+            color: #fff;
+            font-size: 1rem;
+        }
+        .footer {
+            margin-top: 30px;
+            color: #fff;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>车牌归属地查询工具</h1>
+        <p>输入车牌号码，查询归属地信息</p>
+        
+        <div class="input-group">
+            <select id="provinceSelect" class="province-select">
+                <option value="">请选择省份</option>
+                <option value="京">北京市</option>
+                <option value="津">天津市</option>
+                <option value="冀">河北省</option>
+                <option value="晋">山西省</option>
+                <option value="蒙">内蒙古自治区</option>
+                <option value="辽">辽宁省</option>
+                <option value="吉">吉林省</option>
+                <option value="黑">黑龙江省</option>
+                <option value="沪">上海市</option>
+                <option value="苏">江苏省</option>
+                <option value="浙">浙江省</option>
+                <option value="皖">安徽省</option>
+                <option value="闽">福建省</option>
+                <option value="赣">江西省</option>
+                <option value="鲁">山东省</option>
+                <option value="豫">河南省</option>
+                <option value="鄂">湖北省</option>
+                <option value="湘">湖南省</option>
+                <option value="粤">广东省</option>
+                <option value="桂">广西壮族自治区</option>
+                <option value="琼">海南省</option>
+                <option value="渝">重庆市</option>
+                <option value="川">四川省</option>
+                <option value="贵">贵州省</option>
+                <option value="云">云南省</option>
+                <option value="藏">西藏自治区</option>
+                <option value="陕">陕西省</option>
+                <option value="甘">甘肃省</option>
+                <option value="青">青海省</option>
+                <option value="宁">宁夏回族自治区</option>
+                <option value="新">新疆维吾尔自治区</option>
+            </select>
+            <input type="text" id="plateInput" placeholder="请输入车牌号，例如：A12345" maxlength="7">
+            <button class="btn" id="queryBtn">查询</button>
+            <button class="btn" id="resetBtn" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">重置</button>
+        </div>
+        
+        <div class="example-plates">
+            <p>示例：京A12345、沪B67890、粤C11111</p>
+        </div>
+        
+        <div class="result-container" id="resultContainer">
+            <div class="result-title">查询结果</div>
+            <div class="result-content" id="resultContent"></div>
+        </div>
+        
+        <div class="footer">
+            <p>车牌归属地查询工具 &copy; 2023</p>
+        </div>
+    </div>
+
+    <script>
+        // 车牌归属地数据（包含城市级别信息）
+        const plateData = {
+            // 华北地区
+            "京": {
+                "name": "北京市",
+                "cities": {
+                    "A": "北京市",
+                    "B": "北京市",
+                    "C": "北京市",
+                    "D": "北京市",
+                    "E": "北京市",
+                    "F": "北京市",
+                    "G": "北京市",
+                    "H": "北京市",
+                    "J": "北京市",
+                    "K": "北京市",
+                    "L": "北京市",
+                    "M": "北京市",
+                    "N": "北京市",
+                    "P": "北京市",
+                    "Q": "北京市",
+                    "R": "北京市",
+                    "S": "北京市",
+                    "T": "北京市",
+                    "U": "北京市",
+                    "V": "北京市",
+                    "W": "北京市",
+                    "X": "北京市",
+                    "Y": "北京市",
+                    "Z": "北京市"
+                }
+            },
+            "津": {
+                "name": "天津市",
+                "cities": {
+                    "A": "天津市",
+                    "B": "天津市",
+                    "C": "天津市",
+                    "D": "天津市",
+                    "E": "天津市",
+                    "F": "天津市",
+                    "G": "天津市",
+                    "H": "天津市"
+                }
+            },
+            "冀": {
+                "name": "河北省",
+                "cities": {
+                    "A": "石家庄市",
+                    "B": "唐山市",
+                    "C": "秦皇岛市",
+                    "D": "邯郸市",
+                    "E": "邢台市",
+                    "F": "保定市",
+                    "G": "张家口市",
+                    "H": "承德市",
+                    "J": "沧州市",
+                    "R": "廊坊市",
+                    "T": "衡水市"
+                }
+            },
+            "晋": {
+                "name": "山西省",
+                "cities": {
+                    "A": "太原市",
+                    "B": "大同市",
+                    "C": "阳泉市",
+                    "D": "长治市",
+                    "E": "晋城市",
+                    "F": "朔州市",
+                    "H": "忻州市",
+                    "J": "吕梁市",
+                    "K": "晋中市",
+                    "L": "临汾市",
+                    "M": "运城市"
+                }
+            },
+            "蒙": {
+                "name": "内蒙古自治区",
+                "cities": {
+                    "A": "呼和浩特市",
+                    "B": "包头市",
+                    "C": "乌海市",
+                    "D": "赤峰市",
+                    "E": "通辽市",
+                    "F": "鄂尔多斯市",
+                    "G": "呼伦贝尔市",
+                    "H": "兴安盟",
+                    "J": "锡林郭勒盟",
+                    "K": "乌兰察布市",
+                    "L": "阿拉善盟",
+                    "M": "满洲里市"
+                }
+            },
+            
+            // 东北地区
+            "辽": {
+                "name": "辽宁省",
+                "cities": {
+                    "A": "沈阳市",
+                    "B": "大连市",
+                    "C": "鞍山市",
+                    "D": "抚顺市",
+                    "E": "本溪市",
+                    "F": "丹东市",
+                    "G": "锦州市",
+                    "H": "营口市",
+                    "J": "阜新市",
+                    "K": "辽阳市",
+                    "L": "盘锦市",
+                    "M": "铁岭市",
+                    "N": "朝阳市",
+                    "P": "葫芦岛市"
+                }
+            },
+            "吉": {
+                "name": "吉林省",
+                "cities": {
+                    "A": "长春市",
+                    "B": "吉林市",
+                    "C": "四平市",
+                    "D": "辽源市",
+                    "E": "通化市",
+                    "F": "白山市",
+                    "G": "松原市",
+                    "H": "白城市",
+                    "J": "延边朝鲜族自治州"
+                }
+            },
+            "黑": {
+                "name": "黑龙江省",
+                "cities": {
+                    "A": "哈尔滨市",
+                    "B": "齐齐哈尔市",
+                    "C": "牡丹江市",
+                    "D": "佳木斯市",
+                    "E": "大庆市",
+                    "F": "伊春市",
+                    "G": "鸡西市",
+                    "H": "鹤岗市",
+                    "J": "双鸭山市",
+                    "K": "七台河市",
+                    "L": "松花江地区",
+                    "M": "绥化市",
+                    "N": "黑河市",
+                    "P": "大兴安岭地区",
+                    "R": "农垦系统"
+                }
+            },
+            
+            // 华东地区
+            "沪": {
+                "name": "上海市",
+                "cities": {
+                    "A": "上海市",
+                    "B": "上海市",
+                    "C": "上海市",
+                    "D": "上海市",
+                    "E": "上海市",
+                    "F": "上海市",
+                    "G": "上海市",
+                    "H": "上海市",
+                    "J": "上海市",
+                    "K": "上海市",
+                    "L": "上海市",
+                    "M": "上海市",
+                    "N": "上海市",
+                    "P": "上海市",
+                    "Q": "上海市",
+                    "R": "上海市",
+                    "S": "上海市",
+                    "T": "上海市",
+                    "U": "上海市",
+                    "V": "上海市",
+                    "W": "上海市",
+                    "X": "上海市",
+                    "Y": "上海市",
+                    "Z": "上海市"
+                }
+            },
+            "苏": {
+                "name": "江苏省",
+                "cities": {
+                    "A": "南京市",
+                    "B": "无锡市",
+                    "C": "徐州市",
+                    "D": "常州市",
+                    "E": "苏州市",
+                    "F": "南通市",
+                    "G": "连云港市",
+                    "H": "淮安市",
+                    "J": "盐城市",
+                    "K": "扬州市",
+                    "L": "镇江市",
+                    "M": "泰州市",
+                    "N": "宿迁市"
+                }
+            },
+            "浙": {
+                "name": "浙江省",
+                "cities": {
+                    "A": "杭州市",
+                    "B": "宁波市",
+                    "C": "温州市",
+                    "D": "嘉兴市",
+                    "E": "湖州市",
+                    "F": "绍兴市",
+                    "G": "金华市",
+                    "H": "衢州市",
+                    "J": "舟山市",
+                    "K": "台州市",
+                    "L": "丽水市"
+                }
+            },
+            "皖": {
+                "name": "安徽省",
+                "cities": {
+                    "A": "合肥市",
+                    "B": "芜湖市",
+                    "C": "蚌埠市",
+                    "D": "淮南市",
+                    "E": "马鞍山市",
+                    "F": "淮北市",
+                    "G": "铜陵市",
+                    "H": "安庆市",
+                    "J": "黄山市",
+                    "K": "阜阳市",
+                    "L": "宿州市",
+                    "M": "滁州市",
+                    "N": "六安市",
+                    "P": "宣城市",
+                    "Q": "池州市",
+                    "R": "亳州市"
+                }
+            },
+            "闽": {
+                "name": "福建省",
+                "cities": {
+                    "A": "福州市",
+                    "B": "厦门市",
+                    "C": "莆田市",
+                    "D": "三明市",
+                    "E": "泉州市",
+                    "F": "漳州市",
+                    "G": "南平市",
+                    "H": "龙岩市",
+                    "J": "宁德市"
+                }
+            },
+            "赣": {
+                "name": "江西省",
+                "cities": {
+                    "A": "南昌市",
+                    "B": "赣州市",
+                    "C": "宜春市",
+                    "D": "吉安市",
+                    "E": "上饶市",
+                    "F": "抚州市",
+                    "G": "九江市",
+                    "H": "景德镇市",
+                    "J": "萍乡市",
+                    "K": "新余市",
+                    "L": "鹰潭市"
+                }
+            },
+            "鲁": {
+                "name": "山东省",
+                "cities": {
+                    "A": "济南市",
+                    "B": "青岛市",
+                    "C": "淄博市",
+                    "D": "枣庄市",
+                    "E": "东营市",
+                    "F": "烟台市",
+                    "G": "潍坊市",
+                    "H": "济宁市",
+                    "J": "泰安市",
+                    "K": "威海市",
+                    "L": "日照市",
+                    "M": "莱芜市",
+                    "N": "临沂市",
+                    "P": "德州市",
+                    "Q": "聊城市",
+                    "R": "滨州市",
+                    "S": "菏泽市"
+                }
+            },
+            
+            // 中南地区
+            "豫": {
+                "name": "河南省",
+                "cities": {
+                    "A": "郑州市",
+                    "B": "开封市",
+                    "C": "洛阳市",
+                    "D": "平顶山市",
+                    "E": "安阳市",
+                    "F": "鹤壁市",
+                    "G": "新乡市",
+                    "H": "焦作市",
+                    "J": "濮阳市",
+                    "K": "许昌市",
+                    "L": "漯河市",
+                    "M": "三门峡市",
+                    "N": "南阳市",
+                    "P": "商丘市",
+                    "Q": "信阳市",
+                    "R": "周口市",
+                    "S": "驻马店市",
+                    "U": "济源市"
+                }
+            },
+            "鄂": {
+                "name": "湖北省",
+                "cities": {
+                    "A": "武汉市",
+                    "B": "黄石市",
+                    "C": "十堰市",
+                    "D": "宜昌市",
+                    "E": "襄樊市",
+                    "F": "鄂州市",
+                    "G": "荆门市",
+                    "H": "孝感市",
+                    "J": "荆州市",
+                    "K": "黄冈市",
+                    "L": "咸宁市",
+                    "M": "随州市",
+                    "N": "恩施土家族苗族自治州",
+                    "P": "省直辖县级行政区划",
+                    "Q": "省直辖县级行政区划",
+                    "R": "省直辖县级行政区划"
+                }
+            },
+            "湘": {
+                "name": "湖南省",
+                "cities": {
+                    "A": "长沙市",
+                    "B": "株洲市",
+                    "C": "湘潭市",
+                    "D": "衡阳市",
+                    "E": "邵阳市",
+                    "F": "岳阳市",
+                    "G": "常德市",
+                    "H": "张家界市",
+                    "J": "益阳市",
+                    "K": "郴州市",
+                    "L": "永州市",
+                    "M": "怀化市",
+                    "N": "娄底市",
+                    "U": "湘西土家族苗族自治州"
+                }
+            },
+            "粤": {
+                "name": "广东省",
+                "cities": {
+                    "A": "广州市",
+                    "B": "韶关市",
+                    "C": "深圳市",
+                    "D": "珠海市",
+                    "E": "汕头市",
+                    "F": "佛山市",
+                    "G": "江门市",
+                    "H": "湛江市",
+                    "J": "茂名市",
+                    "K": "肇庆市",
+                    "L": "惠州市",
+                    "M": "梅州市",
+                    "N": "汕尾市",
+                    "P": "河源市",
+                    "Q": "阳江市",
+                    "R": "清远市",
+                    "S": "东莞市",
+                    "T": "中山市",
+                    "U": "潮州市",
+                    "V": "揭阳市",
+                    "W": "云浮市",
+                    "X": "省直辖县级行政区划",
+                    "Y": "省直辖县级行政区划",
+                    "Z": "省直辖县级行政区划"
+                }
+            },
+            "桂": {
+                "name": "广西壮族自治区",
+                "cities": {
+                    "A": "南宁市",
+                    "B": "柳州市",
+                    "C": "桂林市",
+                    "D": "梧州市",
+                    "E": "北海市",
+                    "F": "防城港市",
+                    "G": "钦州市",
+                    "H": "贵港市",
+                    "J": "玉林市",
+                    "K": "百色市",
+                    "L": "贺州市",
+                    "M": "河池市",
+                    "N": "来宾市",
+                    "P": "崇左市"
+                }
+            },
+            "琼": {
+                "name": "海南省",
+                "cities": {
+                    "A": "海口市",
+                    "B": "三亚市",
+                    "C": "琼海市",
+                    "D": "五指山市",
+                    "E": "琼山市",
+                    "F": "儋州市",
+                    "G": "文昌市",
+                    "H": "万宁市",
+                    "J": "东方市",
+                    "K": "定安县",
+                    "L": "屯昌县",
+                    "M": "澄迈县",
+                    "N": "临高县",
+                    "P": "白沙黎族自治县",
+                    "Q": "昌江黎族自治县",
+                    "R": "乐东黎族自治县",
+                    "S": "陵水黎族自治县",
+                    "T": "保亭黎族苗族自治县",
+                    "U": "琼中黎族苗族自治县",
+                    "V": "洋浦经济开发区",
+                    "W": "省直辖县级行政区划",
+                    "X": "省直辖县级行政区划",
+                    "Y": "省直辖县级行政区划",
+                    "Z": "省直辖县级行政区划"
+                }
+            },
+            
+            // 西南地区
+            "渝": {
+                "name": "重庆市",
+                "cities": {
+                    "A": "重庆市",
+                    "B": "重庆市",
+                    "C": "重庆市",
+                    "F": "重庆市",
+                    "G": "重庆市",
+                    "H": "重庆市"
+                }
+            },
+            "川": {
+                "name": "四川省",
+                "cities": {
+                    "A": "成都市",
+                    "B": "绵阳市",
+                    "C": "自贡市",
+                    "D": "攀枝花市",
+                    "E": "泸州市",
+                    "F": "德阳市",
+                    "G": "广元市",
+                    "H": "内江市",
+                    "J": "乐山市",
+                    "K": "南充市",
+                    "L": "宜宾市",
+                    "M": "广安市",
+                    "N": "达州市",
+                    "P": "雅安市",
+                    "Q": "巴中市",
+                    "R": "资阳市",
+                    "S": "阿坝藏族羌族自治州",
+                    "T": "甘孜藏族自治州",
+                    "U": "凉山彝族自治州",
+                    "V": "阿坝藏族羌族自治州",
+                    "W": "甘孜藏族自治州",
+                    "X": "凉山彝族自治州",
+                    "Y": "阿坝藏族羌族自治州",
+                    "Z": "甘孜藏族自治州"
+                }
+            },
+            "贵": {
+                "name": "贵州省",
+                "cities": {
+                    "A": "贵阳市",
+                    "B": "六盘水市",
+                    "C": "遵义市",
+                    "D": "安顺市",
+                    "E": "铜仁地区",
+                    "F": "黔西南布依族苗族自治州",
+                    "G": "毕节地区",
+                    "H": "黔东南苗族侗族自治州",
+                    "J": "黔南布依族苗族自治州"
+                }
+            },
+            "云": {
+                "name": "云南省",
+                "cities": {
+                    "A": "昆明市",
+                    "C": "昭通市",
+                    "D": "曲靖市",
+                    "E": "楚雄彝族自治州",
+                    "F": "玉溪市",
+                    "G": "红河哈尼族彝族自治州",
+                    "H": "文山壮族苗族自治州",
+                    "J": "思茅市",
+                    "K": "西双版纳傣族自治州",
+                    "L": "大理白族自治州",
+                    "M": "保山市",
+                    "N": "德宏傣族景颇族自治州",
+                    "P": "丽江市",
+                    "Q": "怒江傈僳族自治州",
+                    "R": "迪庆藏族自治州",
+                    "S": "临沧市"
+                }
+            },
+            "藏": {
+                "name": "西藏自治区",
+                "cities": {
+                    "A": "拉萨市",
+                    "B": "昌都地区",
+                    "C": "山南地区",
+                    "D": "日喀则地区",
+                    "E": "那曲地区",
+                    "F": "阿里地区",
+                    "G": "林芝地区"
+                }
+            },
+            
+            // 西北地区
+            "陕": {
+                "name": "陕西省",
+                "cities": {
+                    "A": "西安市",
+                    "B": "铜川市",
+                    "C": "宝鸡市",
+                    "D": "咸阳市",
+                    "E": "渭南市",
+                    "F": "延安市",
+                    "G": "汉中市",
+                    "H": "榆林市",
+                    "J": "安康市",
+                    "K": "商洛市"
+                }
+            },
+            "甘": {
+                "name": "甘肃省",
+                "cities": {
+                    "A": "兰州市",
+                    "B": "嘉峪关市",
+                    "C": "金昌市",
+                    "D": "白银市",
+                    "E": "天水市",
+                    "F": "酒泉市",
+                    "G": "张掖市",
+                    "H": "武威市",
+                    "J": "定西市",
+                    "K": "陇南市",
+                    "L": "平凉市",
+                    "M": "庆阳市",
+                    "N": "临夏回族自治州",
+                    "P": "甘南藏族自治州"
+                }
+            },
+            "青": {
+                "name": "青海省",
+                "cities": {
+                    "A": "西宁市",
+                    "B": "海东地区",
+                    "C": "海北藏族自治州",
+                    "D": "黄南藏族自治州",
+                    "E": "海南藏族自治州",
+                    "F": "果洛藏族自治州",
+                    "G": "玉树藏族自治州",
+                    "H": "海西蒙古族藏族自治州"
+                }
+            },
+            "宁": {
+                "name": "宁夏回族自治区",
+                "cities": {
+                    "A": "银川市",
+                    "B": "石嘴山市",
+                    "C": "银南市",
+                    "D": "固原市"
+                }
+            },
+            "新": {
+                "name": "新疆维吾尔自治区",
+                "cities": {
+                    "A": "乌鲁木齐市",
+                    "B": "克拉玛依市",
+                    "C": "吐鲁番地区",
+                    "D": "哈密地区",
+                    "E": "昌吉回族自治州",
+                    "F": "博尔塔拉蒙古自治州",
+                    "G": "巴音郭楞蒙古自治州",
+                    "H": "阿克苏地区",
+                    "J": "克孜勒苏柯尔克孜自治州",
+                    "K": "喀什地区",
+                    "L": "和田地区",
+                    "M": "伊犁哈萨克自治州",
+                    "N": "塔城地区",
+                    "P": "阿勒泰地区",
+                    "Q": "石河子市",
+                    "R": "阿拉尔市",
+                    "S": "图木舒克市",
+                    "T": "五家渠市"
+                }
+            }
+        };
+        
+        // 查询按钮事件
+        document.getElementById('queryBtn').addEventListener('click', function() {
+            const provinceSelect = document.getElementById('provinceSelect');
+            const plateInput = document.getElementById('plateInput').value.trim().toUpperCase();
+            const resultContainer = document.getElementById('resultContainer');
+            const resultContent = document.getElementById('resultContent');
+            
+            // 添加点击动画效果
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+            
+            // 验证输入
+            const provinceCode = provinceSelect.value;
+            if (!provinceCode) {
+                alert('请选择省份');
+                return;
+            }
+            
+            if (!plateInput) {
+                alert('请输入车牌号');
+                return;
+            }
+            
+            // 验证车牌格式（简单验证）
+            const plateRegex = /^[A-Z][A-Z0-9]{4,5}[A-Z0-9挂学警港澳]?$/;
+            if (!plateRegex.test(plateInput)) {
+                alert('车牌号码格式不正确');
+                return;
+            }
+            
+            // 查询归属地
+            if (plateData[provinceCode]) {
+                const provinceName = plateData[provinceCode].name;
+                const cityCode = plateInput.charAt(0);
+                
+                if (plateData[provinceCode].cities[cityCode]) {
+                    const cityName = plateData[provinceCode].cities[cityCode];
+                    resultContent.innerHTML = `车牌号：<strong>${provinceCode}${plateInput}</strong><br>省份：<strong>${provinceName}</strong><br>城市：<strong>${cityName}</strong>`;
+                } else {
+                    resultContent.innerHTML = `车牌号：<strong>${provinceCode}${plateInput}</strong><br>省份：<strong>${provinceName}</strong><br>城市：<strong>未知</strong>`;
+                }
+                resultContainer.style.display = 'block';
+            } else {
+                resultContent.innerHTML = `未找到车牌号 <strong>${provinceCode}${plateInput}</strong> 的归属地信息`;
+                resultContainer.style.display = 'block';
+            }
+        });
+        
+        // 回车键查询
+        document.getElementById('plateInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('queryBtn').click();
+            }
+        });
+        
+        // 省份选择联动
+        document.getElementById('provinceSelect').addEventListener('change', function() {
+            const plateInput = document.getElementById('plateInput');
+            if (this.value) {
+                plateInput.placeholder = '请输入车牌号，例如：A12345';
+            } else {
+                plateInput.placeholder = '请先选择省份';
+            }
+        });
+        
+        // 重置按钮事件
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            // 添加点击动画效果
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = '';
+            }, 150);
+            
+            // 清空省份选择
+            document.getElementById('provinceSelect').value = '';
+            
+            // 清空车牌号输入框
+            document.getElementById('plateInput').value = '';
+            
+            // 隐藏查询结果
+            const resultContainer = document.getElementById('resultContainer');
+            resultContainer.style.display = 'none';
+            
+            // 重置输入框占位符
+            document.getElementById('plateInput').placeholder = '请先选择省份';
+        });
+    </script>
+</body>
+</html>

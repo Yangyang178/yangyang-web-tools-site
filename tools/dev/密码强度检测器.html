@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密码强度检测器</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+        
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        input[type="password"]:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        .strength-meter {
+            height: 10px;
+            margin-top: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.5s ease;
+        }
+        
+        .weak { 
+            background: linear-gradient(to right, #ff758c, #ff7eb3); 
+        }
+        
+        .medium { 
+            background: linear-gradient(to right, #ffb347, #ffcc33); 
+        }
+        
+        .strong { 
+            background: linear-gradient(to right, #4facfe, #00f2fe); 
+        }
+        
+        .strength-text {
+            margin-top: 0.5rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .suggestions {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: var(--light);
+            border-radius: 10px;
+            border-left: 5px solid var(--primary);
+        }
+        
+        .suggestions h3 {
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+        
+        .suggestion-item {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .suggestion-item:before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔒 密码强度检测器</h1>
+        
+        <div class="form-group">
+            <label for="password">请输入您的密码:</label>
+            <input type="password" id="password" placeholder="输入密码...">
+        </div>
+        
+        <button class="btn" onclick="checkPasswordStrength()">检测密码强度</button>
+        
+        <div class="form-group" style="margin-top: 1.5rem;">
+            <div class="strength-meter">
+                <div class="strength-bar" id="strengthBar"></div>
+            </div>
+            <p class="strength-text" id="strengthText">等待检测...</p>
+        </div>
+        
+        <div class="suggestions" id="suggestions">
+            <h3>💡 密码改善建议</h3>
+            <div id="suggestionText">点击检测按钮后，将显示详细的密码强度分析和改善建议</div>
+        </div>
+    </div>
+
+    <script>
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const strengthBar = document.getElementById('strengthBar');
+            const strengthText = document.getElementById('strengthText');
+            const suggestionText = document.getElementById('suggestionText');
+            
+            // 重置样式和文本
+            strengthBar.className = 'strength-bar';
+            strengthText.textContent = '等待检测...';
+            suggestionText.innerHTML = '点击检测按钮后，将显示详细的密码强度分析和改善建议';
+            
+            if (password.length === 0) {
+                strengthBar.style.width = '0%';
+                strengthText.textContent = '请输入密码';
+                suggestionText.innerHTML = '<div class="suggestion-item">请先输入密码</div>';
+                return;
+            }
+            
+            // 计算分数
+            let score = 0;
+            const suggestions = [];
+            
+            // 长度检查
+            if (password.length < 8) {
+                suggestions.push("密码长度至少8个字符");
+            } else if (password.length < 12) {
+                score += 1;
+            } else {
+                score += 2;
+            }
+            
+            // 包含数字
+            if (/\d/.test(password)) {
+                score += 1;
+            } else {
+                suggestions.push("添加数字(0-9)");
+            }
+            
+            // 包含小写字母
+            if (/[a-z]/.test(password)) {
+                score += 1;
+            } else {
+                suggestions.push("添加小写字母(a-z)");
+            }
+            
+            // 包含大写字母
+            if (/[A-Z]/.test(password)) {
+                score += 1;
+            } else {
+                suggestions.push("添加大写字母(A-Z)");
+            }
+            
+            // 包含特殊字符
+            if (/[^a-zA-Z0-9]/.test(password)) {
+                score += 1;
+            } else {
+                suggestions.push("添加特殊字符(!@#$%^&*等)");
+            }
+            
+            // 评估强度
+            let strength = '';
+            let width = 0;
+            
+            if (score <= 2) {
+                strength = '弱';
+                strengthBar.className += ' weak';
+                width = 33;
+            } else if (score <= 4) {
+                strength = '中等';
+                strengthBar.className += ' medium';
+                width = 66;
+            } else {
+                strength = '强';
+                strengthBar.className += ' strong';
+                width = 100;
+            }
+            
+            strengthBar.style.width = width + '%';
+            strengthText.textContent = `密码强度: ${strength}`;
+            
+            // 显示建议
+            if (suggestions.length > 0) {
+                suggestionText.innerHTML = '<h3>改善建议:</h3>' + 
+                    suggestions.map(s => `• ${s}`).join('<br>');
+            } else {
+                suggestionText.textContent = '您的密码非常安全！';
+            }
+        }
+    </script>
+</body>
+</html>

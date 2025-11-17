@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>温度转换器</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .converter {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .converter:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .converter h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+        
+        .input-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        input, select {
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+        
+        input {
+            flex: 1;
+            margin-right: 10px;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+            outline: none;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.clear-btn {
+            background-color: var(--accent-color);
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            font-weight: bold;
+            color: var(--dark-color);
+            border-left: 4px solid var(--primary-color);
+            text-align: center;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 0.5s ease;
+        }
+        
+        .unit-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <h1>温度转换器</h1>
+
+    <div class="converter">
+        <h2>温度单位换算</h2>
+        <div class="input-group">
+            <div class="input-row">
+                <input type="number" id="tempValue" placeholder="输入温度值">
+                <select id="tempFrom">
+                    <option value="c">摄氏度(°C)</option>
+                    <option value="f">华氏度(°F)</option>
+                    <option value="k">开尔文(K)</option>
+                    <option value="r">兰氏度(°R)</option>
+                </select>
+            </div>
+            <div class="input-row">
+                <span style="margin-right: 10px;">转换为</span>
+                <select id="tempTo">
+                    <option value="c">摄氏度(°C)</option>
+                    <option value="f">华氏度(°F)</option>
+                    <option value="k">开尔文(K)</option>
+                    <option value="r">兰氏度(°R)</option>
+                </select>
+            </div>
+        </div>
+        <div class="button-group">
+            <button onclick="convertTemp()">换算</button>
+            <button class="clear-btn" onclick="clearInput()">清除</button>
+        </div>
+        <div class="result" id="tempResult"></div>
+    </div>
+
+    <script>
+        // 温度换算函数
+        function convertTemp() {
+            const value = parseFloat(document.getElementById('tempValue').value);
+            const fromUnit = document.getElementById('tempFrom').value;
+            const toUnit = document.getElementById('tempTo').value;
+            
+            if (isNaN(value)) {
+                document.getElementById('tempResult').textContent = '请输入有效数值';
+                return;
+            }
+            
+            // 转换为摄氏度作为中间单位
+            let cValue;
+            switch (fromUnit) {
+                case 'c': cValue = value; break;
+                case 'f': cValue = (value - 32) * 5/9; break;
+                case 'k': cValue = value - 273.15; break;
+                case 'r': cValue = (value - 491.67) * 5/9; break;
+            }
+            
+            // 从摄氏度转换为目标单位
+            let result;
+            switch (toUnit) {
+                case 'c': result = cValue; break;
+                case 'f': result = cValue * 9/5 + 32; break;
+                case 'k': result = cValue + 273.15; break;
+                case 'r': result = (cValue + 273.15) * 9/5; break;
+            }
+            
+            // 根据单位类型添加适当的符号
+            let unitSymbol;
+            switch (toUnit) {
+                case 'c': unitSymbol = '°C'; break;
+                case 'f': unitSymbol = '°F'; break;
+                case 'k': unitSymbol = 'K'; break;
+                case 'r': unitSymbol = '°R'; break;
+            }
+            
+            document.getElementById('tempResult').textContent = `结果: ${result.toFixed(2)} ${unitSymbol}`;
+            
+            // 添加动画效果
+            document.getElementById('tempResult').classList.remove('pulse');
+            void document.getElementById('tempResult').offsetWidth; // 触发重排
+            document.getElementById('tempResult').classList.add('pulse');
+        }
+        
+        // 清除输入和结果
+        function clearInput() {
+            document.getElementById('tempValue').value = '';
+            document.getElementById('tempResult').textContent = '';
+            document.getElementById('tempResult').classList.remove('pulse');
+        }
+        
+        // 页面加载完成后设置焦点到输入框
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('tempValue').focus();
+        });
+    </script>
+</body>
+</html>

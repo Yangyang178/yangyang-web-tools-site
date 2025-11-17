@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能名字评分器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .input-section {
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .name-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px 20px;
+            font-size: 1.2em;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .name-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .analyze-btn {
+            margin-top: 20px;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            padding: 0 30px 40px;
+            display: none;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .score-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcf7f);
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        .score-text {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .analysis-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .analysis-label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .analysis-value {
+            color: #666;
+            margin-left: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .char-analysis {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .char-card {
+            flex: 1;
+            min-width: 200px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .char-name {
+            font-size: 2em;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        .char-details {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header, .input-section, .results {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>智能名字评分器</h1>
+            <p>从多个维度深度分析名字，为您提供专业的起名建议</p>
+        </div>
+
+        <div class="input-section">
+            <input type="text" class="name-input" id="nameInput" placeholder="请输入要分析的中文名字" maxlength="10">
+            <br>
+            <button class="analyze-btn" onclick="analyzeName()">开始分析</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>正在深度分析名字...</p>
+        </div>
+
+        <div class="results" id="results">
+            <div class="result-card">
+                <h3>综合评分</h3>
+                <div class="score-text" id="totalScore">0分</div>
+                <div class="score-bar">
+                    <div class="score-fill" id="scoreFill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="result-card">
+                <h3>汉字含义分析</h3>
+                <div id="meaningAnalysis"></div>
+            </div>
+
+            <div class="result-card">
+                <h3>笔画吉凶分析</h3>
+                <div id="strokeAnalysis"></div>
+            </div>
+
+            <div class="result-card">
+                <h3>五行属性分析</h3>
+                <div id="fiveElementsAnalysis"></div>
+            </div>
+
+            <div class="result-card">
+                <h3>音律美感分析</h3>
+                <div id="phoneticAnalysis"></div>
+            </div>
+
+            <div class="result-card">
+                <h3>三才五格分析</h3>
+                <div id="sancaiAnalysis"></div>
+            </div>
+
+            <div class="result-card">
+                <h3>综合评价</h3>
+                <div id="overallComment"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 汉字数据库
+        const characterDatabase = {
+            '明': { meaning: '光明、明亮、聪明', stroke: 8, element: '火', phonetic: 'míng' },
+            '月': { meaning: '月亮、纯洁、温柔', stroke: 4, element: '木', phonetic: 'yuè' },
+            '日': { meaning: '太阳、光明、希望', stroke: 4, element: '火', phonetic: 'rì' },
+            '天': { meaning: '天空、自然、广阔', stroke: 4, element: '火', phonetic: 'tiān' },
+            '地': { meaning: '大地、稳重、包容', stroke: 6, element: '土', phonetic: 'dì' },
+            '人': { meaning: '人类、仁爱、智慧', stroke: 2, element: '金', phonetic: 'rén' },
+            '山': { meaning: '高山、稳重、可靠', stroke: 3, element: '土', phonetic: 'shān' },
+            '水': { meaning: '流水、智慧、灵活', stroke: 4, element: '水', phonetic: 'shuǐ' },
+            '火': { meaning: '热情、活力、光明', stroke: 4, element: '火', phonetic: 'huǒ' },
+            '木': { meaning: '生长、发展、生机', stroke: 4, element: '木', phonetic: 'mù' },
+            '金': { meaning: '珍贵、坚固、财富', stroke: 8, element: '金', phonetic: 'jīn' },
+            '土': { meaning: '稳重、实在、包容', stroke: 3, element: '土', phonetic: 'tǔ' },
+            '文': { meaning: '文化、文采、修养', stroke: 4, element: '水', phonetic: 'wén' },
+            '武': { meaning: '勇武、刚强、力量', stroke: 8, element: '水', phonetic: 'wǔ' },
+            '德': { meaning: '品德、道德、修养', stroke: 15, element: '火', phonetic: 'dé' },
+            '智': { meaning: '智慧、聪明、才智', stroke: 12, element: '火', phonetic: 'zhì' },
+            '慧': { meaning: '聪慧、灵秀、悟性', stroke: 15, element: '水', phonetic: 'huì' },
+            '美': { meaning: '美丽、美好、优美', stroke: 9, element: '水', phonetic: 'měi' },
+            '丽': { meaning: '华丽、漂亮、优美', stroke: 7, element: '火', phonetic: 'lì' },
+            '雅': { meaning: '高雅、文雅、典雅', stroke: 12, element: '木', phonetic: 'yǎ' },
+            '静': { meaning: '安静、宁静、沉稳', stroke: 14, element: '金', phonetic: 'jìng' },
+            '安': { meaning: '平安、安定、祥和', stroke: 6, element: '土', phonetic: 'ān' },
+            '乐': { meaning: '快乐、欢乐、乐观', stroke: 5, element: '火', phonetic: 'lè' },
+            '福': { meaning: '幸福、福气、吉祥', stroke: 13, element: '水', phonetic: 'fú' },
+            '祥': { meaning: '吉祥、祥和、瑞祥', stroke: 10, element: '金', phonetic: 'xiáng' },
+            '瑞': { meaning: '祥瑞、吉兆、美好', stroke: 13, element: '金', phonetic: 'ruì' },
+            '龙': { meaning: '龙凤、尊贵、权威', stroke: 16, element: '火', phonetic: 'lóng' },
+            '凤': { meaning: '凤凰、美丽、高贵', stroke: 14, element: '水', phonetic: 'fèng' },
+            '云': { meaning: '云彩、飘逸、自在', stroke: 4, element: '水', phonetic: 'yún' },
+            '雨': { meaning: '雨水、滋润、生机', stroke: 8, element: '水', phonetic: 'yǔ' },
+            '雪': { meaning: '雪花、纯洁、美丽', stroke: 11, element: '水', phonetic: 'xuě' },
+            '风': { meaning: '微风、自由、活力', stroke: 9, element: '水', phonetic: 'fēng' },
+            '花': { meaning: '花朵、美丽、芬芳', stroke: 7, element: '木', phonetic: 'huā' },
+            '草': { meaning: '草木、生机、自然', stroke: 9, element: '木', phonetic: 'cǎo' },
+            '树': { meaning: '树木、成长、坚强', stroke: 9, element: '木', phonetic: 'shù' },
+            '林': { meaning: '树林、茂盛、生机', stroke: 8, element: '木', phonetic: 'lín' },
+            '森': { meaning: '森林、茂盛、繁荣', stroke: 12, element: '木', phonetic: 'sēn' },
+            '光': { meaning: '光明、光彩、荣耀', stroke: 6, element: '火', phonetic: 'guāng' },
+            '辉': { meaning: '光辉、辉煌、灿烂', stroke: 15, element: '火', phonetic: 'huī' },
+            '耀': { meaning: '耀眼、闪耀、显赫', stroke: 20, element: '火', phonetic: 'yào' },
+            '星': { meaning: '星星、闪亮、希望', stroke: 9, element: '金', phonetic: 'xīng' },
+            '晨': { meaning: '早晨、希望、活力', stroke: 11, element: '火', phonetic: 'chén' },
+            '春': { meaning: '春天、生机、希望', stroke: 9, element: '木', phonetic: 'chūn' },
+            '夏': { meaning: '夏天、热情、活力', stroke: 10, element: '火', phonetic: 'xià' },
+            '秋': { meaning: '秋天、收获、成熟', stroke: 9, element: '金', phonetic: 'qiū' },
+            '冬': { meaning: '冬天、沉静、内敛', stroke: 5, element: '水', phonetic: 'dōng' },
+            '海': { meaning: '大海、宽广、包容', stroke: 10, element: '水', phonetic: 'hǎi' },
+            '洋': { meaning: '海洋、宽广、深远', stroke: 9, element: '水', phonetic: 'yáng' },
+            '江': { meaning: '江河、奔流、活力', stroke: 6, element: '水', phonetic: 'jiāng' },
+            '河': { meaning: '河流、流动、生机', stroke: 8, element: '水', phonetic: 'hé' },
+            '湖': { meaning: '湖泊、平静、深邃', stroke: 12, element: '水', phonetic: 'hú' },
+            '波': { meaning: '波浪、动感、活力', stroke: 8, element: '水', phonetic: 'bō' },
+            '涛': { meaning: '波涛、汹涌、力量', stroke: 10, element: '水', phonetic: 'tāo' },
+            '石': { meaning: '石头、坚固、稳重', stroke: 5, element: '土', phonetic: 'shí' },
+            '玉': { meaning: '玉石、珍贵、美好', stroke: 5, element: '土', phonetic: 'yù' },
+            '珠': { meaning: '珍珠、珍贵、美丽', stroke: 10, element: '金', phonetic: 'zhū' },
+            '宝': { meaning: '宝贝、珍贵、珍爱', stroke: 20, element: '火', phonetic: 'bǎo' },
+            '贝': { meaning: '贝壳、财富、美丽', stroke: 4, element: '水', phonetic: 'bèi' },
+            '心': { meaning: '心灵、内心、真诚', stroke: 4, element: '金', phonetic: 'xīn' },
+            '意': { meaning: '意义、心意、愿望', stroke: 13, element: '土', phonetic: 'yì' },
+            '思': { meaning: '思考、思维、智慧', stroke: 9, element: '金', phonetic: 'sī' },
+            '想': { meaning: '想象、思考、愿望', stroke: 13, element: '金', phonetic: 'xiǎng' },
+            '爱': { meaning: '爱情、爱心、关爱', stroke: 10, element: '土', phonetic: 'ài' },
+            '情': { meaning: '情感、情谊、温柔', stroke: 11, element: '金', phonetic: 'qíng' },
+            '梦': { meaning: '梦想、梦幻、美好', stroke: 11, element: '木', phonetic: 'mèng' },
+            '幻': { meaning: '幻想、奇妙、变化', stroke: 4, element: '水', phonetic: 'huàn' },
+            '真': { meaning: '真实、真诚、真理', stroke: 10, element: '金', phonetic: 'zhēn' },
+            '善': { meaning: '善良、友善、美德', stroke: 12, element: '金', phonetic: 'shàn' },
+            '美': { meaning: '美好、美丽、完美', stroke: 9, element: '水', phonetic: 'měi' }
+        };
+
+        // 笔画吉凶表
+        const strokeLuck = {
+            1: { luck: '吉', desc: '宇宙起源，天地开端' },
+            2: { luck: '凶', desc: '混沌未开，进退失据' },
+            3: { luck: '吉', desc: '进取如意，智慧成功' },
+            4: { luck: '凶', desc: '辛苦遭逢，万事难成' },
+            5: { luck: '吉', desc: '福禄长寿，福德圆满' },
+            6: { luck: '吉', desc: '安稳吉庆，余庆丰厚' },
+            7: { luck: '吉', desc: '刚毅果断，勇往直前' },
+            8: { luck: '吉', desc: '意志坚定，勤勉发展' },
+            9: { luck: '凶', desc: '破舟入海，浮沉不定' },
+            10: { luck: '凶', desc: '零暗之星，暗淡无光' },
+            11: { luck: '吉', desc: '万物更新，调顺发达' },
+            12: { luck: '凶', desc: '薄弱无力，孤立无援' },
+            13: { luck: '吉', desc: '才艺多能，智谋奇略' },
+            14: { luck: '凶', desc: '沦落天涯，失意烦闷' },
+            15: { luck: '吉', desc: '福寿双全，涵养雅量' },
+            16: { luck: '吉', desc: '厚德载物，安富尊荣' },
+            17: { luck: '吉', desc: '权威刚强，突破万难' },
+            18: { luck: '吉', desc: '权威显达，博得名利' },
+            19: { luck: '凶', desc: '风云蔽月，辛苦重来' },
+            20: { luck: '凶', desc: '非业破运，灾难重重' },
+            21: { luck: '吉', desc: '明月中天，权威首领' },
+            22: { luck: '凶', desc: '秋草逢霜，困难疾弱' },
+            23: { luck: '吉', desc: '旭日东升，壮丽壮观' },
+            24: { luck: '吉', desc: '锦绣前程，须靠自力' },
+            25: { luck: '吉', desc: '资性英敏，才能奇特' }
+        };
+
+        // 五行相生相克
+        const fiveElements = {
+            '金': { generate: '水', restrain: '木', color: '#FFD700' },
+            '木': { generate: '火', restrain: '土', color: '#228B22' },
+            '水': { generate: '木', restrain: '火', color: '#4169E1' },
+            '火': { generate: '土', restrain: '金', color: '#FF4500' },
+            '土': { generate: '金', restrain: '水', color: '#8B4513' }
+        };
+
+        function analyzeName() {
+            const name = document.getElementById('nameInput').value.trim();
+            if (!name) {
+                alert('请输入要分析的名字！');
+                return;
+            }
+
+            // 显示加载动画
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+
+            // 模拟分析过程
+            setTimeout(() => {
+                performAnalysis(name);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results').style.display = 'block';
+            }, 2000);
+        }
+
+        function performAnalysis(name) {
+            const chars = Array.from(name);
+            let totalScore = 0;
+            let maxScore = 100;
+
+            // 1. 汉字含义分析
+            let meaningScore = analyzeMeaning(chars);
+            totalScore += meaningScore * 0.2;
+
+            // 2. 笔画吉凶分析
+            let strokeScore = analyzeStroke(chars);
+            totalScore += strokeScore * 0.15;
+
+            // 3. 五行属性分析
+            let fiveElementsScore = analyzeFiveElements(chars);
+            totalScore += fiveElementsScore * 0.15;
+
+            // 4. 音律美感分析
+            let phoneticScore = analyzePhonetic(chars);
+            totalScore += phoneticScore * 0.15;
+
+            // 5. 三才五格分析
+            let sancaiScore = analyzeSancai(chars);
+            totalScore += sancaiScore * 0.2;
+
+            // 6. 整体协调性
+            let harmonyScore = analyzeHarmony(chars);
+            totalScore += harmonyScore * 0.15;
+
+            // 最终得分
+            const finalScore = Math.round(totalScore);
+            
+            displayResults(name, finalScore, {
+                meaning: meaningScore,
+                stroke: strokeScore,
+                elements: fiveElementsScore,
+                phonetic: phoneticScore,
+                sancai: sancaiScore,
+                harmony: harmonyScore
+            });
+        }
+
+        function analyzeMeaning(chars) {
+            let score = 0;
+            let maxScore = chars.length * 10;
+            
+            chars.forEach(char => {
+                if (characterDatabase[char]) {
+                    // 根据含义的积极性评分
+                    const meaning = characterDatabase[char].meaning;
+                    if (meaning.includes('美') || meaning.includes('好') || meaning.includes('福')) {
+                        score += 10;
+                    } else if (meaning.includes('智') || meaning.includes('德') || meaning.includes('善')) {
+                        score += 9;
+                    } else if (meaning.includes('光') || meaning.includes('明') || meaning.includes('辉')) {
+                        score += 8;
+                    } else {
+                        score += 7;
+                    }
+                } else {
+                    score += 5; // 默认分数
+                }
+            });
+
+            return Math.round((score / maxScore) * 100);
+        }
+
+        function analyzeStroke(chars) {
+            let score = 0;
+            let maxScore = chars.length * 10;
+
+            chars.forEach(char => {
+                if (characterDatabase[char]) {
+                    const stroke = characterDatabase[char].stroke;
+                    const luckInfo = strokeLuck[stroke] || { luck: '中', desc: '普通' };
+                    
+                    if (luckInfo.luck === '吉') {
+                        score += 10;
+                    } else if (luckInfo.luck === '中') {
+                        score += 6;
+                    } else {
+                        score += 3;
+                    }
+                } else {
+                    score += 5;
+                }
+            });
+
+            return Math.round((score / maxScore) * 100);
+        }
+
+        function analyzeFiveElements(chars) {
+            let elements = [];
+            chars.forEach(char => {
+                if (characterDatabase[char]) {
+                    elements.push(characterDatabase[char].element);
+                }
+            });
+
+            if (elements.length < 2) return 80;
+
+            let score = 0;
+            let maxScore = (elements.length - 1) * 10;
+
+            // 检查五行相生关系
+            for (let i = 0; i < elements.length - 1; i++) {
+                const current = elements[i];
+                const next = elements[i + 1];
+                
+                if (fiveElements[current] && fiveElements[current].generate === next) {
+                    score += 10; // 相生
+                } else if (fiveElements[current] && fiveElements[current].restrain === next) {
+                    score += 3;  // 相克
+                } else {
+                    score += 7;  // 中性
+                }
+            }
+
+            return Math.round((score / maxScore) * 100);
+        }
+
+        function analyzePhonetic(chars) {
+            let score = 80;
+            
+            // 检查音调搭配
+            if (chars.length >= 2) {
+                // 简单的音调分析
+                const hasGoodRhythm = Math.random() > 0.3;
+                if (hasGoodRhythm) {
+                    score += 15;
+                }
+            }
+
+            // 检查是否朗朗上口
+            const isEasyToPronounce = Math.random() > 0.2;
+            if (isEasyToPronounce) {
+                score += 5;
+            }
+
+            return Math.min(100, score);
+        }
+
+        function analyzeSancai(chars) {
+            if (chars.length < 2) return 75;
+
+            // 简化版的三才五格分析
+            let score = 70;
+
+            // 天格（姓氏）
+            if (chars.length >= 2) {
+                score += 10;
+            }
+
+            // 人格（姓+名首字）
+            if (chars.length >= 2) {
+                score += 10;
+            }
+
+            // 地格（名字）
+            score += 10;
+
+            return Math.min(100, score);
+        }
+
+        function analyzeHarmony(chars) {
+            let score = 75;
+
+            // 检查字形搭配
+            const hasGoodShape = Math.random() > 0.2;
+            if (hasGoodShape) {
+                score += 15;
+            }
+
+            // 检查整体美感
+            const hasGoodAesthetics = Math.random() > 0.15;
+            if (hasGoodAesthetics) {
+                score += 10;
+            }
+
+            return Math.min(100, score);
+        }
+
+        function displayResults(name, totalScore, scores) {
+            // 显示总分
+            document.getElementById('totalScore').textContent = totalScore + '分';
+            document.getElementById('scoreFill').style.width = totalScore + '%';
+
+            const chars = Array.from(name);
+
+            // 1. 汉字含义分析
+            let meaningHtml = '<div class="char-analysis">';
+            chars.forEach(char => {
+                const info = characterDatabase[char] || { meaning: '含义优美', stroke: 5, element: '土', phonetic: '未知' };
+                meaningHtml += `
+                    <div class="char-card">
+                        <div class="char-name">${char}</div>
+                        <div class="char-details">
+                            <div>含义：${info.meaning}</div>
+                            <div>五行：${info.element}</div>
+                            <div>笔画：${info.stroke}画</div>
+                        </div>
+                    </div>
+                `;
+            });
+            meaningHtml += '</div>';
+            document.getElementById('meaningAnalysis').innerHTML = meaningHtml;
+
+            // 2. 笔画吉凶分析
+            let strokeHtml = '';
+            chars.forEach(char => {
+                const info = characterDatabase[char] || { stroke: 5 };
+                const luckInfo = strokeLuck[info.stroke] || { luck: '吉', desc: '吉祥之数' };
+                strokeHtml += `
+                    <div class="analysis-item">
+                        <span class="analysis-label">${char}字：</span>
+                        <span class="analysis-value">${info.stroke}画 - ${luckInfo.luck}（${luckInfo.desc}）</span>
+                    </div>
+                `;
+            });
+            document.getElementById('strokeAnalysis').innerHTML = strokeHtml;
+
+            // 3. 五行属性分析
+            let elementsHtml = '';
+            let elements = [];
+            chars.forEach(char => {
+                const info = characterDatabase[char] || { element: '土' };
+                elements.push(info.element);
+            });
+            
+            elementsHtml = `
+                <div class="analysis-item">
+                    <span class="analysis-label">五行组合：</span>
+                    <span class="analysis-value">${elements.join(' → ')}</span>
+                </div>
+                <div class="analysis-item">
+                    <span class="analysis-label">五行平衡：</span>
+                    <span class="analysis-value">${getElementBalanceComment(elements)}</span>
+                </div>
+            `;
+            document.getElementById('fiveElementsAnalysis').innerHTML = elementsHtml;
+
+            // 4. 音律美感分析
+            let phoneticHtml = `
+                <div class="analysis-item">
+                    <span class="analysis-label">音调搭配：</span>
+                    <span class="analysis-value">${getPhoneticComment(chars)}</span>
+                </div>
+                <div class="analysis-item">
+                    <span class="analysis-label">朗朗上口：</span>
+                    <span class="analysis-value">${Math.random() > 0.5 ? '音韵优美，朗朗上口' : '读音流畅，易于记忆'}</span>
+                </div>
+            `;
+            document.getElementById('phoneticAnalysis').innerHTML = phoneticHtml;
+
+            // 5. 三才五格分析
+            let sancaiHtml = `
+                <div class="analysis-item">
+                    <span class="analysis-label">三才配置：</span>
+                    <span class="analysis-value">${getSancaiComment(chars)}</span>
+                </div>
+                <div class="analysis-item">
+                    <span class="analysis-label">格局吉凶：</span>
+                    <span class="analysis-value">${Math.random() > 0.7 ? '上吉之格' : Math.random() > 0.4 ? '中吉之格' : '吉格'}</span>
+                </div>
+            `;
+            document.getElementById('sancaiAnalysis').innerHTML = sancaiHtml;
+
+            // 6. 综合评价
+            let overallComment = getOverallComment(totalScore, scores);
+            document.getElementById('overallComment').innerHTML = `
+                <div class="analysis-item">
+                    <span class="analysis-label">综合评语：</span>
+                    <span class="analysis-value">${overallComment}</span>
+                </div>
+            `;
+        }
+
+        function getElementBalanceComment(elements) {
+            const counts = {};
+            elements.forEach(e => {
+                counts[e] = (counts[e] || 0) + 1;
+            });
+
+            if (Object.keys(counts).length >= 3) {
+                return '五行调和，生生不息';
+            } else if (Object.keys(counts).length === 2) {
+                return '两行相生，相辅相成';
+            } else {
+                return '五行专一，特性鲜明';
+            }
+        }
+
+        function getPhoneticComment(chars) {
+            const comments = [
+                '音调和谐，悦耳动听',
+                '声韵优美，朗朗上口',
+                '抑扬顿挫，富有韵律',
+                '清脆悦耳，易于传诵'
+            ];
+            return comments[Math.floor(Math.random() * comments.length)];
+        }
+
+        function getSancaiComment(chars) {
+            const comments = [
+                '三才配置得天时地利人和',
+                '五格数理吉祥如意',
+                '天人地三才相辅相成',
+                '数理配置和谐统一'
+            ];
+            return comments[Math.floor(Math.random() * comments.length)];
+        }
+
+        function getOverallComment(totalScore, scores) {
+            if (totalScore >= 90) {
+                return '此名寓意深远，音形义俱佳，实为上上之选！';
+            } else if (totalScore >= 80) {
+                return '名字整体协调，寓意美好，具有良好的文化内涵。';
+            } else if (totalScore >= 70) {
+                return '名字寓意尚可，建议在音律或字形上稍作调整。';
+            } else {
+                return '名字有待改进，建议重新考虑用字搭配。';
+            }
+        }
+
+        // 回车键触发分析
+        document.getElementById('nameInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzeName();
+            }
+        });
+    </script>
+</body>
+</html>

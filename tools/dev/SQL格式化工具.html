@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL格式化工具</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark-color);
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
+        
+        h2 {
+            color: var(--secondary-color);
+            margin-top: 25px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 200px;
+            font-family: 'Courier New', monospace;
+            padding: 15px;
+            box-sizing: border-box;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 12px 25px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            flex: 1;
+        }
+        
+        button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #clear-btn {
+            background-color: #e63946;
+        }
+        
+        #clear-btn:hover {
+            background-color: #d62839;
+        }
+        
+        .formatted-sql {
+            width: 100%;
+            min-height: 200px;
+            border: 2px solid #ddd;
+            padding: 15px;
+            background-color: #f8f9fa;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            border-radius: 8px;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        
+        .sql-keyword {
+            color: #4361ee;
+            font-weight: bold;
+        }
+        
+        .sql-string {
+            color: #2a9d8f;
+        }
+        
+        .sql-comment {
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .sql-function {
+            color: #9d4edd;
+        }
+        
+        .sql-number {
+            color: #e76f51;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SQL格式化工具</h1>
+        <textarea id="input-sql" placeholder="在此输入您的SQL语句..."></textarea>
+        <div class="button-group">
+            <button onclick="formatSQL()" id="format-btn">格式化SQL</button>
+            <button onclick="clearContent()" id="clear-btn">清除内容</button>
+        </div>
+        <h2>格式化后的SQL:</h2>
+        <div id="formatted-sql" class="formatted-sql"></div>
+    </div>
+
+    <script>
+        const keywords = [
+            'SELECT', 'FROM', 'WHERE', 'GROUP BY', 'ORDER BY', 'HAVING', 'JOIN', 'INNER', 'LEFT', 'RIGHT', 'FULL', 
+            'OUTER', 'ON', 'AS', 'AND', 'OR', 'NOT', 'IN', 'BETWEEN', 'LIKE', 'IS', 'NULL', 'TRUE', 'FALSE', 'DISTINCT', 
+            'UNION', 'ALL', 'INSERT', 'INTO', 'VALUES', 'UPDATE', 'SET', 'DELETE', 'CREATE', 'TABLE', 'VIEW', 'INDEX', 
+            'ALTER', 'DROP', 'PRIMARY', 'KEY', 'FOREIGN', 'REFERENCES', 'UNIQUE', 'CHECK', 'DEFAULT', 'AUTO_INCREMENT', 
+            'COUNT', 'SUM', 'AVG', 'MIN', 'MAX', 'BEGIN', 'COMMIT', 'ROLLBACK', 'TRANSACTION', 'GRANT', 'REVOKE', 'EXEC', 
+            'PROCEDURE', 'FUNCTION', 'TRIGGER', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'EXISTS', 'WITH', 'RECURSIVE'
+        ];
+
+        function formatSQL() {
+            const inputSQL = document.getElementById('input-sql').value;
+            if (!inputSQL.trim()) {
+                alert('请输入SQL语句！');
+                return;
+            }
+            
+            let formattedSQL = inputSQL;
+            
+            // Add indentation
+            formattedSQL = addIndentation(formattedSQL);
+            
+            // Highlight keywords
+            formattedSQL = highlightKeywords(formattedSQL);
+            
+            document.getElementById('formatted-sql').innerHTML = formattedSQL;
+            
+            // Add animation
+            const formatBtn = document.getElementById('format-btn');
+            formatBtn.classList.add('pulse');
+            setTimeout(() => {
+                formatBtn.classList.remove('pulse');
+            }, 500);
+        }
+        
+        function clearContent() {
+            document.getElementById('input-sql').value = '';
+            document.getElementById('formatted-sql').innerHTML = '';
+            
+            // Add animation
+            const clearBtn = document.getElementById('clear-btn');
+            clearBtn.classList.add('pulse');
+            setTimeout(() => {
+                clearBtn.classList.remove('pulse');
+            }, 500);
+        }
+
+        function addIndentation(sql) {
+            let level = 0;
+            const lines = sql.split('\n');
+            let result = [];
+            
+            for (let line of lines) {
+                line = line.trim();
+                if (line.length === 0) {
+                    result.push('');
+                    continue;
+                }
+                
+                // Decrease level for closing clauses
+                if (line.startsWith(')') || line.startsWith('END') || line.startsWith('ELSE')) {
+                    level = Math.max(0, level - 1);
+                }
+                
+                // Add indentation
+                result.push('    '.repeat(level) + line);
+                
+                // Increase level for opening clauses
+                if (line.endsWith('(') || line.startsWith('CASE') || line.startsWith('BEGIN') || 
+                    line.startsWith('IF') || line.startsWith('ELSE')) {
+                    level++;
+                }
+            }
+            
+            return result.join('\n');
+        }
+
+        function highlightKeywords(sql) {
+            // Highlight strings
+            sql = sql.replace(/'[^']*'/g, '<span class="sql-string">$&</span>');
+            sql = sql.replace(/"[^"]*"/g, '<span class="sql-string">$&</span>');
+            
+            // Highlight comments
+            sql = sql.replace(/--.*$/gm, '<span class="sql-comment">$&</span>');
+            sql = sql.replace(/\/\*[\s\S]*?\*\//g, '<span class="sql-comment">$&</span>');
+            
+            // Highlight numbers
+            sql = sql.replace(/\b\d+\b/g, '<span class="sql-number">$&</span>');
+            
+            // Highlight functions (words followed by parenthesis)
+            sql = sql.replace(/\b([A-Za-z_][A-Za-z0-9_]*)(?=\()/g, '<span class="sql-function">$1</span>');
+            
+            // Highlight keywords
+            for (let keyword of keywords) {
+                const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+                sql = sql.replace(regex, `<span class="sql-keyword">${keyword}</span>`);
+            }
+            
+            return sql;
+        }
+    </script>
+</body>
+</html>

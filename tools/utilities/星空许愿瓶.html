@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星空许愿瓶</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #0c1445, #1a237e, #4a148c);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        .moon {
+            position: absolute;
+            top: 20%;
+            right: 15%;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 30% 30%, #f0f0f0, #e0e0e0);
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+            z-index: 5;
+        }
+
+        .meteor {
+            position: absolute;
+            top: 10%;
+            left: 5%;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1), rgba(255,255,255,0));
+            transform: rotate(45deg);
+            animation: meteorFall 5s linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes meteorFall {
+            0% { opacity: 0; transform: rotate(45deg) translateX(-100px); }
+            10% { opacity: 1; }
+            100% { opacity: 0; transform: rotate(45deg) translateX(1000px); }
+        }
+
+        .wish-bottle-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .bottle {
+            width: 200px;
+            height: 350px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 70px 70px 35px 35px;
+            position: relative;
+            margin: 0 auto 30px;
+            box-shadow: 
+                inset 0 0 30px rgba(255, 255, 255, 0.3),
+                0 0 50px rgba(173, 216, 230, 0.4),
+                0 0 100px rgba(100, 149, 237, 0.3);
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            overflow: hidden;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+            z-index: 10;
+        }
+
+        .bottle:hover {
+            transform: translateY(-15px);
+            box-shadow: 
+                inset 0 0 30px rgba(255, 255, 255, 0.3),
+                0 0 50px rgba(173, 216, 230, 0.5),
+                0 0 80px rgba(100, 149, 237, 0.3);
+        }
+
+        .bottle::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            filter: blur(5px);
+        }
+
+        .bottle-neck {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4));
+            border-radius: 35px 35px 0 0;
+            margin: 0 auto;
+            position: relative;
+            top: -20px;
+            box-shadow: 
+                inset 0 0 15px rgba(255, 255, 255, 0.4),
+                0 8px 20px rgba(0, 0, 0, 0.3);
+            z-index: 11;
+        }
+
+        .bottle-neck::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 15px;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            filter: blur(2px);
+        }
+
+        .wishes {
+            position: absolute;
+            bottom: 50px;
+            left: 25px;
+            right: 25px;
+            top: 100px;
+            overflow: hidden;
+        }
+
+        .wish {
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            opacity: 0;
+            width: 90%;
+            left: 5%;
+            text-align: center;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+            animation: floatUp var(--float-duration, 20s) ease-in-out infinite;
+            filter: blur(0.2px);
+            font-weight: 500;
+            bottom: 0;
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            15% {
+                opacity: 1;
+            }
+            70% {
+                opacity: 1;
+            }
+            85% {
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(-200px) rotate(var(--rotation, 0deg));
+                opacity: 0;
+            }
+        }
+
+        .make-wish {
+            background: linear-gradient(135deg, rgba(106, 17, 203, 0.6), rgba(37, 117, 252, 0.6));
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 35px;
+            padding: 18px 35px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+            margin-top: 25px;
+            box-shadow: 
+                0 8px 20px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(106, 17, 203, 0.4);
+            letter-spacing: 2px;
+        }
+
+        .make-wish:hover {
+            background: linear-gradient(135deg, rgba(106, 17, 203, 0.7), rgba(37, 117, 252, 0.7));
+            transform: scale(1.05);
+            box-shadow: 
+                0 8px 20px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(106, 17, 203, 0.5);
+        }
+
+        .make-wish:active {
+            transform: scale(0.95);
+        }
+
+        .wish-input {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 35px;
+            padding: 18px 30px;
+            color: white;
+            font-size: 16px;
+            width: 350px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(8px);
+            text-align: center;
+            box-shadow: 
+                inset 0 0 15px rgba(0, 0, 0, 0.2),
+                0 0 20px rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .wish-input:focus {
+            outline: none;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 
+                inset 0 0 15px rgba(0, 0, 0, 0.2),
+                0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .wish-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .title {
+            color: white;
+            font-size: 42px;
+            margin-bottom: 40px;
+            text-shadow: 
+                0 0 15px rgba(255, 255, 255, 0.6),
+                0 0 30px rgba(106, 17, 203, 0.6),
+                0 0 50px rgba(37, 117, 252, 0.6);
+            font-weight: bold;
+            letter-spacing: 3px;
+            position: relative;
+        }
+
+        .title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(to right, transparent, white, transparent);
+        }
+
+        .instructions {
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 20px;
+            font-size: 14px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+        }
+
+        .wish-bottle-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 30px;
+            backdrop-filter: blur(15px);
+            box-shadow: 
+                0 0 50px rgba(0, 0, 0, 0.3),
+                0 0 100px rgba(106, 17, 203, 0.2);
+        }
+    </style>
+</head>
+<body>
+        <div class="stars" id="stars"></div>
+        <div class="moon"></div>
+        <div class="meteor" id="meteor"></div>
+        
+        <div class="wish-bottle-container">
+            <h1 class="title">星空许愿瓶</h1>
+            
+            <div class="bottle">
+                <div class="bottle-neck"></div>
+                <div class="wishes" id="wishes"></div>
+            </div>
+            
+            <input type="text" class="wish-input" id="wishInput" placeholder="输入你的愿望..." maxlength="50">
+            <button class="make-wish" id="makeWishBtn">许愿</button>
+            
+            <p class="instructions">输入愿望并点击许愿按钮，你的愿望将飘向星空</p>
+        </div>
+
+    <script>
+        // 创建星空背景
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 200;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // 随机位置
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                
+                // 随机大小
+                const size = Math.random() * 3;
+                
+                // 随机动画时长
+                const duration = 2 + Math.random() * 5;
+                
+                star.style.left = `${x}%`;
+                star.style.top = `${y}%`;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.setProperty('--duration', `${duration}s`);
+                
+                // 随机延迟
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // 随机显示流星
+        function randomMeteor() {
+            const meteor = document.getElementById('meteor');
+            setInterval(() => {
+                if (Math.random() > 0.7) { // 30% 概率显示流星
+                    meteor.style.opacity = '1';
+                    meteor.style.animation = 'meteorFall 2s linear forwards';
+                    setTimeout(() => {
+                        meteor.style.opacity = '0';
+                    }, 2000);
+                }
+            }, 5000);
+        }
+        
+        // 添加愿望
+        function addWish() {
+            const wishInput = document.getElementById('wishInput');
+            const wishesContainer = document.getElementById('wishes');
+            const wishText = wishInput.value.trim();
+            
+            if (wishText === '') {
+                alert('请输入你的愿望！');
+                return;
+            }
+            
+            const wish = document.createElement('div');
+            wish.classList.add('wish');
+            wish.textContent = wishText;
+            
+            // 随机水平位置
+            const leftPosition = 15 + Math.random() * 60;
+            wish.style.left = `${leftPosition}%`;
+            
+            // 随机颜色
+            const colors = ['#ffdddd', '#ddffdd', '#ddddff', '#ffffdd', '#ffddff', '#ffd700', '#ffa07a', '#98fb98', '#87cefa'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            wish.style.color = color;
+            
+            // 随机动画时长
+            const duration = 15 + Math.random() * 15;
+            wish.style.setProperty('--float-duration', `${duration}s`);
+            
+            // 随机旋转角度
+            const rotation = -30 + Math.random() * 60;
+            wish.style.setProperty('--rotation', `${rotation}deg`);
+            
+            // 随机延迟
+            wish.style.animationDelay = `${Math.random() * 2}s`;
+            
+            // 添加入场动画
+            wish.style.transform = 'scale(0.8)';
+            wish.style.transition = 'transform 0.5s ease';
+            
+            wishesContainer.appendChild(wish);
+            
+            // 触发入场动画
+            setTimeout(() => {
+                wish.style.transform = 'scale(1)';
+            }, 10);
+            
+            // 清空输入框
+            wishInput.value = '';
+            
+            // 限制愿望数量
+            if (wishesContainer.children.length > 20) {
+                wishesContainer.removeChild(wishesContainer.firstChild);
+            }
+            
+            // 动画结束后移除元素
+            setTimeout(() => {
+                if (wish.parentNode) {
+                    wish.parentNode.removeChild(wish);
+                }
+            }, duration * 1000);
+            
+            // 清空输入框
+            wishInput.value = '';
+            
+            // 限制愿望数量
+            if (wishesContainer.children.length > 20) {
+                wishesContainer.removeChild(wishesContainer.firstChild);
+            }
+            
+            // 动画结束后移除元素
+            setTimeout(() => {
+                if (wish.parentNode) {
+                    wish.parentNode.removeChild(wish);
+                }
+            }, duration * 1000);
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            createStars();
+            randomMeteor();
+            
+            const makeWishBtn = document.getElementById('makeWishBtn');
+            const wishInput = document.getElementById('wishInput');
+            
+            makeWishBtn.addEventListener('click', addWish);
+            
+            wishInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addWish();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

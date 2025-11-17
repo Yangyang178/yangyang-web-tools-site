@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI性格测试</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --accent: #fd79a8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        #testContainer {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .question {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .options {
+            margin-top: 15px;
+        }
+        
+        .option {
+            margin: 10px 0;
+            padding: 12px 15px;
+            background: white;
+            color: #333;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: var(--light);
+        }
+        
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            background: #ff6b9d;
+        }
+        
+        /* 介绍部分样式 */
+        .intro-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .intro-section h2, .intro-section h3 {
+            color: var(--primary);
+            margin-top: 20px;
+        }
+        
+        .intro-section ul {
+            padding-left: 20px;
+        }
+        
+        .intro-section li {
+            margin-bottom: 8px;
+        }
+        
+        .mbti-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .mbti-type {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .mbti-type h4 {
+            color: var(--accent);
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        
+        /* 答题卡样式 */
+        .answer-sheet {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 100;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: white;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .answer-sheet h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            text-align: center;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .answer-sheet-btn {
+            display: block;
+            margin: 8px 0;
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #6c5ce7;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .answer-sheet-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(to right, #74ebd5, #ACB6E5);
+            border-radius: 15px;
+            display: none;
+            color: white;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+    </style>
+</head>
+<body>
+    <h1>MBTI性格测试</h1>
+    <div id="testContainer">
+        <div id="questionContainer" style="display: none;">
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+            <div class="question" id="currentQuestion"></div>
+            <button id="nextBtn" style="margin-top: 10px;">下一题</button>
+            <button id="showAnswerSheetBtn" style="margin-left: 10px;">查看答题卡</button>
+        </div>
+        <div id="startContainer">
+            <div class="intro-section">
+                <h2>MBTI性格测试简介</h2>
+                <p>MBTI(迈尔斯-布里格斯性格分类指标)是一种基于卡尔·荣格的心理类型理论发展而来的人格类型理论模型。它将人的性格分为16种类型，每种类型由4个维度组成：</p>
+                <ul>
+                    <li><strong>外向(E) vs 内向(I)</strong>：能量获取方式</li>
+                    <li><strong>感觉(S) vs 直觉(N)</strong>：信息获取方式</li>
+                    <li><strong>思考(T) vs 情感(F)</strong>：决策方式</li>
+                    <li><strong>判断(J) vs 感知(P)</strong>：生活方式</li>
+                </ul>
+                <p>本测试包含60道题目，大约需要10-15分钟完成。请根据您的第一反应选择最符合您的选项。</p>
+                
+                <h3>16种性格类型简介</h3>
+                <div class="mbti-types">
+                    <div class="mbti-type">
+                        <h4>分析家类型</h4>
+                        <p><strong>INTJ</strong> - 建筑师：战略思想家，有远见</p>
+                        <p><strong>INTP</strong> - 逻辑学家：创新发明家，好奇心强</p>
+                        <p><strong>ENTJ</strong> - 指挥官：大胆果断，天生的领导者</p>
+                        <p><strong>ENTP</strong> - 辩论家：聪明好奇，思维敏捷</p>
+                    </div>
+                    <div class="mbti-type">
+                        <h4>外交家类型</h4>
+                        <p><strong>INFJ</strong> - 提倡者：安静神秘，理想主义者</p>
+                        <p><strong>INFP</strong> - 调停者：诗意善良，利他主义</p>
+                        <p><strong>ENFJ</strong> - 主人公：魅力超凡，鼓舞人心</p>
+                        <p><strong>ENFP</strong> - 竞选者：热情有创造力，社交达人</p>
+                    </div>
+                    <div class="mbti-type">
+                        <h4>守护者类型</h4>
+                        <p><strong>ISTJ</strong> - 物流师：实际务实，注重事实</p>
+                        <p><strong>ISFJ</strong> - 守卫者：温暖关怀，保护他人</p>
+                        <p><strong>ESTJ</strong> - 总经理：优秀管理者，传统可靠</p>
+                        <p><strong>ESFJ</strong> - 执政官：热心助人，社交能手</p>
+                    </div>
+                    <div class="mbti-type">
+                        <h4>探险家类型</h4>
+                        <p><strong>ISTP</strong> - 鉴赏家：大胆实际，擅长危机处理</p>
+                        <p><strong>ISFP</strong> - 探险家：灵活迷人，艺术气质</p>
+                        <p><strong>ESTP</strong> - 企业家：精力充沛，享受当下</p>
+                        <p><strong>ESFP</strong> - 表演者：自发有趣，派对灵魂</p>
+                    </div>
+                </div>
+            </div>
+            <button id="startBtn">开始测试</button>
+        </div>
+    </div>
+    <button id="submitBtn" style="display: none;">提交测试</button>
+    <div id="result" class="result"></div>
+
+    <script>
+        // 动态题库
+        const questions = [
+            {
+                id: 1,
+                text: "在聚会中，你通常：",
+                options: [
+                    { text: "与许多人交流，包括陌生人", type: "E" },
+                    { text: "只与熟悉的人交流", type: "I" }
+                ]
+            },
+            {
+                id: 2,
+                text: "你更倾向于：",
+                options: [
+                    { text: "关注现实和具体事实", type: "S" },
+                    { text: "关注可能性和整体概念", type: "N" }
+                ]
+            },
+            {
+                id: 3,
+                text: "做决定时，你更注重：",
+                options: [
+                    { text: "逻辑和客观分析", type: "T" },
+                    { text: "价值观和人际关系", type: "F" }
+                ]
+            },
+            {
+                id: 4,
+                text: "你更喜欢的生活方式是：",
+                options: [
+                    { text: "有计划、有组织", type: "J" },
+                    { text: "灵活、随性", type: "P" }
+                ]
+            },
+            {
+                id: 5,
+                text: "当你学习新东西时，你更喜欢：",
+                options: [
+                    { text: "通过实践和尝试", type: "S" },
+                    { text: "通过理论和概念", type: "N" }
+                ]
+            },
+            {
+                id: 6,
+                text: "你认为自己更多是：",
+                options: [
+                    { text: "一个现实主义者", type: "S" },
+                    { text: "一个理想主义者", type: "N" }
+                ]
+            },
+            {
+                id: 7,
+                text: "在团队中，你通常：",
+                options: [
+                    { text: "表达自己的观点", type: "E" },
+                    { text: "倾听他人的意见", type: "I" }
+                ]
+            },
+            {
+                id: 8,
+                text: "你更欣赏哪种品质：",
+                options: [
+                    { text: "坚定和决断", type: "T" },
+                    { text: "同情和理解", type: "F" }
+                ]
+            },
+            {
+                id: 9,
+                text: "你更倾向于：",
+                options: [
+                    { text: "快速做出决定", type: "J" },
+                    { text: "保持选择的开放性", type: "P" }
+                ]
+            },
+            {
+                id: 10,
+                text: "你更喜欢的工作方式是：",
+                options: [
+                    { text: "按计划逐步完成", type: "J" },
+                    { text: "灵活应对变化", type: "P" }
+                ]
+            },
+            {
+                id: 11,
+                text: "你更可能：",
+                options: [
+                    { text: "看到事物的实际样子", type: "S" },
+                    { text: "想象事物可能的样子", type: "N" }
+                ]
+            },
+            {
+                id: 12,
+                text: "你更倾向于：",
+                options: [
+                    { text: "依靠经验和传统", type: "S" },
+                    { text: "探索新的可能性", type: "N" }
+                ]
+            },
+            {
+                id: 13,
+                text: "在社交场合，你通常：",
+                options: [
+                    { text: "主动发起对话", type: "E" },
+                    { text: "等待别人先开口", type: "I" }
+                ]
+            },
+            {
+                id: 14,
+                text: "你更可能：",
+                options: [
+                    { text: "广泛交友", type: "E" },
+                    { text: "有少数亲密朋友", type: "I" }
+                ]
+            },
+            {
+                id: 15,
+                text: "你更看重：",
+                options: [
+                    { text: "公正和公平", type: "T" },
+                    { text: "和谐和善意", type: "F" }
+                ]
+            },
+            {
+                id: 16,
+                text: "你更倾向于：",
+                options: [
+                    { text: "分析问题", type: "T" },
+                    { text: "理解感受", type: "F" }
+                ]
+            },
+            {
+                id: 17,
+                text: "你更喜欢：",
+                options: [
+                    { text: "确定性和清晰度", type: "J" },
+                    { text: "灵活性和自发性", type: "P" }
+                ]
+            },
+            {
+                id: 18,
+                text: "你更可能：",
+                options: [
+                    { text: "提前计划", type: "J" },
+                    { text: "随遇而安", type: "P" }
+                ]
+            },
+            {
+                id: 19,
+                text: "你更倾向于：",
+                options: [
+                    { text: "按部就班", type: "J" },
+                    { text: "随机应变", type: "P" }
+                ]
+            },
+            {
+                id: 20,
+                text: "你更可能：",
+                options: [
+                    { text: "喜欢把事情定下来", type: "J" },
+                    { text: "喜欢保持选择的开放性", type: "P" }
+                ]
+            },
+            {
+                id: 21,
+                text: "你更倾向于：",
+                options: [
+                    { text: "关注细节和具体事实", type: "S" },
+                    { text: "关注整体和潜在含义", type: "N" }
+                ]
+            },
+            {
+                id: 22,
+                text: "在解决问题时，你更可能：",
+                options: [
+                    { text: "遵循逻辑和客观标准", type: "T" },
+                    { text: "考虑个人价值观和影响", type: "F" }
+                ]
+            },
+            {
+                id: 23,
+                text: "你更喜欢：",
+                options: [
+                    { text: "有明确目标和计划", type: "J" },
+                    { text: "保持灵活性和适应性", type: "P" }
+                ]
+            },
+            {
+                id: 24,
+                text: "在社交活动中，你通常：",
+                options: [
+                    { text: "主动参与并成为中心", type: "E" },
+                    { text: "观察并选择性参与", type: "I" }
+                ]
+            },
+            {
+                id: 25,
+                text: "你更可能：",
+                options: [
+                    { text: "相信经验和事实", type: "S" },
+                    { text: "相信直觉和灵感", type: "N" }
+                ]
+            },
+            {
+                id: 26,
+                text: "你更看重：",
+                options: [
+                    { text: "真理和正确性", type: "T" },
+                    { text: "和谐和善意", type: "F" }
+                ]
+            },
+            {
+                id: 27,
+                text: "你更倾向于：",
+                options: [
+                    { text: "提前安排时间", type: "J" },
+                    { text: "根据情况灵活安排", type: "P" }
+                ]
+            },
+            {
+                id: 28,
+                text: "你更可能：",
+                options: [
+                    { text: "喜欢明确的指示", type: "S" },
+                    { text: "喜欢开放的解释", type: "N" }
+                ]
+            },
+            {
+                id: 29,
+                text: "在决策时，你更注重：",
+                options: [
+                    { text: "客观分析和数据", type: "T" },
+                    { text: "个人价值观和感受", type: "F" }
+                ]
+            },
+            {
+                id: 30,
+                text: "你更喜欢：",
+                options: [
+                    { text: "有结构和秩序", type: "J" },
+                    { text: "自发和自由", type: "P" }
+                ]
+            },
+            {
+                id: 31,
+                text: "当学习新知识时，你更倾向于：",
+                options: [
+                    { text: "按部就班地学习", type: "S" },
+                    { text: "跳跃式地理解概念", type: "N" }
+                ]
+            },
+            {
+                id: 32,
+                text: "在团队决策中，你更注重：",
+                options: [
+                    { text: "事实和数据", type: "T" },
+                    { text: "团队和谐", type: "F" }
+                ]
+            },
+            {
+                id: 33,
+                text: "你更可能：",
+                options: [
+                    { text: "提前完成工作", type: "J" },
+                    { text: "在截止日期前冲刺", type: "P" }
+                ]
+            },
+            {
+                id: 34,
+                text: "在社交场合，你的能量通常：",
+                options: [
+                    { text: "随着互动增加", type: "E" },
+                    { text: "随着互动减少", type: "I" }
+                ]
+            },
+            {
+                id: 35,
+                text: "你更相信：",
+                options: [
+                    { text: "实际经验", type: "S" },
+                    { text: "直觉预感", type: "N" }
+                ]
+            },
+            {
+                id: 36,
+                text: "评价事物时，你更看重：",
+                options: [
+                    { text: "逻辑一致性", type: "T" },
+                    { text: "情感价值", type: "F" }
+                ]
+            },
+            {
+                id: 37,
+                text: "你更喜欢的工作环境是：",
+                options: [
+                    { text: "有计划有组织的", type: "J" },
+                    { text: "灵活多变的", type: "P" }
+                ]
+            },
+            {
+                id: 38,
+                text: "你更倾向于：",
+                options: [
+                    { text: "直接表达想法", type: "E" },
+                    { text: "深思熟虑后表达", type: "I" }
+                ]
+            },
+            {
+                id: 39,
+                text: "面对新信息，你通常：",
+                options: [
+                    { text: "关注具体细节", type: "S" },
+                    { text: "寻找整体模式", type: "N" }
+                ]
+            },
+            {
+                id: 40,
+                text: "做重要决定时，你更依赖：",
+                options: [
+                    { text: "客观分析", type: "T" },
+                    { text: "个人价值观", type: "F" }
+                ]
+            },
+            {
+                id: 41,
+                text: "你更倾向于：",
+                options: [
+                    { text: "关注当前实际情况", type: "S" },
+                    { text: "想象未来发展可能", type: "N" }
+                ]
+            },
+            {
+                id: 42,
+                text: "在评价他人时，你更注重：",
+                options: [
+                    { text: "他们的逻辑能力", type: "T" },
+                    { text: "他们的情感表达", type: "F" }
+                ]
+            },
+            {
+                id: 43,
+                text: "你更喜欢：",
+                options: [
+                    { text: "按计划行事", type: "J" },
+                    { text: "根据情况调整", type: "P" }
+                ]
+            },
+            {
+                id: 44,
+                text: "在社交互动中，你通常：",
+                options: [
+                    { text: "主动发起话题", type: "E" },
+                    { text: "等待他人发起", type: "I" }
+                ]
+            },
+            {
+                id: 45,
+                text: "你更相信：",
+                options: [
+                    { text: "实际观察到的", type: "S" },
+                    { text: "直觉感受到的", type: "N" }
+                ]
+            },
+            {
+                id: 46,
+                text: "在团队中，你更可能：",
+                options: [
+                    { text: "指出逻辑漏洞", type: "T" },
+                    { text: "维护团队和谐", type: "F" }
+                ]
+            },
+            {
+                id: 47,
+                text: "你更倾向于：",
+                options: [
+                    { text: "明确的目标和期限", type: "J" },
+                    { text: "灵活的时间安排", type: "P" }
+                ]
+            },
+            {
+                id: 48,
+                text: "在表达观点时，你通常：",
+                options: [
+                    { text: "直接坦率", type: "E" },
+                    { text: "谨慎斟酌", type: "I" }
+                ]
+            },
+            {
+                id: 49,
+                text: "处理信息时，你更注重：",
+                options: [
+                    { text: "具体细节", type: "S" },
+                    { text: "整体概念", type: "N" }
+                ]
+            },
+            {
+                id: 50,
+                text: "做决定时，你更可能：",
+                options: [
+                    { text: "分析利弊", type: "T" },
+                    { text: "考虑感受", type: "F" }
+                ]
+            },
+            {
+                id: 51,
+                text: "你更喜欢的工作方式是：",
+                options: [
+                    { text: "有明确步骤", type: "J" },
+                    { text: "自由发挥", type: "P" }
+                ]
+            },
+            {
+                id: 52,
+                text: "在社交场合，你通常：",
+                options: [
+                    { text: "认识很多人", type: "E" },
+                    { text: "深入交流少数人", type: "I" }
+                ]
+            },
+            {
+                id: 53,
+                text: "你更倾向于：",
+                options: [
+                    { text: "使用已有方法", type: "S" },
+                    { text: "尝试新方法", type: "N" }
+                ]
+            },
+            {
+                id: 54,
+                text: "评价事物时，你更看重：",
+                options: [
+                    { text: "客观标准", type: "T" },
+                    { text: "主观价值", type: "F" }
+                ]
+            },
+            {
+                id: 55,
+                text: "你更喜欢：",
+                options: [
+                    { text: "提前规划假期", type: "J" },
+                    { text: "临时决定行程", type: "P" }
+                ]
+            },
+            {
+                id: 56,
+                text: "在交流中，你通常：",
+                options: [
+                    { text: "主动发言", type: "E" },
+                    { text: "先倾听", type: "I" }
+                ]
+            },
+            {
+                id: 57,
+                text: "你更可能：",
+                options: [
+                    { text: "关注现实细节", type: "S" },
+                    { text: "关注潜在意义", type: "N" }
+                ]
+            },
+            {
+                id: 58,
+                text: "在决策过程中，你更注重：",
+                options: [
+                    { text: "事实和数据", type: "T" },
+                    { text: "人际关系影响", type: "F" }
+                ]
+            },
+            {
+                id: 59,
+                text: "你更喜欢：",
+                options: [
+                    { text: "有明确目标", type: "J" },
+                    { text: "保持选择开放", type: "P" }
+                ]
+            },
+            {
+                id: 60,
+                text: "在社交活动中，你的能量：",
+                options: [
+                    { text: "来自与他人互动", type: "E" },
+                    { text: "来自独处时间", type: "I" }
+                ]
+            }
+        ];
+
+        // 当前题目索引
+        let currentQuestionIndex = 0;
+        
+        // 开始测试
+        document.getElementById('startBtn').addEventListener('click', () => {
+            document.getElementById('startContainer').style.display = 'none';
+            document.getElementById('questionContainer').style.display = 'block';
+            showQuestion(currentQuestionIndex);
+        });
+        
+        // 创建答题卡
+        function createAnswerSheet() {
+            const answerSheet = document.createElement('div');
+            answerSheet.className = 'answer-sheet';
+            answerSheet.innerHTML = '<h3>答题卡</h3>';
+            
+            questions.forEach((q, index) => {
+                const questionBtn = document.createElement('button');
+                questionBtn.textContent = `题目 ${index + 1}`;
+                questionBtn.className = 'answer-sheet-btn';
+                questionBtn.addEventListener('click', () => {
+                    currentQuestionIndex = index;
+                    showQuestion(currentQuestionIndex);
+                    document.querySelector('.answer-sheet').remove();
+                });
+                answerSheet.appendChild(questionBtn);
+            });
+            
+            return answerSheet;
+        }
+        
+        // 显示答题卡
+        function showAnswerSheet() {
+            const answerSheet = createAnswerSheet();
+            document.getElementById('questionContainer').appendChild(answerSheet);
+        }
+        
+        // 显示题目
+        function showQuestion(index) {
+            const question = questions[index];
+            const questionDiv = document.getElementById('currentQuestion');
+            
+            // 更新进度条
+            const progressPercent = ((index + 1) / questions.length) * 100;
+            document.querySelector('.progress-bar').style.width = `${progressPercent}%`;
+            
+            // 动画效果
+            questionDiv.style.animation = 'none';
+            setTimeout(() => {
+                questionDiv.style.animation = 'fadeIn 0.5s ease';
+            }, 10);
+            
+            questionDiv.innerHTML = `
+                    <p>${question.id}. ${question.text}</p>
+                    <div class="options">
+                        ${question.options.map(option => 
+                            `<div class="option">
+                                <input type="radio" name="q${question.id}" value="${option.type}" id="q${question.id}_${option.type}">
+                                <label for="q${question.id}_${option.type}">${option.text}</label>
+                            </div>`
+                        ).join('')}
+                    </div>
+                    <p>进度: ${index + 1}/${questions.length}</p>
+                `;
+            
+            // 如果是最后一题，显示提交按钮
+            if (index === questions.length - 1) {
+                document.getElementById('nextBtn').textContent = '提交';
+                document.getElementById('submitBtn').style.display = 'block';
+            } else {
+                document.getElementById('nextBtn').textContent = '下一题';
+                document.getElementById('submitBtn').style.display = 'none';
+            }
+        }
+        
+        // 答题卡按钮事件
+        document.getElementById('showAnswerSheetBtn').addEventListener('click', showAnswerSheet);
+        
+        // 下一题
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            const currentQuestion = questions[currentQuestionIndex];
+            const selectedOption = document.querySelector(`input[name="q${currentQuestion.id}"]:checked`);
+            
+            if (!selectedOption) {
+                alert('请先选择当前题目的答案');
+                return;
+            }
+            
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion(currentQuestionIndex);
+            }
+        });
+
+        // 检查是否所有题目已回答
+        function allQuestionsAnswered() {
+            return questions.every(q => {
+                return document.querySelector(`input[name="q${q.id}"]:checked`);
+            });
+        }
+        
+        // 提交测试
+        document.getElementById('submitBtn').addEventListener('click', () => {
+            if (!allQuestionsAnswered()) {
+                alert('请回答所有题目后再提交测试');
+                return;
+            }
+            const results = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+            
+            // 计算每种类型的得分
+            questions.forEach(question => {
+                const selectedOption = document.querySelector(`input[name="q${question.id}"]:checked`);
+                if (selectedOption) {
+                    results[selectedOption.value]++;
+                }
+            });
+            
+            // 确定MBTI类型
+            const mbtiType = 
+                (results.E > results.I ? 'E' : 'I') +
+                (results.S > results.N ? 'S' : 'N') +
+                (results.T > results.F ? 'T' : 'F') +
+                (results.J > results.P ? 'J' : 'P');
+            
+            // 显示结果
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            
+            // 性格报告
+            const reports = {
+                "ISTJ": "您是一个实际、务实的人，注重事实和细节。您可靠、负责任，喜欢按计划行事。",
+                "ISFJ": "您是一个温暖、关心他人的人，注重和谐与稳定。您忠诚、勤奋，喜欢帮助他人。",
+                "INFJ": "您是一个富有洞察力、理想主义的人，关注他人的成长。您有远见，追求意义和深度。",
+                "INTJ": "您是一个独立思考、战略性强的人，注重逻辑和效率。您有远见，喜欢解决复杂问题。",
+                "ISTP": "您是一个灵活、务实的人，喜欢动手解决问题。您冷静、理性，善于应对危机。",
+                "ISFP": "您是一个温和、敏感的人，注重当下的体验。您随和、艺术，重视个人价值观。",
+                "INFP": "您是一个理想主义、富有同情心的人，关注个人成长。您有创造力，追求真实和和谐。",
+                "INTP": "您是一个逻辑性强、好奇心重的人，喜欢分析理论。您独立思考，追求知识和理解。",
+                "ESTP": "您是一个精力充沛、适应力强的人，喜欢行动和冒险。您实际、灵活，善于解决问题。",
+                "ESFP": "您是一个热情、外向的人，喜欢与他人互动。您乐观、随和，享受当下的乐趣。",
+                "ENFP": "您是一个充满热情、创造力强的人，喜欢探索可能性。您乐观、有魅力，激励他人。",
+                "ENTP": "您是一个聪明、机智的人，喜欢智力挑战。您创新、灵活，善于看到多种可能性。",
+                "ESTJ": "您是一个实际、组织能力强的人，注重效率和结果。您直接、负责，喜欢建立秩序。",
+                "ESFJ": "您是一个热心、关心他人的人，注重和谐与合作。您负责、友好，喜欢帮助他人。",
+                "ENFJ": "您是一个有魅力、善于沟通的人，关注他人的成长。您热情、有说服力，善于激励他人。",
+                "ENTJ": "您是一个果断、领导力强的人，注重战略和效率。您自信、直接，善于组织和管理。"
+            };
+            
+            resultDiv.innerHTML = `
+                <h2>您的MBTI类型是: ${mbtiType}</h2>
+                <div class="report">
+                    <h3>性格报告</h3>
+                    <p>${reports[mbtiType] || '无法确定您的具体性格类型，请确保回答了所有问题。'}</p>
+                    <h3>详细分析</h3>
+                    <p>${getDetailedReport(mbtiType)}</p>
+                </div>
+            `;
+        });
+        
+        // 生成详细报告
+        function getDetailedReport(type) {
+            // 这里可以添加更详细的性格分析
+            return `作为${type}类型的人，您在某些方面表现出色...（此处省略详细分析内容）`;
+        }
+    </script>
+</body>
+</html>

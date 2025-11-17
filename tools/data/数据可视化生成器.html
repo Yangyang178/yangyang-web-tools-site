@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据可视化快捷生成器</title>
+    <script src="../vendor/chartjs/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            height: fit-content;
+        }
+
+        .step {
+            margin-bottom: 25px;
+        }
+
+        .step-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .step-number {
+            background: #4facfe;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .chart-types {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .chart-type {
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .chart-type:hover {
+            border-color: #4facfe;
+            transform: translateY(-2px);
+        }
+
+        .chart-type.active {
+            border-color: #4facfe;
+            background: #4facfe;
+            color: white;
+        }
+
+        .chart-type-icon {
+            font-size: 2em;
+            margin-bottom: 8px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            position: relative;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .placeholder {
+            text-align: center;
+            color: #6c757d;
+            font-size: 1.2em;
+        }
+
+        .placeholder-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .sample-data {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #1976d2;
+        }
+
+        .sample-data strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-types {
+                grid-template-columns: 1fr;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .buttons {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            button {
+                padding: 12px;
+                font-size: 14px;
+            }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 数据可视化生成器</h1>
+            <p>三步操作，快速生成专业图表</p>
+        </div>
+
+        <div class="main-content">
+            <div class="controls">
+                <div class="step">
+                    <div class="step-title">
+                        <span class="step-number">1</span>
+                        输入数据
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: flex-start;">
+                        <textarea id="dataInput" placeholder="请输入CSV格式数据，例如：
+标签1,数值1
+标签2,数值2
+标签3,数值3
+
+或者粘贴您的CSV数据..." style="flex: 1; height: 150px;"></textarea>
+                        <button onclick="clearData()" style="padding: 6px 12px; background-color: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; height: fit-content; font-size: 12px; font-weight: 500; transition: all 0.3s; min-width: 50px;">清除</button>
+                    </div>
+                    <div class="sample-data">
+                        <strong>示例数据：</strong>
+                        苹果,30<br>
+                        香蕉,25<br>
+                        橙子,20<br>
+                        葡萄,15
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-title">
+                        <span class="step-number">2</span>
+                        选择图表类型
+                    </div>
+                    <div class="chart-types">
+                        <div class="chart-type active" data-type="bar">
+                            <div class="chart-type-icon">📊</div>
+                            <div>柱状图</div>
+                        </div>
+                        <div class="chart-type" data-type="pie">
+                            <div class="chart-type-icon">🥧</div>
+                            <div>饼图</div>
+                        </div>
+                        <div class="chart-type" data-type="line">
+                            <div class="chart-type-icon">📈</div>
+                            <div>折线图</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-title">
+                        <span class="step-number">3</span>
+                        生成与导出
+                    </div>
+                    <div class="buttons">
+                        <button class="btn-primary" onclick="generateChart()">生成图表</button>
+                        <button class="btn-secondary" onclick="exportChart()">导出图片</button>
+                        <button class="btn-danger" onclick="clearChart()">清除图表</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <div class="placeholder" id="placeholder">
+                        <div class="placeholder-icon">📊</div>
+                        <div>请输入数据并选择图表类型</div>
+                        <div style="font-size: 0.9em; margin-top: 10px; opacity: 0.7;">
+                            点击"生成图表"按钮开始可视化
+                        </div>
+                    </div>
+                    <canvas id="chartCanvas" style="display: none;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let currentChart = null;
+        let selectedChartType = 'bar';
+
+        // 图表类型选择
+        document.querySelectorAll('.chart-type').forEach(type => {
+            type.addEventListener('click', function() {
+                document.querySelectorAll('.chart-type').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                selectedChartType = this.dataset.type;
+            });
+        });
+
+        // 解析CSV数据
+        function parseCSVData(csvText) {
+            const lines = csvText.trim().split('\n');
+            const labels = [];
+            const data = [];
+            
+            lines.forEach(line => {
+                const [label, value] = line.split(',').map(item => item.trim());
+                if (label && value && !isNaN(parseFloat(value))) {
+                    labels.push(label);
+                    data.push(parseFloat(value));
+                }
+            });
+            
+            return { labels, data };
+        }
+
+        // 生成随机颜色
+        function generateColors(count) {
+            const colors = [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
+                '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
+                '#4BC0C0', '#FF6384', '#36A2EB', '#FFCE56'
+            ];
+            
+            return Array.from({length: count}, (_, i) => colors[i % colors.length]);
+        }
+
+        // 生成图表
+        function generateChart() {
+            console.log('开始生成图表...');
+            const csvData = document.getElementById('dataInput').value.trim();
+            console.log('输入数据:', csvData);
+            
+            if (!csvData) {
+                showToast('请先输入数据！', 'error');
+                return;
+            }
+
+            const { labels, data } = parseCSVData(csvData);
+            console.log('解析后的标签:', labels);
+            console.log('解析后的数据:', data);
+            
+            if (labels.length === 0 || data.length === 0) {
+                showToast('数据格式不正确，请检查CSV格式！', 'error');
+                return;
+            }
+
+            // 销毁现有图表
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            // 检查Chart.js是否加载
+            if (typeof Chart === 'undefined') {
+                showToast('Chart.js库未正确加载，请检查网络连接！', 'error');
+                console.error('Chart.js库未加载');
+                return;
+            }
+
+            // 隐藏占位符，显示画布
+            document.getElementById('placeholder').style.display = 'none';
+            const canvas = document.getElementById('chartCanvas');
+            canvas.style.display = 'block';
+
+            const ctx = canvas.getContext('2d');
+            const colors = generateColors(data.length);
+            console.log('生成的颜色:', colors);
+
+            let chartConfig = {
+                type: selectedChartType,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '数据',
+                        data: data,
+                        backgroundColor: selectedChartType === 'pie' ? colors : colors[0],
+                        borderColor: selectedChartType === 'pie' ? colors.map(c => c) : colors[0],
+                        borderWidth: selectedChartType === 'line' ? 3 : 1,
+                        fill: selectedChartType === 'line' ? false : true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: selectedChartType === 'pie',
+                            position: 'right'
+                        },
+                        title: {
+                            display: true,
+                            text: '数据可视化图表',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: selectedChartType !== 'pie' ? {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        }
+                    } : {}
+                }
+            };
+
+            // 折线图特殊配置
+            if (selectedChartType === 'line') {
+                chartConfig.data.datasets[0].tension = 0.4;
+                chartConfig.data.datasets[0].pointBackgroundColor = colors[0];
+                chartConfig.data.datasets[0].pointBorderColor = '#fff';
+                chartConfig.data.datasets[0].pointBorderWidth = 2;
+                chartConfig.data.datasets[0].pointRadius = 6;
+            }
+
+            try {
+                currentChart = new Chart(ctx, chartConfig);
+                console.log('图表创建成功:', currentChart);
+                showToast('图表生成成功！', 'success');
+            } catch (error) {
+                console.error('创建图表时出错:', error);
+                showToast('创建图表失败: ' + error.message, 'error');
+            }
+        }
+
+        // 导出图表为图片
+        function exportChart() {
+            if (!currentChart) {
+                showToast('请先生成图表！', 'error');
+                return;
+            }
+
+            const canvas = document.getElementById('chartCanvas');
+            const url = canvas.toDataURL('image/png');
+            
+            const link = document.createElement('a');
+            link.download = `数据可视化图表_${new Date().getTime()}.png`;
+            link.href = url;
+            link.click();
+            
+            showToast('图表导出成功！', 'success');
+        }
+
+        // 清除数据
+        function clearData() {
+            document.getElementById('dataInput').value = '';
+            showToast('数据已清除！', 'success');
+        }
+
+        // 清除图表
+        function clearChart() {
+            if (currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+            
+            // 隐藏画布，显示占位符
+            document.getElementById('chartCanvas').style.display = 'none';
+            document.getElementById('placeholder').style.display = 'flex';
+            
+            showToast('图表已清除！', 'success');
+        }
+
+        // 显示提示消息
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = type === 'success' ? '#28a745' : '#dc3545';
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // 示例数据填充
+        document.addEventListener('DOMContentLoaded', function() {
+            const sampleData = `苹果,30
+香蕉,25
+橙子,20
+葡萄,15`;
+            
+            // 可以取消注释下面这行来自动填充示例数据
+            // document.getElementById('dataInput').value = sampleData;
+        });
+
+        // 键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                generateChart();
+            }
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                exportChart();
+            }
+        });
+    </script>
+</body>
+</html>

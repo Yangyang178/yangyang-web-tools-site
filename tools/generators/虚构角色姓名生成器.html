@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>虚构角色姓名生成器</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e0e9ff 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            background: linear-gradient(145deg, #ffffff, #f0f4ff);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(98, 114, 164, 0.15);
+            border: 1px solid rgba(98, 114, 164, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, button {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #f8f9fa;
+            color: #495057;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        select:hover, button:hover {
+            border-color: #adb5bd;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        select:focus, button:focus {
+            outline: none;
+            border-color: #6c757d;
+            box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.25);
+        }
+        button {
+            padding: 12px 24px;
+            margin: 15px 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px 0 rgba(255, 154, 158, 0.7);
+        }
+        button:active {
+            transform: translateY(1px);
+        }
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        button:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        .result {
+            margin: 30px auto;
+            padding: 25px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 30px rgba(102, 126, 234, 0.15);
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: #4a5568;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease-out;
+        }
+        .result.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .loading {
+            display: none;
+            margin: 20px auto;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #ff9a9e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>虚构角色姓名生成器</h1>
+        
+        <div class="form-group">
+            <label for="gender">性别</label>
+            <select id="gender">
+                <option value="male">男性</option>
+                <option value="female">女性</option>
+                <option value="neutral">中性</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="culture">文化背景</label>
+            <select id="culture">
+                <option value="chinese">中文</option>
+                <option value="english">英文</option>
+                <option value="japanese">日文</option>
+                <option value="fantasy">奇幻风格</option>
+                <option value="scifi">科幻风格</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="length">名字长度</label>
+            <select id="length">
+                <option value="short">短 (1-2字/词)</option>
+                <option value="medium">中 (2-3字/词)</option>
+                <option value="long">长 (3-4字/词)</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="style">名字风格</label>
+            <select id="style">
+                <option value="common">常见</option>
+                <option value="unique">独特</option>
+                <option value="exotic">异域风情</option>
+                <option value="ancient">古典</option>
+            </select>
+        </div>
+        
+        <button onclick="generateName()">生成姓名</button>
+        <button onclick="clearResult()" style="background-color: #f44336; margin-left: 10px;">清除</button>
+        
+        <div id="loading" class="loading"></div>
+        <div class="result" id="result">点击上方按钮生成姓名</div>
+    </div>
+    
+    <script>
+          // 新颖独特的中文名字数据库
+        const nameDatabase = {
+            male: {
+                chinese: {
+                    short: ['墨白', '云舟', '星野', '景行', '清川'],
+                    medium: ['慕容白', '南宫羽', '西门雪', '东方曜', '百里玄'],
+                    long: ['慕容云海', '南宫问天', '西门吹雪', '东方不败', '百里屠苏']
+                },
+                english: {
+                    short: ['James', 'John', 'Robert', 'Michael', 'William'],
+                    medium: ['Jameson', 'Jonathan', 'Robertson', 'Michaelson', 'Williamson'],
+                    long: ['Jameson Smith', 'Jonathan Brown', 'Robertson Lee', 'Michaelson White', 'Williamson Black']
+                },
+                japanese: {
+                    short: ['田中', '佐藤', '铃木', '高桥', '渡边'],
+                    medium: ['田中健', '佐藤勇', '铃木刚', '高桥毅', '渡边强'],
+                    long: ['田中健太郎', '佐藤勇次郎', '铃木刚正', '高桥毅雄', '渡边强志']
+                },
+                fantasy: {
+                    short: ['Aragorn', 'Gandalf', 'Legolas', 'Boromir', 'Frodo'],
+                    medium: ['Aragorn II', 'Gandalf Grey', 'Legolas Green', 'Boromir White', 'Frodo Baggins'],
+                    long: ['Aragorn II Elessar', 'Gandalf the Grey', 'Legolas Greenleaf', 'Boromir of Gondor', 'Frodo Baggins Jr']
+                },
+                scifi: {
+                    short: ['Neo', 'Spock', 'Kirk', 'Skywalker', 'Stark'],
+                    medium: ['Neo Smith', 'Spock Vulcan', 'Kirk James', 'Skywalker Luke', 'Stark Tony'],
+                    long: ['Neo The One', 'Spock of Vulcan', 'Kirk James T', 'Skywalker Luke S', 'Stark Tony R']
+                }
+            },
+            female: {
+                chinese: {
+                    short: ['林夕', '苏沐', '楚瑶', '顾倾', '白芷'],
+                    medium: ['林婉儿', '苏清瑶', '柳若烟', '楚灵犀', '顾倾颜'],
+                    long: ['慕容紫嫣', '南宫琉璃', '西门飞雪', '东方明珠', '百里红妆']
+                },
+                english: {
+                    short: ['Mary', 'Patricia', 'Jennifer', 'Linda', 'Elizabeth'],
+                    medium: ['Mary Ann', 'Patricia Lee', 'Jennifer Rose', 'Linda May', 'Elizabeth Grace'],
+                    long: ['Mary Ann Smith', 'Patricia Lee Brown', 'Jennifer Rose White', 'Linda May Green', 'Elizabeth Grace Black']
+                },
+                japanese: {
+                    short: ['佐藤', '铃木', '高桥', '田中', '渡边'],
+                    medium: ['佐藤美', '铃木香', '高桥丽', '田中雅', '渡边惠'],
+                    long: ['佐藤美咲', '铃木香织', '高桥丽子', '田中雅子', '渡边惠美']
+                },
+                fantasy: {
+                    short: ['Arwen', 'Galadriel', 'Eowyn', 'Ciri', 'Yennefer'],
+                    medium: ['Arwen Even', 'Galadriel Lady', 'Eowyn Shield', 'Ciri of Cintra', 'Yennefer Veng'],
+                    long: ['Arwen Evenstar', 'Galadriel Lady Light', 'Eowyn Shieldmaiden', 'Ciri of Cintra R', 'Yennefer Vengerberg']
+                },
+                scifi: {
+                    short: ['Leia', 'Ripley', 'Trinity', 'Uhura', 'Seven'],
+                    medium: ['Leia Organa', 'Ripley Ellen', 'Trinity Neo', 'Uhura Nyota', 'Seven Nine'],
+                    long: ['Leia Organa Solo', 'Ripley Ellen L', 'Trinity Neo Love', 'Uhura Nyota S', 'Seven of Nine']
+                }
+            },
+            neutral: {
+                chinese: {
+                    short: ['王平', '李华', '张明', '刘伟', '陈杰'],
+                    medium: ['王平安', '李华强', '张明辉', '刘伟杰', '陈杰明'],
+                    long: ['王平安康', '李华强盛', '张明辉煌', '刘伟杰明', '陈杰明智']
+                },
+                english: {
+                    short: ['Alex', 'Taylor', 'Jordan', 'Casey', 'Jamie'],
+                    medium: ['Alex Sam', 'Taylor Lee', 'Jordan Ray', 'Casey Kim', 'Jamie Lynn'],
+                    long: ['Alex Sam Smith', 'Taylor Lee Brown', 'Jordan Ray White', 'Casey Kim Green', 'Jamie Lynn Black']
+                },
+                japanese: {
+                    short: ['佐藤', '铃木', '高桥', '田中', '渡边'],
+                    medium: ['佐藤健', '铃木勇', '高桥刚', '田中毅', '渡边强'],
+                    long: ['佐藤健太郎', '铃木勇次郎', '高桥刚正', '田中毅雄', '渡边强志']
+                },
+                fantasy: {
+                    short: ['Bilbo', 'Samwise', 'Merry', 'Pippin', 'Gimli'],
+                    medium: ['Bilbo Baggins', 'Samwise Gamgee', 'Merry Brandy', 'Pippin Took', 'Gimli Gloin'],
+                    long: ['Bilbo Baggins Jr', 'Samwise Gamgee Sr', 'Merry Brandybuck', 'Pippin Took Jr', 'Gimli Gloin Son']
+                },
+                scifi: {
+                    short: ['Data', 'River', 'Morpheus', 'Trinity', 'Neo'],
+                    medium: ['Data Soong', 'River Song', 'Morpheus One', 'Trinity Neo', 'Neo Anderson'],
+                    long: ['Data Soong B4', 'River Song Melody', 'Morpheus One True', 'Trinity Neo Love', 'Neo Anderson The']
+                }
+            }
+        };
+        
+        const styleModifiers = {
+            common: ['', '', '', '', ''],
+            unique: ['X', 'Z', 'Q', 'V', 'Y'],
+            exotic: ['-', '"', '\'', '~', '^'],
+            ancient: ['Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ']
+        };
+        
+        function generateName() {
+            const resultElement = document.getElementById('result');
+            const loadingElement = document.getElementById('loading');
+            
+            resultElement.classList.remove('show');
+            loadingElement.style.display = 'block';
+            
+            setTimeout(() => {
+                const gender = document.getElementById('gender').value;
+                const culture = document.getElementById('culture').value;
+                const length = document.getElementById('length').value;
+                const style = document.getElementById('style').value;
+                
+                const names = nameDatabase[gender][culture][length];
+                const randomIndex = Math.floor(Math.random() * names.length);
+                
+                let name = names[randomIndex];
+                
+                // Apply style modifier
+                const modifier = styleModifiers[style][Math.floor(Math.random() * styleModifiers[style].length)];
+                if (style === 'unique' || style === 'exotic') {
+                    name = modifier + name;
+                } else if (style === 'ancient') {
+                    name = name + ' ' + modifier;
+                }
+                
+                loadingElement.style.display = 'none';
+                resultElement.textContent = name;
+                resultElement.classList.add('show');
+            }, 800);
+        }
+        
+        function clearResult() {
+            document.getElementById('result').textContent = '';
+        }
+    </script>
+</body>
+</html>

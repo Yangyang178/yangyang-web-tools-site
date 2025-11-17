@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git命令生成器</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        h1 {
+            color: var(--secondary);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin-top: 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent);
+        }
+        
+        .command-section {
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .command-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .command-section div {
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        input[type="checkbox"] {
+            margin-right: 0.8rem;
+            transform: scale(1.3);
+        }
+        
+        input[type="text"] {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex-grow: 1;
+            margin-left: 1rem;
+            transition: border 0.3s ease;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(72, 149, 239, 0.2);
+        }
+        
+        .command-result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: var(--dark);
+            color: #0f0;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            font-size: 1.1rem;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin: 2rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <h1>Git命令生成器</h1>
+    
+    <div class="command-section">
+        <h2>基本操作</h2>
+        <div>
+            <input type="checkbox" id="init" name="init">
+            <label for="init">初始化仓库</label>
+        </div>
+        <div>
+            <input type="checkbox" id="clone" name="clone">
+            <label for="clone">克隆仓库</label>
+            <input type="text" id="clone-url" placeholder="仓库URL" style="margin-left: 10px;">
+        </div>
+    </div>
+    
+    <div class="command-section">
+        <h2>提交操作</h2>
+        <div>
+            <input type="checkbox" id="add-all" name="add-all">
+            <label for="add-all">添加所有更改</label>
+        </div>
+        <div>
+            <input type="checkbox" id="add-specific" name="add-specific">
+            <label for="add-specific">添加特定文件</label>
+            <input type="text" id="add-files" placeholder="文件路径" style="margin-left: 10px;">
+        </div>
+        <div>
+            <input type="checkbox" id="commit" name="commit">
+            <label for="commit">提交更改</label>
+            <input type="text" id="commit-message" placeholder="提交信息" style="margin-left: 10px;">
+        </div>
+    </div>
+    
+    <div class="command-section">
+        <h2>分支操作</h2>
+        <div>
+            <input type="checkbox" id="branch-create" name="branch-create">
+            <label for="branch-create">创建分支</label>
+            <input type="text" id="new-branch" placeholder="分支名" style="margin-left: 10px;">
+        </div>
+        <div>
+            <input type="checkbox" id="branch-switch" name="branch-switch">
+            <label for="branch-switch">切换分支</label>
+            <input type="text" id="switch-branch" placeholder="分支名" style="margin-left: 10px;">
+        </div>
+        <div>
+            <input type="checkbox" id="merge" name="merge">
+            <label for="merge">合并分支</label>
+            <input type="text" id="merge-branch" placeholder="要合并的分支" style="margin-left: 10px;">
+        </div>
+    </div>
+    
+    <div class="command-section">
+        <h2>远程操作</h2>
+        <div>
+            <input type="checkbox" id="push" name="push">
+            <label for="push">推送更改</label>
+            <input type="text" id="push-branch" placeholder="分支名(默认当前分支)" style="margin-left: 10px;">
+        </div>
+        <div>
+            <input type="checkbox" id="pull" name="pull">
+            <label for="pull">拉取更改</label>
+        </div>
+        <div>
+            <input type="checkbox" id="remote-add" name="remote-add">
+            <label for="remote-add">添加远程仓库</label>
+            <input type="text" id="remote-name" placeholder="远程名称" style="margin-left: 10px;">
+            <input type="text" id="remote-url" placeholder="远程URL" style="margin-left: 10px;">
+        </div>
+    </div>
+    
+    <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+        <button onclick="generateCommand()" style="flex: 1;">生成命令</button>
+        <button onclick="clearAll()" style="flex: 1; background: linear-gradient(to right, #ff4d4d, #f95738);">清除全部</button>
+    </div>
+    
+    <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+        <button onclick="clearSection('basic')" style="flex: 1; background: #f95738;">清除基本操作</button>
+        <button onclick="clearSection('commit')" style="flex: 1; background: #f95738;">清除提交操作</button>
+        <button onclick="clearSection('branch')" style="flex: 1; background: #f95738;">清除分支操作</button>
+        <button onclick="clearSection('remote')" style="flex: 1; background: #f95738;">清除远程操作</button>
+    </div>
+    
+    <div class="command-result" id="command-result">
+        生成的Git命令将显示在这里
+    </div>
+    
+    <script>
+        function clearSection(section) {
+            if (section === 'basic') {
+                document.getElementById('init').checked = false;
+                document.getElementById('clone').checked = false;
+                document.getElementById('clone-url').value = '';
+            } else if (section === 'commit') {
+                document.getElementById('add-all').checked = false;
+                document.getElementById('add-specific').checked = false;
+                document.getElementById('add-files').value = '';
+                document.getElementById('commit').checked = false;
+                document.getElementById('commit-message').value = '';
+            } else if (section === 'branch') {
+                document.getElementById('branch-create').checked = false;
+                document.getElementById('new-branch').value = '';
+                document.getElementById('branch-switch').checked = false;
+                document.getElementById('switch-branch').value = '';
+                document.getElementById('merge').checked = false;
+                document.getElementById('merge-branch').value = '';
+            } else if (section === 'remote') {
+                document.getElementById('push').checked = false;
+                document.getElementById('push-branch').value = '';
+                document.getElementById('pull').checked = false;
+                document.getElementById('remote-add').checked = false;
+                document.getElementById('remote-name').value = '';
+                document.getElementById('remote-url').value = '';
+            }
+        }
+
+        function clearAll() {
+            clearSection('basic');
+            clearSection('commit');
+            clearSection('branch');
+            clearSection('remote');
+            document.getElementById('command-result').textContent = '生成的Git命令将显示在这里';
+        }
+
+        function generateCommand() {
+            let command = 'git ';
+            
+            // 基本操作
+            if (document.getElementById('init').checked) {
+                command += 'init';
+            }
+            
+            if (document.getElementById('clone').checked) {
+                const url = document.getElementById('clone-url').value;
+                if (url) {
+                    command += ` clone ${url}`;
+                } else {
+                    command += ' clone <仓库URL>';
+                }
+            }
+            
+            // 提交操作
+            if (document.getElementById('add-all').checked) {
+                command += ' add .';
+            }
+            
+            if (document.getElementById('add-specific').checked) {
+                const files = document.getElementById('add-files').value;
+                if (files) {
+                    command += ` add ${files}`;
+                } else {
+                    command += ' add <文件路径>';
+                }
+            }
+            
+            if (document.getElementById('commit').checked) {
+                const message = document.getElementById('commit-message').value;
+                if (message) {
+                    command += ` commit -m "${message}"`;
+                } else {
+                    command += ' commit -m "<提交信息>"';
+                }
+            }
+            
+            // 分支操作
+            if (document.getElementById('branch-create').checked) {
+                const branch = document.getElementById('new-branch').value;
+                if (branch) {
+                    command += ` branch ${branch}`;
+                } else {
+                    command += ' branch <分支名>';
+                }
+            }
+            
+            if (document.getElementById('branch-switch').checked) {
+                const branch = document.getElementById('switch-branch').value;
+                if (branch) {
+                    command += ` checkout ${branch}`;
+                } else {
+                    command += ' checkout <分支名>';
+                }
+            }
+            
+            if (document.getElementById('merge').checked) {
+                const branch = document.getElementById('merge-branch').value;
+                if (branch) {
+                    command += ` merge ${branch}`;
+                } else {
+                    command += ' merge <要合并的分支>';
+                }
+            }
+            
+            // 远程操作
+            if (document.getElementById('push').checked) {
+                const branch = document.getElementById('push-branch').value;
+                if (branch) {
+                    command += ` push origin ${branch}`;
+                } else {
+                    command += ' push origin <分支名>';
+                }
+            }
+            
+            if (document.getElementById('pull').checked) {
+                command += ' pull';
+            }
+            
+            if (document.getElementById('remote-add').checked) {
+                const name = document.getElementById('remote-name').value;
+                const url = document.getElementById('remote-url').value;
+                if (name && url) {
+                    command += ` remote add ${name} ${url}`;
+                } else {
+                    command += ' remote add <远程名称> <远程URL>';
+                }
+            }
+            
+            document.getElementById('command-result').textContent = command;
+        }
+    </script>
+</body>
+</html>

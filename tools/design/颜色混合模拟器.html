@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>颜色混合模拟器</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+            --secondary-gradient: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+            --accent-gradient: linear-gradient(135deg, #00c9ff 0%, #92fe9d 100%);
+            --text-color: #333;
+            --text-color-light: #333;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background: var(--primary-gradient);
+            color: var(--text-color);
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--text-color);
+            margin-top: 0;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            background: var(--secondary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .color-picker {
+            margin: 20px 0;
+            animation: slideIn 0.6s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .color-picker:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .color-picker label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--text-color);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .color-picker input {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .color-picker input:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .result {
+            margin: 30px 0;
+            text-align: center;
+            animation: zoomIn 0.8s ease-out;
+        }
+        
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .result-color {
+            width: 100%;
+            height: 120px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .result-color::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+        }
+        
+        .result-color:hover::before {
+            transform: rotate(45deg) translate(20%, 20%);
+        }
+        
+        .result-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--text-color);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .blend-button {
+            background: var(--accent-gradient);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: block;
+            margin: 25px auto;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .blend-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        .blend-button:active {
+            transform: translateY(-1px);
+        }
+        
+        .blend-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: all 0.6s ease;
+        }
+        
+        .blend-button:hover::before {
+            left: 100%;
+        }
+        
+        .color-preview {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+        
+        .preview-box {
+            width: 45%;
+            height: 80px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .preview-box:hover {
+            transform: scale(1.05);
+        }
+        
+        .preview-label {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 颜色混合模拟器</h1>
+        
+        <div class="color-preview">
+            <div class="preview-box" id="preview1">
+                <div class="preview-label">颜色 1</div>
+            </div>
+            <div class="preview-box" id="preview2">
+                <div class="preview-label">颜色 2</div>
+            </div>
+        </div>
+        
+        <div class="color-picker">
+            <label for="color1">颜色 1:</label>
+            <input type="color" id="color1" value="#ff0000">
+        </div>
+        <div class="color-picker">
+            <label for="color2">颜色 2:</label>
+            <input type="color" id="color2" value="#0000ff">
+        </div>
+        <button class="blend-button" onclick="blendColors()">
+            <span>✨ 混合颜色</span>
+        </button>
+        <div class="result">
+            <div class="result-color" id="resultColor"></div>
+            <div class="result-value" id="resultValue">混合后的颜色值将显示在这里</div>
+        </div>
+    </div>
+
+    <script>
+        // 更新预览颜色
+        function updatePreview() {
+            document.getElementById('preview1').style.backgroundColor = document.getElementById('color1').value;
+            document.getElementById('preview2').style.backgroundColor = document.getElementById('color2').value;
+        }
+        
+        // 初始化预览
+        updatePreview();
+        
+        // 添加颜色选择器事件监听
+        document.getElementById('color1').addEventListener('input', updatePreview);
+        document.getElementById('color2').addEventListener('input', updatePreview);
+        
+        function blendColors() {
+            // 添加按钮点击动画
+            const button = document.querySelector('.blend-button');
+            button.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                button.style.transform = '';
+            }, 150);
+            
+            // 获取两个颜色值
+            const color1 = document.getElementById('color1').value;
+            const color2 = document.getElementById('color2').value;
+            
+            // 将十六进制颜色转换为RGB
+            const rgb1 = hexToRgb(color1);
+            const rgb2 = hexToRgb(color2);
+            
+            // 计算混合后的RGB值（简单平均）
+            const blendedRgb = {
+                r: Math.round((rgb1.r + rgb2.r) / 2),
+                g: Math.round((rgb1.g + rgb2.g) / 2),
+                b: Math.round((rgb1.b + rgb2.b) / 2)
+            };
+            
+            // 将混合后的RGB值转换为十六进制
+            const blendedHex = rgbToHex(blendedRgb.r, blendedRgb.g, blendedRgb.b);
+            
+            // 显示结果
+            const resultColorElement = document.getElementById('resultColor');
+            resultColorElement.style.backgroundColor = blendedHex;
+            
+            // 添加结果动画
+            resultColorElement.style.transform = 'scale(0.8)';
+            resultColorElement.style.opacity = '0';
+            
+            setTimeout(() => {
+                resultColorElement.style.transition = 'all 0.5s ease';
+                resultColorElement.style.transform = 'scale(1)';
+                resultColorElement.style.opacity = '1';
+            }, 10);
+            
+            document.getElementById('resultValue').innerText = `混合后的颜色: ${blendedHex}`;
+            
+            // 添加结果值动画
+            const resultValueElement = document.getElementById('resultValue');
+            resultValueElement.style.transform = 'translateY(10px)';
+            resultValueElement.style.opacity = '0';
+            
+            setTimeout(() => {
+                resultValueElement.style.transition = 'all 0.3s ease';
+                resultValueElement.style.transform = 'translateY(0)';
+                resultValueElement.style.opacity = '1';
+            }, 300);
+        }
+        
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+        
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+        
+        // 初始化时混合一次颜色
+        setTimeout(blendColors, 500);
+        
+        // 添加深色模式支持
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const container = document.querySelector('.container');
+            
+            // 检查系统主题偏好
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                body.style.color = 'var(--text-color-light)';
+                document.querySelector('.result-value').style.color = 'var(--text-color-light)';
+                document.querySelector('.result-value').style.background = 'rgba(0, 0, 0, 0.3)';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XML转换工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: bold;
+        }
+
+        .tab:hover {
+            background: #f8f9fa;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .input-section, .output-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #c33;
+        }
+
+        .success {
+            background: #efe;
+            color: #3a3;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #3a3;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                text-align: left;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>XML转换工具</h1>
+            <p>专业的XML格式转换与处理工具</p>
+        </div>
+
+        <div class="content">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('xml-to-json')">XML转JSON</button>
+                <button class="tab" onclick="switchTab('xml-to-csv')">XML转CSV</button>
+                <button class="tab" onclick="switchTab('xml-format')">XML格式化</button>
+            </div>
+
+            <!-- XML转JSON -->
+            <div id="xml-to-json" class="tab-content active">
+                <div class="input-section">
+                    <div class="section-title">输入XML内容</div>
+                    <textarea id="xml-input-json" placeholder="请粘贴您的XML内容...">
+<root>
+    <person>
+        <name>张三</name>
+        <age>25</age>
+        <city>北京</city>
+    </person>
+    <person>
+        <name>李四</name>
+        <age>30</age>
+        <city>上海</city>
+    </person>
+</root></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="convertToJSON()">转换为JSON</button>
+                    <button class="btn-secondary" onclick="clearInput('xml-input-json')">清空输入</button>
+                    <button class="btn-secondary" onclick="copyToClipboard('json-output')">复制结果</button>
+                </div>
+
+                <div class="output-section">
+                    <div class="section-title">转换结果</div>
+                    <textarea id="json-output" readonly placeholder="转换后的JSON将显示在这里..."></textarea>
+                </div>
+            </div>
+
+            <!-- XML转CSV -->
+            <div id="xml-to-csv" class="tab-content">
+                <div class="input-section">
+                    <div class="section-title">输入XML内容</div>
+                    <textarea id="xml-input-csv" placeholder="请粘贴您的XML内容...">
+<people>
+    <person>
+        <name>张三</name>
+        <age>25</age>
+        <city>北京</city>
+        <salary>8000</salary>
+    </person>
+    <person>
+        <name>李四</name>
+        <age>30</age>
+        <city>上海</city>
+        <salary>10000</salary>
+    </person>
+    <person>
+        <name>王五</name>
+        <age>28</age>
+        <city>广州</city>
+        <salary>9000</salary>
+    </person>
+</people></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="convertToCSV()">转换为CSV</button>
+                    <button class="btn-secondary" onclick="clearInput('xml-input-csv')">清空输入</button>
+                    <button class="btn-secondary" onclick="downloadCSV()">下载CSV</button>
+                </div>
+
+                <div class="output-section">
+                    <div class="section-title">转换结果</div>
+                    <textarea id="csv-output" readonly placeholder="转换后的CSV将显示在这里..."></textarea>
+                </div>
+            </div>
+
+            <!-- XML格式化 -->
+            <div id="xml-format" class="tab-content">
+                <div class="input-section">
+                    <div class="section-title">输入XML内容</div>
+                    <textarea id="xml-input-format" placeholder="请粘贴需要格式化的XML内容...">
+<root><person><name>张三</name><age>25</age><city>北京</city></person><person><name>李四</name><age>30</age><city>上海</city></person></root></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="formatXML()">缩进格式化</button>
+                    <button class="btn-secondary" onclick="validateXML()">验证XML格式</button>
+                    <button class="btn-secondary" onclick="minifyXML()">压缩XML</button>
+                    <button class="btn-secondary" onclick="clearInput('xml-input-format')">清空输入</button>
+                </div>
+
+                <div class="output-section">
+                    <div class="section-title">处理结果</div>
+                    <textarea id="format-output" readonly placeholder="处理结果将显示在这里..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 标签切换
+        function switchTab(tabName) {
+            // 隐藏所有标签内容
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // 移除所有标签的活动状态
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // 显示选中的标签内容
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // 清空输入
+        function clearInput(inputId) {
+            document.getElementById(inputId).value = '';
+            const outputId = inputId.replace('input', 'output');
+            const output = document.getElementById(outputId);
+            if (output) output.value = '';
+        }
+
+        // 复制到剪贴板
+        async function copyToClipboard(outputId) {
+            const output = document.getElementById(outputId);
+            if (output.value) {
+                try {
+                    await navigator.clipboard.writeText(output.value);
+                    showMessage('复制成功！', 'success');
+                } catch (err) {
+                    showMessage('复制失败，请手动选择复制', 'error');
+                }
+            }
+        }
+
+        // 显示消息
+        function showMessage(text, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type;
+            messageDiv.textContent = text;
+            
+            const container = document.querySelector('.content');
+            container.insertBefore(messageDiv, container.firstChild);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+
+        // XML转JSON
+        function convertToJSON() {
+            const xmlInput = document.getElementById('xml-input-json').value.trim();
+            if (!xmlInput) {
+                showMessage('请输入XML内容', 'error');
+                return;
+            }
+
+            try {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlInput, 'text/xml');
+                
+                // 检查解析错误
+                const parserError = xmlDoc.querySelector('parsererror');
+                if (parserError) {
+                    throw new Error(parserError.textContent);
+                }
+
+                const jsonResult = xmlToJson(xmlDoc.documentElement);
+                document.getElementById('json-output').value = JSON.stringify(jsonResult, null, 2);
+                showMessage('转换成功！', 'success');
+            } catch (error) {
+                showMessage('XML解析错误: ' + error.message, 'error');
+            }
+        }
+
+        // XML节点转JSON对象
+        function xmlToJson(xml) {
+            const obj = {};
+            
+            if (xml.nodeType === 1) { // 元素节点
+                if (xml.attributes.length > 0) {
+                    obj['@attributes'] = {};
+                    for (let j = 0; j < xml.attributes.length; j++) {
+                        const attribute = xml.attributes.item(j);
+                        obj['@attributes'][attribute.nodeName] = attribute.nodeValue;
+                    }
+                }
+            } else if (xml.nodeType === 3) { // 文本节点
+                return xml.nodeValue.trim();
+            }
+
+            if (xml.hasChildNodes()) {
+                for (let i = 0; i < xml.childNodes.length; i++) {
+                    const item = xml.childNodes.item(i);
+                    const nodeName = item.nodeName;
+                    
+                    if (item.nodeType === 3) { // 文本节点
+                        const text = item.nodeValue.trim();
+                        if (text) {
+                            if (Object.keys(obj).length === 0) {
+                                return text;
+                            } else {
+                                obj['#text'] = text;
+                            }
+                        }
+                    } else if (item.nodeType === 1) { // 元素节点
+                        if (typeof obj[nodeName] === 'undefined') {
+                            const childResult = xmlToJson(item);
+                            if (childResult !== '') {
+                                obj[nodeName] = childResult;
+                            }
+                        } else {
+                            if (typeof obj[nodeName].push === 'undefined') {
+                                const old = obj[nodeName];
+                                obj[nodeName] = [old];
+                            }
+                            const childResult = xmlToJson(item);
+                            if (childResult !== '') {
+                                obj[nodeName].push(childResult);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return obj;
+        }
+
+        // XML转CSV
+        function convertToCSV() {
+            const xmlInput = document.getElementById('xml-input-csv').value.trim();
+            if (!xmlInput) {
+                showMessage('请输入XML内容', 'error');
+                return;
+            }
+
+            try {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlInput, 'text/xml');
+                
+                const parserError = xmlDoc.querySelector('parsererror');
+                if (parserError) {
+                    throw new Error(parserError.textContent);
+                }
+
+                const csvResult = xmlToCsv(xmlDoc.documentElement);
+                document.getElementById('csv-output').value = csvResult;
+                showMessage('转换成功！', 'success');
+            } catch (error) {
+                showMessage('XML解析错误: ' + error.message, 'error');
+            }
+        }
+
+        // XML转CSV逻辑
+        function xmlToCsv(element) {
+            const records = [];
+            const headers = new Set();
+            
+            // 获取所有子元素
+            const items = element.children;
+            
+            if (items.length === 0) {
+                return '';
+            }
+
+            // 收集所有可能的字段名
+            for (let i = 0; i < items.length; i++) {
+                const child = items[i];
+                for (let j = 0; j < child.children.length; j++) {
+                    headers.add(child.children[j].tagName);
+                }
+            }
+
+            const headerArray = Array.from(headers);
+            records.push(headerArray.join(','));
+
+            // 收集数据
+            for (let i = 0; i < items.length; i++) {
+                const child = items[i];
+                const row = [];
+                
+                for (let h = 0; h < headerArray.length; h++) {
+                    const field = child.querySelector(headerArray[h]);
+                    const value = field ? field.textContent.trim() : '';
+                    // 处理包含逗号的值
+                    const escapedValue = value.includes(',') ? `"${value}"` : value;
+                    row.push(escapedValue);
+                }
+                
+                records.push(row.join(','));
+            }
+
+            return records.join('\n');
+        }
+
+        // 下载CSV
+        function downloadCSV() {
+            const csvContent = document.getElementById('csv-output').value;
+            if (!csvContent) {
+                showMessage('没有CSV内容可下载', 'error');
+                return;
+            }
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'converted_data.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showMessage('CSV文件已下载', 'success');
+        }
+
+        // 缩进格式化
+        function formatXML() {
+            const xmlInput = document.getElementById('xml-input-format').value.trim();
+            if (!xmlInput) {
+                showMessage('请输入XML内容', 'error');
+                return;
+            }
+
+            try {
+                const validation = validateXmlContent(xmlInput);
+                if (!validation.valid) {
+                    showMessage('XML格式错误: ' + validation.error, 'error');
+                    return;
+                }
+
+                const formatted = formatXmlString(xmlInput, true);
+                document.getElementById('format-output').value = formatted;
+                showMessage('缩进格式化成功！', 'success');
+            } catch (error) {
+                showMessage('XML格式化错误: ' + error.message, 'error');
+            }
+        }
+
+        // 验证XML格式
+        function validateXML() {
+            const xmlInput = document.getElementById('xml-input-format').value.trim();
+            if (!xmlInput) {
+                showMessage('请输入XML内容', 'error');
+                return;
+            }
+
+            const validation = validateXmlContent(xmlInput);
+            
+            if (validation.valid) {
+                const stats = getXmlStats(xmlInput);
+                document.getElementById('format-output').value = 
+                    `✅ XML格式验证通过！
+
+📊 XML统计信息：
+• 标签数量：${stats.tagCount}
+• 属性数量：${stats.attributeCount}
+• 文本节点：${stats.textNodeCount}
+• 总字符数：${stats.totalChars}
+• 根元素：${stats.rootElement || '无'}
+
+🎯 XML结构良好，没有语法错误。`;
+                showMessage('XML格式验证通过！', 'success');
+            } else {
+                document.getElementById('format-output').value = 
+                    `❌ XML格式验证失败！
+
+🔍 错误详情：
+${validation.error}
+
+💡 请检查XML语法，确保：
+• 所有开始标签都有对应的结束标签
+• 标签正确嵌套
+• 属性值使用引号包围
+• 特殊字符已正确转义`;
+                showMessage('XML格式验证失败', 'error');
+            }
+        }
+
+        // XML压缩
+        function minifyXML() {
+            const xmlInput = document.getElementById('xml-input-format').value.trim();
+            if (!xmlInput) {
+                showMessage('请输入XML内容', 'error');
+                return;
+            }
+
+            try {
+                const validation = validateXmlContent(xmlInput);
+                if (!validation.valid) {
+                    showMessage('XML格式错误: ' + validation.error, 'error');
+                    return;
+                }
+
+                const minified = formatXmlString(xmlInput, false);
+                const originalSize = xmlInput.length;
+                const compressedSize = minified.length;
+                const compressionRatio = ((originalSize - compressedSize) / originalSize * 100).toFixed(1);
+                
+                document.getElementById('format-output').value = 
+                    `${minified}
+
+📊 压缩统计：
+• 原始大小：${originalSize} 字符
+• 压缩后大小：${compressedSize} 字符
+• 压缩率：${compressionRatio}%`;
+                showMessage(`压缩成功！节省了 ${compressionRatio}% 空间`, 'success');
+            } catch (error) {
+                showMessage('XML压缩错误: ' + error.message, 'error');
+            }
+        }
+
+        // XML格式化核心函数
+        function formatXmlString(xml, pretty) {
+            let formatted = '';
+            let indent = '';
+            const tab = '    ';
+            
+            xml.split(/\r?\n/).forEach(function(node) {
+                if (node.match(/.+<\/\w[^>]*>$/)) {
+                    indent = indent.substring(tab.length);
+                }
+
+                if (pretty) {
+                    formatted += indent + node + '\n';
+                } else {
+                    formatted += node.trim();
+                }
+
+                if (node.match(/^<\w[^>]*[^\/]>.*$/)) {
+                    indent += tab;
+                }
+            });
+
+            if (!pretty) {
+                return formatted.replace(/>\s+</g, '><').trim();
+            }
+
+            return formatted.trim();
+        }
+
+        // 验证XML内容
+        function validateXmlContent(xmlString) {
+            try {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+                
+                const parserError = xmlDoc.querySelector('parsererror');
+                if (parserError) {
+                    const errorText = parserError.textContent || parserError.innerText;
+                    const errorMatch = errorText.match(/error[^\n]*/i);
+                    return {
+                        valid: false,
+                        error: errorMatch ? errorMatch[0] : 'XML格式错误'
+                    };
+                }
+
+                return {
+                    valid: true,
+                    error: null
+                };
+            } catch (error) {
+                return {
+                    valid: false,
+                    error: error.message
+                };
+            }
+        }
+
+        // 获取XML统计信息
+        function getXmlStats(xmlString) {
+            try {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+                
+                let tagCount = 0;
+                let attributeCount = 0;
+                let textNodeCount = 0;
+                let rootElement = '';
+
+                function countNodes(node) {
+                    if (node.nodeType === 1) { // 元素节点
+                        tagCount++;
+                        attributeCount += node.attributes.length;
+                        
+                        if (node.parentNode === xmlDoc.documentElement || 
+                            (node.parentNode === xmlDoc && !rootElement)) {
+                            rootElement = node.tagName;
+                        }
+                        
+                        for (let i = 0; i < node.childNodes.length; i++) {
+                            countNodes(node.childNodes[i]);
+                        }
+                    } else if (node.nodeType === 3) { // 文本节点
+                        if (node.textContent.trim()) {
+                            textNodeCount++;
+                        }
+                    }
+                }
+
+                if (xmlDoc.documentElement) {
+                    countNodes(xmlDoc.documentElement);
+                }
+
+                return {
+                    tagCount,
+                    attributeCount,
+                    textNodeCount,
+                    totalChars: xmlString.length,
+                    rootElement
+                };
+            } catch (error) {
+                return {
+                    tagCount: 0,
+                    attributeCount: 0,
+                    textNodeCount: 0,
+                    totalChars: xmlString.length,
+                    rootElement: '解析错误'
+                };
+            }
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 可以在这里添加初始化代码
+            console.log('XML转换工具已加载完成');
+        });
+    </script>
+</body>
+</html>

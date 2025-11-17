@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>法律文书生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.8;
+            font-size: 16px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .step-indicator {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .document-selector {
+            margin-bottom: 30px;
+        }
+
+        .document-selector h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .document-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .document-option {
+            flex: 1;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .document-option:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .document-option.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .document-option h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .document-option p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .form-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group label::after {
+            content: ' *';
+            color: #e74c3c;
+        }
+
+        .form-group label[for="liability"]::after {
+            content: '';
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .result-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .result-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .document-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-family: 'SimSun', serif;
+            line-height: 1.8;
+            white-space: pre-line;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .document-options {
+                flex-direction: column;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>法律文书生成器</h1>
+            <p>专业、规范、便捷的法律文书生成工具</p>
+        </div>
+        
+        <div class="content">
+            <div class="step-indicator" id="stepIndicator">步骤 1/2：请选择文书类型</div>
+            
+            <div class="error-message" id="errorMessage"></div>
+
+            <div class="document-selector">
+                <h3>选择文书类型</h3>
+                <div class="document-options">
+                    <div class="document-option" data-type="iou" onclick="selectDocumentType('iou')">
+                        <h4>借条</h4>
+                        <p>规范的借款凭证</p>
+                    </div>
+                    <div class="document-option" data-type="contract" onclick="selectDocumentType('contract')">
+                        <h4>合同</h4>
+                        <p>标准合同文本</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 借条表单 -->
+            <div id="iouSection" class="form-section">
+                <h3>借条信息</h3>
+                <div class="form-group">
+                    <label>出借人姓名</label>
+                    <input type="text" id="lenderName" placeholder="请输入出借人姓名">
+                </div>
+                <div class="form-group">
+                    <label>出借人身份证号</label>
+                    <input type="text" id="lenderId" placeholder="请输入出借人身份证号">
+                </div>
+                <div class="form-group">
+                    <label>借款人姓名</label>
+                    <input type="text" id="borrowerName" placeholder="请输入借款人姓名">
+                </div>
+                <div class="form-group">
+                    <label>借款人身份证号</label>
+                    <input type="text" id="borrowerId" placeholder="请输入借款人身份证号">
+                </div>
+                <div class="form-group">
+                    <label>借款金额（大写）</label>
+                    <input type="text" id="amountChinese" placeholder="例：人民币伍万元整">
+                </div>
+                <div class="form-group">
+                    <label>借款金额（小写）</label>
+                    <input type="number" id="amountNumber" placeholder="例：50000">
+                </div>
+                <div class="form-group">
+                    <label>借款用途</label>
+                    <input type="text" id="purpose" placeholder="请输入借款用途">
+                </div>
+                <div class="form-group">
+                    <label>借款期限</label>
+                    <input type="text" id="term" placeholder="例：6个月">
+                </div>
+                <div class="form-group">
+                    <label>借款利率（年利率）</label>
+                    <input type="number" step="0.01" id="interestRate" placeholder="例：6.5">
+                </div>
+                <div class="form-group">
+                    <label>还款方式</label>
+                    <select id="repaymentMethod">
+                        <option value="">请选择还款方式</option>
+                        <option value="一次性还本付息">一次性还本付息</option>
+                        <option value="分期还款">分期还款</option>
+                        <option value="按月付息到期还本">按月付息到期还本</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>借款日期</label>
+                    <input type="date" id="loanDate">
+                </div>
+                <div class="form-group">
+                    <label>还款日期</label>
+                    <input type="date" id="repaymentDate">
+                </div>
+            </div>
+
+            <!-- 合同表单 -->
+            <div id="contractSection" class="form-section">
+                <h3>合同信息</h3>
+                <div class="form-group">
+                    <label>合同类型</label>
+                    <input type="text" id="contractType" placeholder="例：房屋租赁合同">
+                </div>
+                <div class="form-group">
+                    <label>甲方名称</label>
+                    <input type="text" id="partyAName" placeholder="请输入甲方名称">
+                </div>
+                <div class="form-group">
+                    <label>甲方地址</label>
+                    <input type="text" id="partyAAddress" placeholder="请输入甲方地址">
+                </div>
+                <div class="form-group">
+                    <label>甲方联系方式</label>
+                    <input type="text" id="partyAContact" placeholder="请输入甲方联系方式">
+                </div>
+                <div class="form-group">
+                    <label>乙方名称</label>
+                    <input type="text" id="partyBName" placeholder="请输入乙方名称">
+                </div>
+                <div class="form-group">
+                    <label>乙方地址</label>
+                    <input type="text" id="partyBAddress" placeholder="请输入乙方地址">
+                </div>
+                <div class="form-group">
+                    <label>乙方联系方式</label>
+                    <input type="text" id="partyBContact" placeholder="请输入乙方联系方式">
+                </div>
+                <div class="form-group">
+                    <label>合同标的</label>
+                    <textarea id="subjectMatter" placeholder="请详细描述合同标的"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>合同金额（大写）</label>
+                    <input type="text" id="contractAmountChinese" placeholder="请输入大写金额">
+                </div>
+                <div class="form-group">
+                    <label>合同金额（小写）</label>
+                    <input type="number" id="contractAmountNumber" placeholder="请输入小写金额">
+                </div>
+                <div class="form-group">
+                    <label>履行期限</label>
+                    <input type="text" id="performancePeriod" placeholder="请输入履行期限">
+                </div>
+                <div class="form-group">
+                    <label>履行地点</label>
+                    <input type="text" id="performanceLocation" placeholder="请输入履行地点">
+                </div>
+                <div class="form-group">
+                    <label>付款方式</label>
+                    <select id="paymentMethod">
+                        <option value="">请选择付款方式</option>
+                        <option value="一次性付款">一次性付款</option>
+                        <option value="分期付款">分期付款</option>
+                        <option value="按月付款">按月付款</option>
+                        <option value="按进度付款">按进度付款</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>违约责任</label>
+                    <textarea id="liability" placeholder="请描述违约责任条款（可选）"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>合同签订日期</label>
+                    <input type="date" id="contractDate">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary" onclick="generateDocument()">生成文书</button>
+                <button type="button" class="btn btn-secondary" onclick="resetAll()">重新开始</button>
+            </div>
+
+            <div id="resultSection" class="result-section">
+                <h3>生成的法律文书</h3>
+                <div id="documentContent" class="document-content"></div>
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button type="button" class="btn btn-primary" onclick="downloadDocument()">下载文档</button>
+                    <button type="button" class="btn btn-secondary" onclick="printDocument()">打印文档</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDocumentType = null;
+
+        function selectDocumentType(type) {
+            currentDocumentType = type;
+            
+            // 更新选中状态
+            document.querySelectorAll('.document-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector(`[data-type="${type}"]`).classList.add('selected');
+            
+            // 隐藏所有表单
+            document.getElementById('iouSection').classList.remove('active');
+            document.getElementById('contractSection').classList.remove('active');
+            document.getElementById('resultSection').classList.remove('show');
+            
+            // 显示对应表单
+            if (type === 'iou') {
+                document.getElementById('iouSection').classList.add('active');
+                document.getElementById('stepIndicator').textContent = '步骤 2/2：请填写借条信息';
+            } else if (type === 'contract') {
+                document.getElementById('contractSection').classList.add('active');
+                document.getElementById('stepIndicator').textContent = '步骤 2/2：请填写合同信息';
+            }
+        }
+
+        function validateFields(fields) {
+            const missingFields = [];
+            
+            for (let field of fields) {
+                const value = document.getElementById(field).value.trim();
+                if (!value) {
+                    const label = document.querySelector(`label[for="${field}"]`);
+                    missingFields.push(label ? label.textContent : field);
+                }
+            }
+            
+            if (missingFields.length > 0) {
+                showError(`请填写以下必填项：${missingFields.join('、')}`);
+                return false;
+            }
+            
+            return true;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function generateDocument() {
+            if (!currentDocumentType) {
+                showError('请先选择文书类型！');
+                return;
+            }
+
+            let data = {};
+            let isValid = false;
+
+            if (currentDocumentType === 'iou') {
+                const fields = ['lenderName', 'lenderId', 'borrowerName', 'borrowerId', 'amountChinese', 
+                              'amountNumber', 'purpose', 'term', 'interestRate', 'repaymentMethod', 
+                              'loanDate', 'repaymentDate'];
+                
+                if (!validateFields(fields)) return;
+                
+                fields.forEach(field => {
+                    data[field] = document.getElementById(field).value;
+                });
+                
+                data.documentType = '借条';
+                isValid = true;
+            } else if (currentDocumentType === 'contract') {
+                const fields = ['contractType', 'partyAName', 'partyAAddress', 'partyAContact', 
+                              'partyBName', 'partyBAddress', 'partyBContact', 'subjectMatter', 
+                              'contractAmountChinese', 'contractAmountNumber', 'performancePeriod', 
+                              'performanceLocation', 'paymentMethod', 'contractDate'];
+                
+                if (!validateFields(fields)) return;
+                
+                fields.forEach(field => {
+                    data[field] = document.getElementById(field).value;
+                });
+                
+                data.liability = document.getElementById('liability').value;
+                data.documentType = '合同';
+                isValid = true;
+            }
+
+            if (isValid) {
+                const content = generateContent(data);
+                document.getElementById('documentContent').textContent = content;
+                document.getElementById('resultSection').classList.add('show');
+                document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function generateContent(data) {
+            if (data.documentType === '借条') {
+                return `借条
+
+今借到${data.lenderName}（身份证号：${data.lenderId}）人民币${data.amountChinese}（¥${data.amountNumber}元），用于${data.purpose}，借款期限${data.term}，年利率${data.interestRate}%，${data.repaymentMethod}。
+
+借款日期：${data.loanDate}
+还款日期：${data.repaymentDate}
+
+借款人（签字）：${data.borrowerName}
+身份证号：${data.borrowerId}
+联系电话：_________________
+
+出借人（签字）：${data.lenderName}
+联系电话：_________________
+
+见证人（签字）：_________________
+联系电话：_________________
+
+签订日期：${data.loanDate}
+
+附：
+1. 借款人身份证复印件
+2. 出借人身份证复印件
+3. 其他相关证明材料
+
+注：本借条一式三份，借款人、出借人、见证人各执一份，具有同等法律效力。`;
+            } else {
+                return `${data.contractType}
+
+甲方（${data.contractType.includes('租赁') ? '出租方' : '卖方'}）：${data.partyAName}
+地址：${data.partyAAddress}
+联系方式：${data.partyAContact}
+
+乙方（${data.contractType.includes('租赁') ? '承租方' : '买方'}）：${data.partyBName}
+地址：${data.partyBAddress}
+联系方式：${data.partyBContact}
+
+根据《中华人民共和国民法典》及相关法律法规的规定，甲乙双方在平等、自愿、公平、诚实信用的基础上，就${data.subjectMatter}事宜，经协商一致，订立本合同。
+
+第一条 合同标的
+${data.subjectMatter}
+
+第二条 合同金额
+合同总金额为人民币${data.contractAmountChinese}（¥${data.contractAmountNumber}元）。
+
+第三条 履行期限
+履行期限为${data.performancePeriod}。
+
+第四条 履行地点
+履行地点为${data.performanceLocation}。
+
+第五条 付款方式
+乙方采用${data.paymentMethod}方式向甲方支付合同款项。
+
+第六条 违约责任
+${data.liability || '按照《中华人民共和国民法典》相关规定执行。'}
+
+第七条 争议解决
+本合同在履行过程中发生的争议，由双方当事人协商解决；协商不成的，依法向有管辖权的人民法院起诉。
+
+第八条 其他约定
+1. 本合同未尽事宜，双方可另行签订补充协议。
+2. 本合同自双方签字盖章之日起生效。
+3. 本合同一式两份，甲乙双方各执一份，具有同等法律效力。
+
+甲方（签字/盖章）：_________________
+日期：${data.contractDate}
+
+乙方（签字/盖章）：_________________
+日期：${data.contractDate}`;
+            }
+        }
+
+        function resetAll() {
+            currentDocumentType = null;
+            document.querySelectorAll('.document-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.getElementById('iouSection').classList.remove('active');
+            document.getElementById('contractSection').classList.remove('active');
+            document.getElementById('resultSection').classList.remove('show');
+            document.getElementById('stepIndicator').textContent = '步骤 1/2：请选择文书类型';
+            
+            // 清空所有输入
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => input.value = '');
+        }
+
+        function downloadDocument() {
+            const content = document.getElementById('documentContent').textContent;
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${currentDocumentType === 'iou' ? '借条' : '合同'}_${new Date().toISOString().split('T')[0]}.txt`;
+            link.click();
+        }
+
+        function printDocument() {
+            const content = document.getElementById('documentContent').textContent;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>法律文书</title>
+                    <style>
+                        body { font-family: 'SimSun', serif; line-height: 1.8; margin: 40px; }
+                        pre { white-space: pre-wrap; }
+                    </style>
+                </head>
+                <body>
+                    <pre>${content}</pre>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // 设置今天的日期为默认值
+        window.onload = function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('loanDate').value = today;
+            document.getElementById('contractDate').value = today;
+            
+            // 设置默认还款日期为一个月后
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            document.getElementById('repaymentDate').value = nextMonth.toISOString().split('T')[0];
+        };
+    </script>
+</body>
+</html>

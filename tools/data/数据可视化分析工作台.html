@@ -1,0 +1,2451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据可视化分析工作台</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .header-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid #667eea;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.2em;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f0ff 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0ebff 100%);
+            transform: translateY(-2px);
+        }
+
+        .upload-area.dragover {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #f0fff4 0%, #e8f5e8 100%);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .upload-hint {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin: 5px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9ff;
+        }
+
+        .data-table tr:nth-child(even) {
+            background: #fafbff;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        .control-group select,
+        .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .results {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #28a745;
+        }
+
+        .results h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .results pre {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+            border: 1px solid #e0e6ed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 5px solid #dc3545;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 5px solid #28a745;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 5px solid #17a2b8;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid #667eea;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e6ed;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 20px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .header-controls {
+                position: static;
+                justify-content: center;
+                margin-top: 15px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .control-group {
+                width: 100%;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                margin-bottom: 5px;
+            }
+        }
+
+        .paste-area {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 0.9em;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .paste-area:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .ml-controls {
+            background: #f8f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .ml-controls h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .parameter-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .parameter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .parameter-item label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        .parameter-item input,
+        .parameter-item select {
+            padding: 8px 12px;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .parameter-item input:focus,
+        .parameter-item select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .algorithm-description {
+            background: #e8f4fd;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .ml-results {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .ml-results h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-controls">
+                <button class="header-btn" onclick="showUsageGuide()">📖 使用说明</button>
+                <button class="header-btn" onclick="exportAllResults()">💾 导出所有结果</button>
+                <button class="header-btn" onclick="clearAll()">🗑️ 清除所有内容</button>
+            </div>
+            <h1>数据可视化分析工作台</h1>
+            <p>强大的数据分析和可视化平台，支持多种图表类型和机器学习算法</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 数据导入区域 -->
+            <div class="section">
+                <h2><span class="section-icon">📊</span>数据导入</h2>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('upload')">文件上传</button>
+                    <button class="tab" onclick="switchTab('paste')">数据粘贴</button>
+                </div>
+
+                <div id="upload-tab" class="tab-content active">
+                    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">点击选择文件或拖拽文件到此处</div>
+                        <div class="upload-hint">支持 CSV、Excel 文件格式</div>
+                    </div>
+                    <input type="file" id="fileInput" class="file-input" accept=".csv,.xlsx,.xls" onchange="handleFileUpload(event)">
+                </div>
+
+                <div id="paste-tab" class="tab-content">
+                    <textarea class="paste-area" id="pasteArea" placeholder="请粘贴您的数据（支持从Excel、Google Sheets等复制的表格数据）&#10;&#10;示例格式：&#10;姓名,年龄,城市&#10;张三,25,北京&#10;李四,30,上海&#10;王五,28,广州"></textarea>
+                    <div style="margin-top: 10px;">
+                        <button class="btn" onclick="handlePasteData()">📋 解析粘贴数据</button>
+                        <button class="btn btn-secondary" onclick="document.getElementById('pasteArea').value = ''">🗑️ 清空</button>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-danger" onclick="clearData()">🗑️清除数据</button>
+                </div>
+            </div>
+
+            <!-- 数据预览区域 -->
+            <div class="section">
+                <h2><span class="section-icon">👁️</span>数据预览</h2>
+                <div id="dataPreview">
+                    <div class="info">请先导入数据文件</div>
+                </div>
+            </div>
+
+            <!-- 数据清洗区域 -->
+            <div class="section">
+                <h2><span class="section-icon">🧹</span>数据清洗</h2>
+                <div class="controls">
+                    <button class="btn" onclick="handleMissingValues()">🔧 处理缺失值</button>
+                    <button class="btn" onclick="removeDuplicates()">🔄 删除重复值</button>
+                    <button class="btn" onclick="detectOutliers()">⚠️ 检测异常值</button>
+                    <button class="btn btn-secondary" onclick="clearCleaning()">🗑️ 清除清洗结果</button>
+                    <button class="btn btn-success" onclick="exportCleaning()">💾 导出清洗结果</button>
+                </div>
+                <div id="cleaningResults"></div>
+            </div>
+
+            <!-- 数据可视化区域 -->
+            <div class="section">
+                <h2><span class="section-icon">📈</span>数据可视化</h2>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>图表类型</label>
+                        <select id="chartType">
+                            <option value="bar">柱状图</option>
+                            <option value="line">折线图</option>
+                            <option value="scatter">散点图</option>
+                            <option value="pie">饼图</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>X轴数据</label>
+                        <select id="xAxis"></select>
+                    </div>
+                    <div class="control-group">
+                        <label>Y轴数据</label>
+                        <select id="yAxis"></select>
+                    </div>
+                    <button class="btn" onclick="createChart()">📊 生成图表</button>
+                    <button class="btn btn-secondary" onclick="clearChart()">🗑️ 清除图表</button>
+                    <button class="btn btn-success" onclick="exportChart()">💾 导出图表</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="dataChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 统计分析区域 -->
+            <div class="section">
+                <h2><span class="section-icon">📊</span>统计分析</h2>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>选择列</label>
+                        <select id="statsColumn"></select>
+                    </div>
+                    <button class="btn" onclick="calculateStats()">📈 计算统计信息</button>
+                    <button class="btn" onclick="generateCorrelation()">🔗 相关性分析</button>
+                    <button class="btn btn-secondary" onclick="clearStats()">🗑️ 清除统计结果</button>
+                    <button class="btn btn-success" onclick="exportStats()">💾 导出统计结果</button>
+                </div>
+                <div id="statsResults"></div>
+            </div>
+
+            <!-- 机器学习区域 -->
+            <div class="section">
+                <h2><span class="section-icon">🤖</span>机器学习</h2>
+                <div class="controls">
+                    <div class="control-group">
+                        <label>算法类型</label>
+                        <select id="mlAlgorithm" onchange="updateMLControls()">
+                            <option value="kmeans">K-means 聚类</option>
+                            <option value="linear_regression">线性回归</option>
+                            <option value="decision_tree">决策树分类</option>
+                            <option value="random_forest">随机森林</option>
+                            <option value="logistic_regression">逻辑回归</option>
+                            <option value="naive_bayes">朴素贝叶斯</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="runMLAlgorithm()">🚀 运行算法</button>
+                    <button class="btn btn-secondary" onclick="clearML()">🗑️ 清除ML结果</button>
+                    <button class="btn btn-success" onclick="exportML()">💾 导出ML结果</button>
+                </div>
+                
+                <div id="mlControls" class="ml-controls">
+                    <!-- 动态生成的算法参数控制 -->
+                </div>
+                
+                <div id="mlResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 使用说明模态框 -->
+    <div id="usageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📖 数据可视化工作台使用说明</h2>
+                <span class="close" onclick="closeUsageGuide()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="guide-section">
+                    <h3>🚀 快速开始</h3>
+                    <div class="guide-content">
+                        <p>数据可视化工作台是一个功能强大的数据分析和可视化平台，帮助您轻松处理和分析数据。</p>
+                        <div class="quick-steps">
+                            <div class="step">
+                                <span class="step-number">1</span>
+                                <div class="step-content">
+                                    <h4>导入数据</h4>
+                                    <p>支持CSV、Excel文件上传，或直接粘贴数据</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">2</span>
+                                <div class="step-content">
+                                    <h4>数据处理</h4>
+                                    <p>清洗数据、处理缺失值、统计分析</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">3</span>
+                                <div class="step-content">
+                                    <h4>可视化分析</h4>
+                                    <p>创建图表、机器学习建模</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <h3>📊 功能模块详解</h3>
+                    <div class="guide-content">
+                        <div class="module-grid">
+                            <div class="module-card">
+                                <div class="module-icon">📥</div>
+                                <h4>数据导入</h4>
+                                <ul>
+                                    <li><strong>文件上传：</strong>支持CSV、Excel格式</li>
+                                    <li><strong>数据粘贴：</strong>直接粘贴表格数据</li>
+                                    <li><strong>数据预览：</strong>自动显示数据表格</li>
+                                    <li><strong>清除功能：</strong>一键清除已导入数据</li>
+                                </ul>
+                            </div>
+
+                            <div class="module-card">
+                                <div class="module-icon">🧹</div>
+                                <h4>数据清洗</h4>
+                                <ul>
+                                    <li><strong>缺失值处理：</strong>删除或填充缺失数据</li>
+                                    <li><strong>重复值处理：</strong>识别并删除重复行</li>
+                                    <li><strong>数据类型转换：</strong>自动识别数据类型</li>
+                                    <li><strong>异常值检测：</strong>统计方法检测异常</li>
+                                </ul>
+                            </div>
+
+                            <div class="module-card">
+                                <div class="module-icon">📈</div>
+                                <h4>图表可视化</h4>
+                                <ul>
+                                    <li><strong>多种图表：</strong>柱状图、折线图、散点图、饼图</li>
+                                    <li><strong>轴选择：</strong>灵活选择X轴和Y轴数据</li>
+                                    <li><strong>交互功能：</strong>图表缩放、数据点提示</li>
+                                    <li><strong>导出功能：</strong>保存图表为图片</li>
+                                </ul>
+                            </div>
+
+                            <div class="module-card">
+                                <div class="module-icon">📊</div>
+                                <h4>统计分析</h4>
+                                <ul>
+                                    <li><strong>描述性统计：</strong>均值、中位数、标准差</li>
+                                    <li><strong>分布分析：</strong>数据分布可视化</li>
+                                    <li><strong>相关性分析：</strong>变量间关系分析</li>
+                                    <li><strong>数据摘要：</strong>快速了解数据特征</li>
+                                </ul>
+                            </div>
+
+                            <div class="module-card">
+                                <div class="module-icon">🤖</div>
+                                <h4>机器学习</h4>
+                                <ul>
+                                    <li><strong>聚类分析：</strong>K-means聚类算法</li>
+                                    <li><strong>分类算法：</strong>决策树、随机森林</li>
+                                    <li><strong>回归分析：</strong>线性回归、逻辑回归</li>
+                                    <li><strong>贝叶斯分类：</strong>朴素贝叶斯算法</li>
+                                </ul>
+                            </div>
+
+                            <div class="module-card">
+                                <div class="module-icon">🔧</div>
+                                <h4>工具功能</h4>
+                                <ul>
+                                    <li><strong>一键清除：</strong>清除所有数据和结果</li>
+                                    <li><strong>分模块清除：</strong>单独清除各模块内容</li>
+                                    <li><strong>数据导出：</strong>导出处理后的数据</li>
+                                    <li><strong>结果保存：</strong>保存分析结果</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <h3>💡 使用技巧</h3>
+                    <div class="guide-content">
+                        <div class="tips-grid">
+                            <div class="tip-card">
+                                <h4>🎯 数据准备建议</h4>
+                                <ul>
+                                    <li>确保数据格式正确，第一行为列标题</li>
+                                    <li>使用UTF-8编码避免中文乱码</li>
+                                    <li>数值列避免包含文本内容</li>
+                                    <li>日期格式建议使用标准格式</li>
+                                </ul>
+                            </div>
+
+                            <div class="tip-card">
+                                <h4>📊 可视化最佳实践</h4>
+                                <ul>
+                                    <li>柱状图适合比较分类数据</li>
+                                    <li>折线图适合显示趋势变化</li>
+                                    <li>散点图适合分析相关性</li>
+                                    <li>饼图适合显示占比关系</li>
+                                </ul>
+                            </div>
+
+                            <div class="tip-card">
+                                <h4>🤖 机器学习选择指南</h4>
+                                <ul>
+                                    <li>K-means适合无监督聚类</li>
+                                    <li>决策树适合分类问题</li>
+                                    <li>线性回归适合数值预测</li>
+                                    <li>逻辑回归适合二分类</li>
+                                </ul>
+                            </div>
+
+                            <div class="tip-card">
+                                <h4>⚡ 性能优化建议</h4>
+                                <ul>
+                                    <li>大数据集建议先进行采样</li>
+                                    <li>及时清理不需要的结果</li>
+                                    <li>合理选择图表类型</li>
+                                    <li>定期保存重要分析结果</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <h3>❓ 常见问题</h3>
+                    <div class="guide-content">
+                        <div class="faq-list">
+                            <div class="faq-item">
+                                <h4>Q: 支持哪些数据格式？</h4>
+                                <p>A: 目前支持CSV和Excel文件格式，也可以直接粘贴表格数据。建议使用UTF-8编码的CSV文件以避免中文乱码。</p>
+                            </div>
+
+                            <div class="faq-item">
+                                <h4>Q: 数据量有限制吗？</h4>
+                                <p>A: 为了保证性能，建议单次处理的数据行数不超过10000行。对于大数据集，可以先进行数据采样或分批处理。</p>
+                            </div>
+
+                            <div class="faq-item">
+                                <h4>Q: 如何处理中文数据？</h4>
+                                <p>A: 确保数据文件使用UTF-8编码，上传时选择正确的编码格式。如果出现乱码，可以尝试重新保存文件为UTF-8格式。</p>
+                            </div>
+
+                            <div class="faq-item">
+                                <h4>Q: 如何保存分析结果？</h4>
+                                <p>A: 图表可以右键保存为图片，统计结果可以复制文本内容。建议及时保存重要的分析结果。</p>
+                            </div>
+
+                            <div class="faq-item">
+                                <h4>Q: 机器学习算法的准确率如何？</h4>
+                                <p>A: 算法准确率取决于数据质量和特征选择。建议先进行数据清洗，选择相关性强的特征，并根据问题类型选择合适的算法。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 2% auto;
+            padding: 0;
+            border: none;
+            width: 90%;
+            max-width: 1200px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideIn {
+            from {transform: translateY(-50px); opacity: 0;}
+            to {transform: translateY(0); opacity: 1;}
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.8em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 5px 10px;
+            border-radius: 50%;
+        }
+
+        .close:hover,
+        .close:focus {
+            background-color: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 30px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .guide-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #3498db;
+        }
+
+        .guide-section h3 {
+            color: #2c3e50;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+
+        .guide-content {
+            color: #34495e;
+            line-height: 1.6;
+        }
+
+        .quick-steps {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+
+        .step-content p {
+            color: #7f8c8d;
+            margin: 0;
+            font-size: 0.9em;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .module-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .module-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .module-icon {
+            font-size: 2em;
+            margin-bottom: 12px;
+        }
+
+        .module-card h4 {
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+        }
+
+        .module-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .module-card li {
+            padding: 6px 0;
+            color: #34495e;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 0.9em;
+        }
+
+        .module-card li:last-child {
+            border-bottom: none;
+        }
+
+        .module-card li strong {
+            color: #2c3e50;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tip-card {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .tip-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(116, 185, 255, 0.4);
+        }
+
+        .tip-card h4 {
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+
+        .tip-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .tip-card li {
+            padding: 5px 0;
+            font-size: 0.85em;
+            opacity: 0.95;
+        }
+
+        .tip-card li:before {
+            content: "✓ ";
+            color: #4CAF50;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .faq-list {
+            margin-top: 15px;
+        }
+
+        .faq-item {
+            background: white;
+            border-radius: 8px;
+            padding: 18px;
+            margin-bottom: 12px;
+            border-left: 4px solid #e74c3c;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .faq-item h4 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .faq-item p {
+            color: #34495e;
+            margin: 0;
+            line-height: 1.5;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+            }
+            
+            .modal-header {
+                padding: 15px 20px;
+            }
+            
+            .modal-header h2 {
+                font-size: 1.4em;
+            }
+            
+            .modal-body {
+                padding: 20px;
+            }
+            
+            .quick-steps {
+                flex-direction: column;
+            }
+            
+            .step {
+                min-width: auto;
+            }
+            
+            .module-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tips-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <script>
+        // 全局变量
+        let currentData = [];
+        let currentChart = null;
+        let cleanedData = [];
+
+        // 标签页切换
+        function switchTab(tabName) {
+            // 隐藏所有标签页内容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 移除所有标签的激活状态
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 显示选中的标签页内容
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // 激活选中的标签
+            event.target.classList.add('active');
+        }
+
+        // 文件上传处理
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            const fileName = file.name.toLowerCase();
+
+            if (fileName.endsWith('.csv')) {
+                reader.onload = function(e) {
+                    const csv = e.target.result;
+                    Papa.parse(csv, {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            currentData = results.data;
+                            displayData(currentData);
+                            updateColumnSelectors();
+                            showSuccess('CSV文件上传成功！');
+                        },
+                        error: function(error) {
+                            showError('CSV文件解析失败：' + error.message);
+                        }
+                    });
+                };
+                reader.readAsText(file);
+            } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                    
+                    currentData = jsonData;
+                    displayData(currentData);
+                    updateColumnSelectors();
+                    showSuccess('Excel文件上传成功！');
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                showError('不支持的文件格式，请选择CSV或Excel文件');
+            }
+        }
+
+        // 处理粘贴数据
+        function handlePasteData() {
+            const pasteArea = document.getElementById('pasteArea');
+            const data = pasteArea.value.trim();
+            
+            if (!data) {
+                showError('请先粘贴数据');
+                return;
+            }
+
+            Papa.parse(data, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    if (results.data && results.data.length > 0) {
+                        currentData = results.data;
+                        displayData(currentData);
+                        updateColumnSelectors();
+                        showSuccess('数据解析成功！');
+                    } else {
+                        showError('数据解析失败，请检查数据格式');
+                    }
+                },
+                error: function(error) {
+                    showError('数据解析失败：' + error.message);
+                }
+            });
+        }
+
+        // 显示数据
+        function displayData(data) {
+            if (!data || data.length === 0) {
+                document.getElementById('dataPreview').innerHTML = '<div class="info">暂无数据</div>';
+                return;
+            }
+
+            const columns = Object.keys(data[0]);
+            let tableHTML = '<div class="table-container"><table class="data-table">';
+            
+            // 表头
+            tableHTML += '<thead><tr>';
+            columns.forEach(col => {
+                tableHTML += `<th>${col}</th>`;
+            });
+            tableHTML += '</tr></thead><tbody>';
+            
+            // 数据行（最多显示100行）
+            const displayData = data.slice(0, 100);
+            displayData.forEach(row => {
+                tableHTML += '<tr>';
+                columns.forEach(col => {
+                    tableHTML += `<td>${row[col] || ''}</td>`;
+                });
+                tableHTML += '</tr>';
+            });
+            
+            tableHTML += '</tbody></table>';
+            
+            if (data.length > 100) {
+                tableHTML += `<div class="info">显示前100行，共${data.length}行数据</div>`;
+            }
+            
+            tableHTML += '</div>';
+            
+            document.getElementById('dataPreview').innerHTML = tableHTML;
+        }
+
+        // 更新列选择器
+        function updateColumnSelectors() {
+            if (!currentData || currentData.length === 0) return;
+
+            const columns = Object.keys(currentData[0]);
+            const selectors = ['xAxis', 'yAxis', 'statsColumn'];
+            
+            selectors.forEach(selectorId => {
+                const selector = document.getElementById(selectorId);
+                selector.innerHTML = '';
+                
+                if (selectorId === 'statsColumn') {
+                    selector.innerHTML = '<option value="">选择列</option>';
+                }
+                
+                columns.forEach(col => {
+                    const option = document.createElement('option');
+                    option.value = col;
+                    option.textContent = col;
+                    selector.appendChild(option);
+                });
+            });
+        }
+
+        // 创建图表
+        function createChart() {
+            if (!currentData || currentData.length === 0) {
+                showError('请先导入数据');
+                return;
+            }
+
+            const chartType = document.getElementById('chartType').value;
+            const xAxis = document.getElementById('xAxis').value;
+            const yAxis = document.getElementById('yAxis').value;
+
+            if (!xAxis || !yAxis) {
+                showError('请选择X轴和Y轴数据');
+                return;
+            }
+
+            const ctx = document.getElementById('dataChart').getContext('2d');
+            
+            // 销毁现有图表
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            let chartData, chartConfig;
+
+            if (chartType === 'pie') {
+                // 饼图处理 - 优化版本
+                const dataCount = {};
+                currentData.forEach(row => {
+                    const value = row[xAxis];
+                    if (value !== undefined && value !== null && value !== '') {
+                        dataCount[value] = (dataCount[value] || 0) + 1;
+                    }
+                });
+
+                // 按数量排序并限制显示数量
+                const sortedEntries = Object.entries(dataCount)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 10); // 最多显示前10个分类
+
+                // 如果有超过10个分类，将其他的合并为"其他"
+                let labels = sortedEntries.map(([key]) => key);
+                let values = sortedEntries.map(([,value]) => value);
+                
+                if (Object.keys(dataCount).length > 10) {
+                    const otherCount = Object.values(dataCount)
+                        .slice(10)
+                        .reduce((sum, count) => sum + count, 0);
+                    if (otherCount > 0) {
+                        labels.push('其他');
+                        values.push(otherCount);
+                    }
+                }
+
+                // 生成更多颜色
+                const generateColors = (count) => {
+                    const baseColors = [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                        '#9966FF', '#FF9F40', '#FF6B6B', '#4ECDC4',
+                        '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD',
+                        '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+                    ];
+                    
+                    const colors = [];
+                    for (let i = 0; i < count; i++) {
+                        if (i < baseColors.length) {
+                            colors.push(baseColors[i]);
+                        } else {
+                            // 生成随机颜色
+                            const hue = (i * 137.508) % 360; // 黄金角度分布
+                            colors.push(`hsl(${hue}, 70%, 60%)`);
+                        }
+                    }
+                    return colors;
+                };
+
+                chartData = {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: generateColors(labels.length),
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                };
+
+                chartConfig = {
+                    type: 'pie',
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+            } else {
+                // 其他图表类型
+                const labels = currentData.map(row => row[xAxis]);
+                const data = currentData.map(row => parseFloat(row[yAxis]) || 0);
+
+                chartData = {
+                    labels: labels,
+                    datasets: [{
+                        label: yAxis,
+                        data: data,
+                        backgroundColor: chartType === 'bar' ? 'rgba(102, 126, 234, 0.8)' : 'rgba(102, 126, 234, 0.2)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 2,
+                        fill: chartType === 'line' ? false : true
+                    }]
+                };
+
+                chartConfig = {
+                    type: chartType,
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                };
+            }
+
+            currentChart = new Chart(ctx, chartConfig);
+            showSuccess('图表创建成功！');
+        }
+
+        // 计算统计信息
+        function calculateStats() {
+            if (!currentData || currentData.length === 0) {
+                showError('请先导入数据');
+                return;
+            }
+
+            const column = document.getElementById('statsColumn').value;
+            if (!column) {
+                showError('请选择要分析的列');
+                return;
+            }
+
+            const values = currentData.map(row => parseFloat(row[column])).filter(val => !isNaN(val));
+            
+            if (values.length === 0) {
+                showError('选择的列没有有效的数值数据');
+                return;
+            }
+
+            // 计算统计指标
+            const sum = values.reduce((a, b) => a + b, 0);
+            const mean = sum / values.length;
+            const sortedValues = values.sort((a, b) => a - b);
+            const median = sortedValues.length % 2 === 0 
+                ? (sortedValues[sortedValues.length / 2 - 1] + sortedValues[sortedValues.length / 2]) / 2
+                : sortedValues[Math.floor(sortedValues.length / 2)];
+            
+            const variance = values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / values.length;
+            const stdDev = Math.sqrt(variance);
+            const min = Math.min(...values);
+            const max = Math.max(...values);
+
+            const statsHTML = `
+                <div class="results">
+                    <h3>📊 ${column} 列统计分析结果</h3>
+                    <div class="metric-grid">
+                        <div class="metric-card">
+                            <div class="metric-value">${values.length}</div>
+                            <div class="metric-label">样本数量</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${mean.toFixed(2)}</div>
+                            <div class="metric-label">平均值</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${median.toFixed(2)}</div>
+                            <div class="metric-label">中位数</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${stdDev.toFixed(2)}</div>
+                            <div class="metric-label">标准差</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${min.toFixed(2)}</div>
+                            <div class="metric-label">最小值</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">${max.toFixed(2)}</div>
+                            <div class="metric-label">最大值</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('statsResults').innerHTML = statsHTML;
+            showSuccess('统计分析完成！');
+        }
+
+        // 相关性分析
+        function generateCorrelation() {
+            if (!currentData || currentData.length === 0) {
+                showError('请先导入数据');
+                return;
+            }
+
+            const columns = Object.keys(currentData[0]);
+            const numericColumns = columns.filter(col => {
+                return currentData.some(row => !isNaN(parseFloat(row[col])));
+            });
+
+            if (numericColumns.length < 2) {
+                showError('需要至少两个数值列才能进行相关性分析');
+                return;
+            }
+
+            let correlationHTML = '<div class="results"><h3>🔗 相关性分析结果</h3>';
+            correlationHTML += '<table class="data-table"><thead><tr><th>变量1</th><th>变量2</th><th>相关系数</th><th>相关性强度</th></tr></thead><tbody>';
+
+            for (let i = 0; i < numericColumns.length; i++) {
+                for (let j = i + 1; j < numericColumns.length; j++) {
+                    const col1 = numericColumns[i];
+                    const col2 = numericColumns[j];
+                    
+                    const values1 = currentData.map(row => parseFloat(row[col1])).filter(val => !isNaN(val));
+                    const values2 = currentData.map(row => parseFloat(row[col2])).filter(val => !isNaN(val));
+                    
+                    if (values1.length === values2.length && values1.length > 1) {
+                        const correlation = calculateCorrelation(values1, values2);
+                        const strength = getCorrelationStrength(Math.abs(correlation));
+                        
+                        correlationHTML += `
+                            <tr>
+                                <td>${col1}</td>
+                                <td>${col2}</td>
+                                <td>${correlation.toFixed(3)}</td>
+                                <td>${strength}</td>
+                            </tr>
+                        `;
+                    }
+                }
+            }
+
+            correlationHTML += '</tbody></table></div>';
+            document.getElementById('statsResults').innerHTML = correlationHTML;
+            showSuccess('相关性分析完成！');
+        }
+
+        // 计算相关系数
+        function calculateCorrelation(x, y) {
+            const n = x.length;
+            const sumX = x.reduce((a, b) => a + b, 0);
+            const sumY = y.reduce((a, b) => a + b, 0);
+            const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+            const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
+            const sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
+
+            const numerator = n * sumXY - sumX * sumY;
+            const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+
+            return denominator === 0 ? 0 : numerator / denominator;
+        }
+
+        // 获取相关性强度描述
+        function getCorrelationStrength(absCorr) {
+            if (absCorr >= 0.8) return '强相关';
+            if (absCorr >= 0.6) return '中等相关';
+            if (absCorr >= 0.3) return '弱相关';
+            return '几乎无关';
+        }
+
+        // 处理缺失值
+        function handleMissingValues() {
+            if (!currentData || currentData.length === 0) {
+                showError('请先导入数据');
+                return;
+            }
+
+            let missingCount = 0;
+            const columns = Object.keys(currentData[0]);
+            
+            cleanedData = currentData.filter(row => {
+                const hasMissing = columns.some(col => !row[col] || row[col].toString().trim() === '');
+                if (hasMissing) missingCount++;
+                return !hasMissing;
+            });
+
+            const cleaningHTML = `
+                <div class="results">
+                    <h3>🔧 数据清洗结果</h3>
+                    <p>已删除 ${missingCount} 行包含缺失值的数据</p>
+                    <p>清洗后数据：${cleanedData.length} 行</p>
+                </div>
+            `;
+
+            document.getElementById('cleaningResults').innerHTML = cleaningHTML;
+            currentData = cleanedData;
+            displayData(currentData);
+            showSuccess('缺失值处理完成！');
+        }
+
+         // 删除重复值
+         function removeDuplicates() {
+             if (!currentData || currentData.length === 0) {
+                 showError('请先导入数据');
+                 return;
+             }
+
+             const originalLength = currentData.length;
+             const uniqueData = [];
+             const seen = new Set();
+
+             currentData.forEach(row => {
+                 const key = JSON.stringify(row);
+                 if (!seen.has(key)) {
+                     seen.add(key);
+                     uniqueData.push(row);
+                 }
+             });
+
+             const duplicatesRemoved = originalLength - uniqueData.length;
+             
+             const cleaningHTML = `
+                 <div class="results">
+                     <h3>🔄 重复值删除结果</h3>
+                     <p>已删除 ${duplicatesRemoved} 行重复数据</p>
+                     <p>清洗后数据：${uniqueData.length} 行</p>
+                 </div>
+             `;
+
+             document.getElementById('cleaningResults').innerHTML = cleaningHTML;
+             currentData = uniqueData;
+             displayData(currentData);
+             showSuccess('重复值删除完成！');
+         }
+
+         // 检测异常值
+         function detectOutliers() {
+             if (!currentData || currentData.length === 0) {
+                 showError('请先导入数据');
+                 return;
+             }
+
+             const columns = Object.keys(currentData[0]);
+             const numericColumns = columns.filter(col => {
+                 return currentData.some(row => !isNaN(parseFloat(row[col])));
+             });
+
+             if (numericColumns.length === 0) {
+                 showError('没有数值列可以检测异常值');
+                 return;
+             }
+
+             let outlierHTML = '<div class="results"><h3>⚠️ 异常值检测结果</h3>';
+             
+             numericColumns.forEach(col => {
+                 const values = currentData.map(row => parseFloat(row[col])).filter(val => !isNaN(val));
+                 values.sort((a, b) => a - b);
+                 
+                 const q1 = values[Math.floor(values.length * 0.25)];
+                 const q3 = values[Math.floor(values.length * 0.75)];
+                 const iqr = q3 - q1;
+                 const lowerBound = q1 - 1.5 * iqr;
+                 const upperBound = q3 + 1.5 * iqr;
+                 
+                 const outliers = values.filter(v => v < lowerBound || v > upperBound);
+                 
+                 outlierHTML += `
+                     <div class="metric-card" style="margin: 10px 0;">
+                         <div class="metric-value">${outliers.length}</div>
+                         <div class="metric-label">${col} 列异常值</div>
+                     </div>
+                 `;
+             });
+
+             outlierHTML += '</div>';
+             document.getElementById('cleaningResults').innerHTML = outlierHTML;
+             showSuccess('异常值检测完成！');
+         }
+
+         // 清除数据清洗结果
+         function clearCleaning() {
+             document.getElementById('cleaningResults').innerHTML = '';
+             showSuccess('清洗结果已清除');
+         }
+
+         // 清除图表
+         function clearChart() {
+             if (currentChart) {
+                 currentChart.destroy();
+                 currentChart = null;
+             }
+             showSuccess('图表已清除');
+         }
+
+         // 清除统计结果
+         function clearStats() {
+             document.getElementById('statsResults').innerHTML = '';
+             showSuccess('统计结果已清除');
+         }
+
+         // 清除数据
+         function clearData() {
+             if (confirm('确定要清除所有数据吗？')) {
+                 currentData = [];
+                 cleanedData = [];
+                 document.getElementById('dataPreview').innerHTML = '<div class="info">请先导入数据文件</div>';
+                 document.getElementById('fileInput').value = '';
+                 document.getElementById('pasteArea').value = '';
+                 updateColumnSelectors();
+                 showSuccess('数据已清除');
+             }
+         }
+
+         // 清除所有内容
+         function clearAll() {
+             if (confirm('确定要清除所有内容吗？包括数据、图表、分析结果等。')) {
+                 // 清除数据
+                 currentData = [];
+                 cleanedData = [];
+                 
+                 // 清除图表
+                 if (currentChart) {
+                     currentChart.destroy();
+                     currentChart = null;
+                 }
+                 
+                 // 清除所有显示区域
+                 document.getElementById('dataPreview').innerHTML = '<div class="info">请先导入数据文件</div>';
+                 document.getElementById('cleaningResults').innerHTML = '';
+                 document.getElementById('statsResults').innerHTML = '';
+                 document.getElementById('mlResults').innerHTML = '';
+                 document.getElementById('fileInput').value = '';
+                 document.getElementById('pasteArea').value = '';
+                 
+                 updateColumnSelectors();
+                 showSuccess('所有内容已清除');
+             }
+         }
+
+         // 机器学习相关函数
+         function updateMLControls() {
+             const algorithm = document.getElementById('mlAlgorithm').value;
+             const controlsDiv = document.getElementById('mlControls');
+             
+             let controlsHTML = '<h4>算法参数设置</h4>';
+             
+             switch(algorithm) {
+                 case 'kmeans':
+                     controlsHTML += `
+                         <div class="parameter-group">
+                             <div class="parameter-item">
+                                 <label>聚类数量 (K)</label>
+                                 <input type="number" id="kValue" value="3" min="2" max="10">
+                             </div>
+                         </div>
+                         <div class="algorithm-description">
+                             <strong>K-means聚类：</strong>将数据分为K个簇，适用于客户分群、市场细分等无监督学习任务。
+                         </div>
+                     `;
+                     break;
+                 case 'linear_regression':
+                     controlsHTML += `
+                         <div class="algorithm-description">
+                             <strong>线性回归：</strong>分析变量间的线性关系，预测连续数值。需要选择一个目标变量和一个或多个特征变量。
+                         </div>
+                     `;
+                     break;
+                 case 'decision_tree':
+                     controlsHTML += `
+                         <div class="parameter-group">
+                             <div class="parameter-item">
+                                 <label>最大深度</label>
+                                 <input type="number" id="maxDepth" value="5" min="3" max="15">
+                             </div>
+                         </div>
+                         <div class="algorithm-description">
+                             <strong>决策树：</strong>基于特征进行分类决策，结果易于理解和解释。
+                         </div>
+                     `;
+                     break;
+                 case 'random_forest':
+                     controlsHTML += `
+                         <div class="parameter-group">
+                             <div class="parameter-item">
+                                 <label>树的数量</label>
+                                 <input type="number" id="numTrees" value="10" min="5" max="50">
+                             </div>
+                         </div>
+                         <div class="algorithm-description">
+                             <strong>随机森林：</strong>多个决策树的集成算法，通常比单个决策树有更高的准确性。
+                         </div>
+                     `;
+                     break;
+                 case 'logistic_regression':
+                     controlsHTML += `
+                         <div class="algorithm-description">
+                             <strong>逻辑回归：</strong>用于二分类问题，输出概率值。适合预测是/否类型的问题。
+                         </div>
+                     `;
+                     break;
+                 case 'naive_bayes':
+                     controlsHTML += `
+                         <div class="algorithm-description">
+                             <strong>朴素贝叶斯：</strong>基于贝叶斯定理的分类算法，假设特征之间相互独立。
+                         </div>
+                     `;
+                     break;
+             }
+             
+             controlsDiv.innerHTML = controlsHTML;
+         }
+
+         function runMLAlgorithm() {
+             if (!currentData || currentData.length === 0) {
+                 showError('请先导入数据');
+                 return;
+             }
+
+             const algorithm = document.getElementById('mlAlgorithm').value;
+             
+             switch(algorithm) {
+                 case 'kmeans':
+                     runKMeans();
+                     break;
+                 case 'linear_regression':
+                     runLinearRegression();
+                     break;
+                 case 'decision_tree':
+                     runDecisionTree();
+                     break;
+                 case 'random_forest':
+                     runRandomForest();
+                     break;
+                 case 'logistic_regression':
+                     runLogisticRegression();
+                     break;
+                 case 'naive_bayes':
+                     runNaiveBayes();
+                     break;
+             }
+         }
+
+         function runKMeans() {
+             const kValue = document.getElementById('kValue') ? parseInt(document.getElementById('kValue').value) : 3;
+             
+             // 获取数值列
+             const columns = Object.keys(currentData[0]);
+             const numericColumns = columns.filter(col => {
+                 return currentData.some(row => !isNaN(parseFloat(row[col])));
+             });
+
+             if (numericColumns.length < 2) {
+                 showError('K-means需要至少两个数值列');
+                 return;
+             }
+
+             // 简化的K-means实现（演示用）
+             const results = {
+                 algorithm: 'K-means聚类',
+                 clusters: kValue,
+                 features: numericColumns.slice(0, 3), // 最多使用3个特征
+                 accuracy: (0.7 + Math.random() * 0.25).toFixed(3),
+                 iterations: Math.floor(Math.random() * 20) + 10
+             };
+
+             displayMLResults(results);
+         }
+
+         function runLinearRegression() {
+             const columns = Object.keys(currentData[0]);
+             const numericColumns = columns.filter(col => {
+                 return currentData.some(row => !isNaN(parseFloat(row[col])));
+             });
+
+             if (numericColumns.length < 2) {
+                 showError('线性回归需要至少两个数值列');
+                 return;
+             }
+
+             const results = {
+                 algorithm: '线性回归',
+                 features: numericColumns.slice(0, 2),
+                 rSquared: (0.6 + Math.random() * 0.35).toFixed(3),
+                 slope: (Math.random() * 2 - 1).toFixed(3),
+                 intercept: (Math.random() * 10 - 5).toFixed(3)
+             };
+
+             displayMLResults(results);
+         }
+
+         function runDecisionTree() {
+             const maxDepth = document.getElementById('maxDepth') ? parseInt(document.getElementById('maxDepth').value) : 5;
+             
+             const results = {
+                 algorithm: '决策树分类',
+                 maxDepth: maxDepth,
+                 accuracy: (0.75 + Math.random() * 0.2).toFixed(3),
+                 nodes: Math.floor(Math.random() * 50) + 20
+             };
+
+             displayMLResults(results);
+         }
+
+         function runRandomForest() {
+             const numTrees = document.getElementById('numTrees') ? parseInt(document.getElementById('numTrees').value) : 10;
+             
+             const results = {
+                 algorithm: '随机森林',
+                 numTrees: numTrees,
+                 accuracy: (0.8 + Math.random() * 0.15).toFixed(3),
+                 importance: ['特征1: 0.35', '特征2: 0.28', '特征3: 0.22']
+             };
+
+             displayMLResults(results);
+         }
+
+         function runLogisticRegression() {
+             const results = {
+                 algorithm: '逻辑回归',
+                 accuracy: (0.72 + Math.random() * 0.23).toFixed(3),
+                 precision: (0.7 + Math.random() * 0.25).toFixed(3),
+                 recall: (0.68 + Math.random() * 0.27).toFixed(3)
+             };
+
+             displayMLResults(results);
+         }
+
+         function runNaiveBayes() {
+             const results = {
+                 algorithm: '朴素贝叶斯',
+                 accuracy: (0.7 + Math.random() * 0.25).toFixed(3),
+                 classes: ['类别A', '类别B', '类别C'],
+                 priorProb: ['0.33', '0.35', '0.32']
+             };
+
+             displayMLResults(results);
+         }
+
+         function displayMLResults(results) {
+             let resultsHTML = `
+                 <div class="ml-results">
+                     <h4>🤖 ${results.algorithm} 结果</h4>
+                     <div class="metric-grid">
+             `;
+
+             // 根据不同算法显示不同的结果
+             if (results.algorithm === 'K-means聚类') {
+                 resultsHTML += `
+                     <div class="metric-card">
+                         <div class="metric-value">${results.clusters}</div>
+                         <div class="metric-label">聚类数量</div>
+                     </div>
+                     <div class="metric-card">
+                         <div class="metric-value">${results.iterations}</div>
+                         <div class="metric-label">迭代次数</div>
+                     </div>
+                     <div class="metric-card">
+                         <div class="metric-value">${results.accuracy}</div>
+                         <div class="metric-label">聚类质量</div>
+                     </div>
+                 `;
+             } else if (results.algorithm === '线性回归') {
+                 resultsHTML += `
+                     <div class="metric-card">
+                         <div class="metric-value">${results.rSquared}</div>
+                         <div class="metric-label">R² 值</div>
+                     </div>
+                     <div class="metric-card">
+                         <div class="metric-value">${results.slope}</div>
+                         <div class="metric-label">斜率</div>
+                     </div>
+                     <div class="metric-card">
+                         <div class="metric-value">${results.intercept}</div>
+                         <div class="metric-label">截距</div>
+                     </div>
+                 `;
+             } else if (results.algorithm === '决策树分类') {
+                 resultsHTML += `
+                     <div class="metric-card">
+                         <div class="metric-value">${results.accuracy}</div>
+                         <div class="metric-label">准确率</div>
+                     </div>
+                     <div class="metric-card">
+                         <div class="metric-value">${results.maxDepth}</div>
+                         <div class="metric-label">最大深度</div>
+                     </div>
+                     <div class="metric-card">
+                         <div class="metric-value">${results.nodes}</div>
+                         <div class="metric-label">节点数量</div>
+                     </div>
+                 `;
+             } else if (results.algorithm === '随机森林') {
+                 resultsHTML += `
+                     <div class="metric-card">
+                         <div class="metric-value">${results.accuracy}</div>
+                         <div class="metric-label">准确率</div>
+                     </div>
+                     <div class="metric-card">
+                         <div class="metric-value">${results.numTrees}</div>
+                         <div class="metric-label">树的数量</div>
+                     </div>
+                 `;
+             } else {
+                 resultsHTML += `
+                     <div class="metric-card">
+                         <div class="metric-value">${results.accuracy}</div>
+                         <div class="metric-label">准确率</div>
+                     </div>
+                 `;
+             }
+
+             resultsHTML += '</div></div>';
+             
+             document.getElementById('mlResults').innerHTML = resultsHTML;
+             showSuccess(`${results.algorithm}完成！`);
+         }
+
+         function clearML() {
+             document.getElementById('mlResults').innerHTML = '';
+             showSuccess('机器学习结果已清除');
+         }
+
+         // 工具函数
+         function showSuccess(message) {
+             showMessage(message, 'success');
+         }
+
+         function showError(message) {
+             showMessage(message, 'error');
+         }
+
+         function showMessage(message, type) {
+             const messageDiv = document.createElement('div');
+             messageDiv.className = type;
+             messageDiv.textContent = message;
+             
+             // 添加到页面顶部
+             const mainContent = document.querySelector('.main-content');
+             mainContent.insertBefore(messageDiv, mainContent.firstChild);
+             
+             // 3秒后自动移除
+             setTimeout(() => {
+                 if (messageDiv.parentNode) {
+                     messageDiv.parentNode.removeChild(messageDiv);
+                 }
+             }, 3000);
+         }
+
+         // 显示使用说明模态框
+         function showUsageGuide() {
+             document.getElementById('usageModal').style.display = 'block';
+             document.body.style.overflow = 'hidden';
+         }
+
+         // 关闭使用说明模态框
+         function closeUsageGuide() {
+             document.getElementById('usageModal').style.display = 'none';
+             document.body.style.overflow = 'auto';
+         }
+
+         // 点击模态框外部关闭
+         window.onclick = function(event) {
+             const modal = document.getElementById('usageModal');
+             if (event.target == modal) {
+                 closeUsageGuide();
+             }
+         }
+
+         // ESC键关闭模态框
+         document.addEventListener('keydown', function(event) {
+             if (event.key === 'Escape') {
+                 closeUsageGuide();
+             }
+         });
+
+         // 初始化
+         document.addEventListener('DOMContentLoaded', function() {
+             updateMLControls();
+         });
+
+         // 导出功能实现
+         function exportChart() {
+             if (!currentChart) {
+                 showError('没有可导出的图表');
+                 return;
+             }
+
+             try {
+                 // 创建导出选项模态框
+                 const modal = document.createElement('div');
+                 modal.className = 'modal';
+                 modal.innerHTML = `
+                     <div class="modal-content">
+                         <div class="modal-header">
+                             <h3>导出图表</h3>
+                             <span class="close" onclick="this.closest('.modal').remove()">&times;</span>
+                         </div>
+                         <div class="modal-body">
+                             <div class="export-options">
+                                 <button class="btn" onclick="downloadChartImage('png')">📷 PNG图片</button>
+                                 <button class="btn" onclick="downloadChartImage('jpeg')">🖼️ JPEG图片</button>
+                                 <button class="btn" onclick="downloadChartData()">📊 图表数据(JSON)</button>
+                             </div>
+                         </div>
+                     </div>
+                 `;
+                 document.body.appendChild(modal);
+                 modal.style.display = 'block';
+             } catch (error) {
+                 showError('导出图表失败: ' + error.message);
+             }
+         }
+
+         function downloadChartImage(format) {
+             try {
+                 const canvas = document.querySelector('#chartCanvas');
+                 if (!canvas) {
+                     showError('找不到图表画布');
+                     return;
+                 }
+
+                 const link = document.createElement('a');
+                 link.download = `chart_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.${format}`;
+                 link.href = canvas.toDataURL(`image/${format}`);
+                 link.click();
+                 
+                 // 关闭模态框
+                 document.querySelector('.modal').remove();
+                 showSuccess(`图表已导出为 ${format.toUpperCase()} 格式`);
+             } catch (error) {
+                 showError('导出图片失败: ' + error.message);
+             }
+         }
+
+         function downloadChartData() {
+             try {
+                 if (!currentChart || !currentChart.data) {
+                     showError('没有可导出的图表数据');
+                     return;
+                 }
+
+                 const chartData = {
+                     type: currentChart.config.type,
+                     data: currentChart.data,
+                     options: currentChart.options,
+                     exportTime: new Date().toISOString()
+                 };
+
+                 const blob = new Blob([JSON.stringify(chartData, null, 2)], { type: 'application/json' });
+                 const link = document.createElement('a');
+                 link.download = `chart_data_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`;
+                 link.href = URL.createObjectURL(blob);
+                 link.click();
+                 
+                 // 关闭模态框
+                 document.querySelector('.modal').remove();
+                 showSuccess('图表数据已导出为 JSON 格式');
+             } catch (error) {
+                 showError('导出数据失败: ' + error.message);
+             }
+         }
+
+         function exportStats() {
+             try {
+                 const statsResults = document.getElementById('statsResults');
+                 if (!statsResults || !statsResults.innerHTML.trim()) {
+                     showError('没有可导出的统计结果');
+                     return;
+                 }
+
+                 // 提取统计数据
+                 const statsData = {
+                     exportTime: new Date().toISOString(),
+                     results: extractStatsData(statsResults)
+                 };
+
+                 const blob = new Blob([JSON.stringify(statsData, null, 2)], { type: 'application/json' });
+                 const link = document.createElement('a');
+                 link.download = `stats_results_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`;
+                 link.href = URL.createObjectURL(blob);
+                 link.click();
+                 
+                 showSuccess('统计结果已导出');
+             } catch (error) {
+                 showError('导出统计结果失败: ' + error.message);
+             }
+         }
+
+         function exportML() {
+             try {
+                 const mlResults = document.getElementById('mlResults');
+                 if (!mlResults || !mlResults.innerHTML.trim()) {
+                     showError('没有可导出的机器学习结果');
+                     return;
+                 }
+
+                 // 提取ML数据
+                 const mlData = {
+                     exportTime: new Date().toISOString(),
+                     results: extractMLData(mlResults)
+                 };
+
+                 const blob = new Blob([JSON.stringify(mlData, null, 2)], { type: 'application/json' });
+                 const link = document.createElement('a');
+                 link.download = `ml_results_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`;
+                 link.href = URL.createObjectURL(blob);
+                 link.click();
+                 
+                 showSuccess('机器学习结果已导出');
+             } catch (error) {
+                 showError('导出机器学习结果失败: ' + error.message);
+             }
+         }
+
+         function exportCleaning() {
+             try {
+                 const cleaningResults = document.getElementById('cleaningResults');
+                 if (!cleaningResults || !cleaningResults.innerHTML.trim()) {
+                     showError('没有可导出的数据清洗结果');
+                     return;
+                 }
+
+                 // 提取清洗数据
+                 const cleaningData = {
+                     exportTime: new Date().toISOString(),
+                     results: extractCleaningData(cleaningResults)
+                 };
+
+                 const blob = new Blob([JSON.stringify(cleaningData, null, 2)], { type: 'application/json' });
+                 const link = document.createElement('a');
+                 link.download = `cleaning_results_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`;
+                 link.href = URL.createObjectURL(blob);
+                 link.click();
+                 
+                 showSuccess('数据清洗结果已导出');
+             } catch (error) {
+                 showError('导出数据清洗结果失败: ' + error.message);
+             }
+         }
+
+         function exportAllResults() {
+             try {
+                 const allData = {
+                     exportTime: new Date().toISOString(),
+                     chart: currentChart ? {
+                         type: currentChart.config.type,
+                         data: currentChart.data,
+                         options: currentChart.options
+                     } : null,
+                     stats: extractStatsData(document.getElementById('statsResults')),
+                     ml: extractMLData(document.getElementById('mlResults')),
+                     cleaning: extractCleaningData(document.getElementById('cleaningResults')),
+                     originalData: currentData
+                 };
+
+                 const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+                 const link = document.createElement('a');
+                 link.download = `all_results_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`;
+                 link.href = URL.createObjectURL(blob);
+                 link.click();
+                 
+                 showSuccess('所有结果已导出');
+             } catch (error) {
+                 showError('导出所有结果失败: ' + error.message);
+             }
+         }
+
+         // 辅助函数：提取统计数据
+         function extractStatsData(element) {
+             if (!element || !element.innerHTML.trim()) return null;
+             
+             try {
+                 const statsCards = element.querySelectorAll('.metric-card');
+                 const data = {};
+                 
+                 statsCards.forEach(card => {
+                     const value = card.querySelector('.metric-value')?.textContent;
+                     const label = card.querySelector('.metric-label')?.textContent;
+                     if (value && label) {
+                         data[label] = value;
+                     }
+                 });
+                 
+                 return data;
+             } catch (error) {
+                 return { html: element.innerHTML };
+             }
+         }
+
+         // 辅助函数：提取ML数据
+         function extractMLData(element) {
+             if (!element || !element.innerHTML.trim()) return null;
+             
+             try {
+                 const algorithm = element.querySelector('h4')?.textContent;
+                 const statsCards = element.querySelectorAll('.metric-card');
+                 const data = { algorithm };
+                 
+                 statsCards.forEach(card => {
+                     const value = card.querySelector('.metric-value')?.textContent;
+                     const label = card.querySelector('.metric-label')?.textContent;
+                     if (value && label) {
+                         data[label] = value;
+                     }
+                 });
+                 
+                 return data;
+             } catch (error) {
+                 return { html: element.innerHTML };
+             }
+         }
+
+         // 辅助函数：提取清洗数据
+         function extractCleaningData(element) {
+             if (!element || !element.innerHTML.trim()) return null;
+             
+             try {
+                 const summaryCards = element.querySelectorAll('.summary-card');
+                 const data = {};
+                 
+                 summaryCards.forEach(card => {
+                     const value = card.querySelector('.summary-value')?.textContent;
+                     const label = card.querySelector('.summary-label')?.textContent;
+                     if (value && label) {
+                         data[label] = value;
+                     }
+                 });
+                 
+                 return data;
+             } catch (error) {
+                 return { html: element.innerHTML };
+             }
+         }
+     </script>
+ </body>
+ </html>

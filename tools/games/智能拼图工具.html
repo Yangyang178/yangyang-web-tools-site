@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能拼图工具</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 50%, #a5b4fc 100%);
+            min-height: 100vh;
+            color: var(--dark-color);
+            animation: gradientBG 15s ease infinite;
+            background-size: 200% 200%;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(12px);
+            background-image: linear-gradient(to bottom right, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+        }
+        h1 {
+            text-align: center;
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(67, 97, 238, 0.1);
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: var(--transition);
+        }
+        .control-group:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0));
+            border-radius: 50px;
+        }
+        .puzzle-container {
+            display: grid;
+            gap: 10px;
+            padding: 10px;
+            border: 1px dashed #ccc;
+            min-height: 300px;
+            background-color: #f9f9f9;
+        }
+        .puzzle-item {
+            position: relative;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+        .puzzle-item .remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(247, 37, 133, 0.3);
+            transition: var(--transition);
+            opacity: 0.8;
+        }
+        .puzzle-item .remove-btn:hover {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+        #fileInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>智能拼图工具</h1>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="layout">布局方式</label>
+                <select id="layout">
+                    <option value="grid">网格布局</option>
+                    <option value="masonry">瀑布流布局</option>
+                    <option value="horizontal">水平排列</option>
+                    <option value="vertical">垂直排列</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="spacing">间距 (px)</label>
+                <input type="number" id="spacing" value="10" min="0" max="50">
+            </div>
+            
+            <div class="control-group">
+                <label for="border">边框 (px)</label>
+                <input type="number" id="border" value="0" min="0" max="20">
+            </div>
+            
+            <div class="control-group">
+                <label for="radius">圆角 (px)</label>
+                <input type="number" id="radius" value="0" min="0" max="50">
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="columns">列数</label>
+                <input type="number" id="columns" value="3" min="1" max="10">
+            </div>
+            
+            <div class="control-group">
+                <label for="bgColor">背景颜色</label>
+                <input type="color" id="bgColor" value="#f9f9f9">
+            </div>
+            
+            <div class="control-group">
+                <label for="borderColor">边框颜色</label>
+                <input type="color" id="borderColor" value="#cccccc">
+            </div>
+            
+            <div class="control-group">
+                <button id="applyBtn">应用设置</button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="addImageBtn">添加图片</button>
+            <button id="clearBtn">清空所有</button>
+            <button id="downloadBtn">下载拼图</button>
+        </div>
+        
+        <input type="file" id="fileInput" multiple accept="image/*">
+        
+        <div class="puzzle-container" id="puzzleContainer">
+            <!-- 图片将在这里动态添加 -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const addImageBtn = document.getElementById('addImageBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const applyBtn = document.getElementById('applyBtn');
+            const puzzleContainer = document.getElementById('puzzleContainer');
+            
+            let images = [];
+            
+            // 添加图片
+            addImageBtn.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', function(e) {
+                const files = e.target.files;
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (file.type.match('image.*')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            images.push(e.target.result);
+                            updatePuzzle();
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+                fileInput.value = '';
+            });
+            
+            // 清空所有
+            clearBtn.addEventListener('click', function() {
+                images = [];
+                updatePuzzle();
+            });
+            
+            // 应用设置
+            applyBtn.addEventListener('click', function() {
+                updatePuzzle();
+            });
+            
+            // 下载拼图
+        downloadBtn.addEventListener('click', async function() {
+            if (images.length === 0) {
+                alert('请先添加图片！');
+                return;
+            }
+            
+            try {
+                // 创建canvas
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // 计算canvas尺寸
+                const containerRect = puzzleContainer.getBoundingClientRect();
+                canvas.width = containerRect.width;
+                canvas.height = containerRect.height;
+                
+                // 绘制背景
+                ctx.fillStyle = puzzleContainer.style.backgroundColor || '#f9f9f9';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // 绘制所有图片元素
+                const items = puzzleContainer.querySelectorAll('.puzzle-item');
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
+                    const rect = item.getBoundingClientRect();
+                    
+                    // 创建临时img元素加载图片
+                    const img = new Image();
+                    img.crossOrigin = 'Anonymous';
+                    img.src = images[i];
+                    
+                    await new Promise(resolve => {
+                        img.onload = function() {
+                            // 计算绘制位置
+                            const x = rect.left - containerRect.left;
+                            const y = rect.top - containerRect.top;
+                            
+                            // 绘制图片
+                            ctx.save();
+                            
+                            // 绘制圆角
+                            const radius = parseInt(item.style.borderRadius) || 0;
+                            if (radius > 0) {
+                                ctx.beginPath();
+                                ctx.moveTo(x + radius, y);
+                                ctx.lineTo(x + rect.width - radius, y);
+                                ctx.quadraticCurveTo(x + rect.width, y, x + rect.width, y + radius);
+                                ctx.lineTo(x + rect.width, y + rect.height - radius);
+                                ctx.quadraticCurveTo(x + rect.width, y + rect.height, x + rect.width - radius, y + rect.height);
+                                ctx.lineTo(x + radius, y + rect.height);
+                                ctx.quadraticCurveTo(x, y + rect.height, x, y + rect.height - radius);
+                                ctx.lineTo(x, y + radius);
+                                ctx.quadraticCurveTo(x, y, x + radius, y);
+                                ctx.closePath();
+                                ctx.clip();
+                            }
+                            
+                            ctx.drawImage(img, x, y, rect.width, rect.height);
+                            ctx.restore();
+                            
+                            // 绘制边框
+                            const borderWidth = parseInt(item.style.borderWidth) || 0;
+                            if (borderWidth > 0) {
+                                ctx.strokeStyle = item.style.borderColor || '#cccccc';
+                                ctx.lineWidth = borderWidth;
+                                ctx.strokeRect(x, y, rect.width, rect.height);
+                            }
+                            
+                            resolve();
+                        };
+                    });
+                }
+                
+                // 下载canvas内容
+                const link = document.createElement('a');
+                link.download = '拼图_' + new Date().toISOString().slice(0, 10) + '.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+            } catch (error) {
+                console.error('下载失败:', error);
+                alert('下载失败: ' + error.message);
+            }
+        });
+            
+            // 更新拼图显示
+            function updatePuzzle() {
+                puzzleContainer.innerHTML = '';
+                
+                // 获取当前设置
+                const layout = document.getElementById('layout').value;
+                const spacing = parseInt(document.getElementById('spacing').value);
+                const border = parseInt(document.getElementById('border').value);
+                const radius = parseInt(document.getElementById('radius').value);
+                const columns = parseInt(document.getElementById('columns').value);
+                const bgColor = document.getElementById('bgColor').value;
+                const borderColor = document.getElementById('borderColor').value;
+                
+                // 应用容器样式
+                puzzleContainer.style.gap = spacing + 'px';
+                puzzleContainer.style.backgroundColor = bgColor;
+                puzzleContainer.style.borderColor = borderColor;
+                
+                // 设置布局
+                if (layout === 'grid') {
+                    puzzleContainer.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+                    puzzleContainer.style.gridAutoFlow = 'row';
+                } else if (layout === 'masonry') {
+                    puzzleContainer.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+                    puzzleContainer.style.gridAutoFlow = 'row dense';
+                } else if (layout === 'horizontal') {
+                    puzzleContainer.style.gridTemplateColumns = `repeat(${images.length}, 1fr)`;
+                    puzzleContainer.style.gridAutoFlow = 'column';
+                } else if (layout === 'vertical') {
+                    puzzleContainer.style.gridTemplateColumns = '1fr';
+                    puzzleContainer.style.gridAutoFlow = 'row';
+                }
+                
+                // 添加图片元素
+                images.forEach((imgSrc, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'puzzle-item';
+                    item.style.backgroundImage = `url(${imgSrc})`;
+                    item.style.border = `${border}px solid ${borderColor}`;
+                    item.style.borderRadius = `${radius}px`;
+                    
+                    // 根据布局设置宽高比
+                    if (layout === 'horizontal' || layout === 'vertical') {
+                        item.style.aspectRatio = '1/1';
+                    } else {
+                        item.style.aspectRatio = 'auto';
+                    }
+                    
+                    // 添加删除按钮
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'remove-btn';
+                    removeBtn.innerHTML = '×';
+                    removeBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        images.splice(index, 1);
+                        updatePuzzle();
+                    });
+                    
+                    item.appendChild(removeBtn);
+                    puzzleContainer.appendChild(item);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

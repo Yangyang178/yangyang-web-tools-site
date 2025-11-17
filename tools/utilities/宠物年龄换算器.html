@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宠物年龄换算器</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #e8f4fc;
+            border-radius: 8px;
+            color: #2c3e50;
+            font-size: 18px;
+            display: none;
+        }
+        .pet-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="pet-icon">🐶</div>
+        <h1>宠物年龄换算器</h1>
+        
+        <div class="form-group">
+            <label for="petType">选择宠物类型：</label>
+            <select id="petType">
+                <option value="dog">狗狗</option>
+                <option value="cat">猫咪</option>
+                <option value="rabbit">兔子</option>
+                <option value="hamster">仓鼠</option>
+                <option value="bird">鸟类</option>
+                <option value="turtle">乌龟</option>
+                <option value="guinea_pig">豚鼠</option>
+                <option value="ferret">雪貂</option>
+                <option value="chinchilla">龙猫</option>
+                <option value="hedgehog">刺猬</option>
+                <option value="goldfish">金鱼</option>
+                <option value="parrot">鹦鹉</option>
+                <option value="canary">金丝雀</option>
+                <option value="budgie">虎皮鹦鹉</option>
+                <option value="cockatiel">玄凤鹦鹉</option>
+                <option value="lovebird">爱情鸟</option>
+                <option value="finch">雀鸟</option>
+                <option value="dove">鸽子</option>
+                <option value="pigeon">家鸽</option>
+                <option value="mouse">老鼠</option>
+                <option value="rat">大鼠</option>
+                <option value="gerbil">沙鼠</option>
+                <option value="degus">八齿鼠</option>
+                <option value="sugar_glider">蜜袋鼯</option>
+                <option value="chipmunk">花栗鼠</option>
+                <option value="squirrel">松鼠</option>
+                <option value="frog">青蛙</option>
+                <option value="toad">蟾蜍</option>
+                <option value="newt">蝾螈</option>
+                <option value="salamander">火蜥蜴</option>
+                <option value="gecko">壁虎</option>
+                <option value="iguana">鬣蜥</option>
+                <option value="chameleon">变色龙</option>
+                <option value="bearded_dragon">鬃狮蜥</option>
+                <option value="snake">蛇</option>
+                <option value="python">蟒蛇</option>
+                <option value="boa">蚺蛇</option>
+                <option value="corn_snake">玉米蛇</option>
+                <option value="king_snake">王蛇</option>
+                <option value="milk_snake">奶蛇</option>
+                <option value="tarantula">狼蛛</option>
+                <option value="scorpion">蝎子</option>
+                <option value="hermit_crab">寄居蟹</option>
+                <option value="stick_insect">竹节虫</option>
+                <option value="mantis">螳螂</option>
+                <option value="snail">蜗牛</option>
+                <option value="slug">蛞蝓</option>
+                <option value="axolotl">六角恐龙</option>
+                <option value="koi">锦鲤</option>
+                <option value="betta">斗鱼</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="petAge">请输入宠物的年龄：</label>
+            <input type="number" id="petAge" placeholder="输入宠物年龄" min="0" max="30">
+        </div>
+        
+        <button onclick="calculateHumanAge()">计算人类年龄</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function calculateHumanAge() {
+            const petType = document.getElementById('petType').value;
+            const petAge = document.getElementById('petAge').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!petAge) {
+                alert('请输入宠物的年龄');
+                return;
+            }
+            
+            // 不同宠物的年龄换算公式
+            let humanAge;
+            let petName;
+            
+            switch(petType) {
+                case 'dog':
+                    petName = '狗狗';
+                    if (petAge <= 2) {
+                        humanAge = petAge * 12;
+                    } else {
+                        humanAge = 24 + (petAge - 2) * 4;
+                    }
+                    break;
+                case 'cat':
+                    petName = '猫咪';
+                    if (petAge <= 1) {
+                        humanAge = petAge * 15;
+                    } else if (petAge <= 2) {
+                        humanAge = 15 + (petAge - 1) * 9;
+                    } else {
+                        humanAge = 24 + (petAge - 2) * 4;
+                    }
+                    break;
+                case 'rabbit':
+                    petName = '兔子';
+                    humanAge = petAge * 8;
+                    break;
+                case 'hamster':
+                    petName = '仓鼠';
+                    humanAge = petAge * 25;
+                    break;
+                case 'bird':
+                    petName = '鸟类';
+                    humanAge = petAge * 6;
+                    break;
+                case 'turtle':
+                    petName = '乌龟';
+                    humanAge = petAge * 3;
+                    break;
+                case 'guinea_pig':
+                    petName = '豚鼠';
+                    humanAge = petAge * 20;
+                    break;
+                case 'ferret':
+                    petName = '雪貂';
+                    humanAge = petAge * 10;
+                    break;
+                case 'chinchilla':
+                    petName = '龙猫';
+                    humanAge = petAge * 15;
+                    break;
+                case 'hedgehog':
+                    petName = '刺猬';
+                    humanAge = petAge * 12;
+                    break;
+                case 'goldfish':
+                    petName = '金鱼';
+                    humanAge = petAge * 5;
+                    break;
+                case 'parrot':
+                    petName = '鹦鹉';
+                    humanAge = petAge * 4;
+                    break;
+                case 'canary':
+                    petName = '金丝雀';
+                    humanAge = petAge * 6;
+                    break;
+                case 'budgie':
+                    petName = '虎皮鹦鹉';
+                    humanAge = petAge * 5;
+                    break;
+                case 'cockatiel':
+                    petName = '玄凤鹦鹉';
+                    humanAge = petAge * 4;
+                    break;
+                case 'lovebird':
+                    petName = '爱情鸟';
+                    humanAge = petAge * 5;
+                    break;
+                case 'finch':
+                    petName = '雀鸟';
+                    humanAge = petAge * 6;
+                    break;
+                case 'dove':
+                    petName = '鸽子';
+                    humanAge = petAge * 5;
+                    break;
+                case 'pigeon':
+                    petName = '家鸽';
+                    humanAge = petAge * 5;
+                    break;
+                case 'mouse':
+                    petName = '老鼠';
+                    humanAge = petAge * 18;
+                    break;
+                case 'rat':
+                    petName = '大鼠';
+                    humanAge = petAge * 16;
+                    break;
+                case 'gerbil':
+                    petName = '沙鼠';
+                    humanAge = petAge * 20;
+                    break;
+                case 'degus':
+                    petName = '八齿鼠';
+                    humanAge = petAge * 15;
+                    break;
+                case 'sugar_glider':
+                    petName = '蜜袋鼯';
+                    humanAge = petAge * 12;
+                    break;
+                case 'chipmunk':
+                    petName = '花栗鼠';
+                    humanAge = petAge * 14;
+                    break;
+                case 'squirrel':
+                    petName = '松鼠';
+                    humanAge = petAge * 10;
+                    break;
+                case 'frog':
+                    petName = '青蛙';
+                    humanAge = petAge * 8;
+                    break;
+                case 'toad':
+                    petName = '蟾蜍';
+                    humanAge = petAge * 7;
+                    break;
+                case 'newt':
+                    petName = '蝾螈';
+                    humanAge = petAge * 6;
+                    break;
+                case 'salamander':
+                    petName = '火蜥蜴';
+                    humanAge = petAge * 5;
+                    break;
+                case 'gecko':
+                    petName = '壁虎';
+                    humanAge = petAge * 7;
+                    break;
+                case 'iguana':
+                    petName = '鬣蜥';
+                    humanAge = petAge * 4;
+                    break;
+                case 'chameleon':
+                    petName = '变色龙';
+                    humanAge = petAge * 5;
+                    break;
+                case 'bearded_dragon':
+                    petName = '鬃狮蜥';
+                    humanAge = petAge * 4;
+                    break;
+                case 'snake':
+                    petName = '蛇';
+                    humanAge = petAge * 3;
+                    break;
+                case 'python':
+                    petName = '蟒蛇';
+                    humanAge = petAge * 2;
+                    break;
+                case 'boa':
+                    petName = '蚺蛇';
+                    humanAge = petAge * 2;
+                    break;
+                case 'corn_snake':
+                    petName = '玉米蛇';
+                    humanAge = petAge * 3;
+                    break;
+                case 'king_snake':
+                    petName = '王蛇';
+                    humanAge = petAge * 3;
+                    break;
+                case 'milk_snake':
+                    petName = '奶蛇';
+                    humanAge = petAge * 3;
+                    break;
+                case 'tarantula':
+                    petName = '狼蛛';
+                    humanAge = petAge * 4;
+                    break;
+                case 'scorpion':
+                    petName = '蝎子';
+                    humanAge = petAge * 5;
+                    break;
+                case 'hermit_crab':
+                    petName = '寄居蟹';
+                    humanAge = petAge * 6;
+                    break;
+                case 'stick_insect':
+                    petName = '竹节虫';
+                    humanAge = petAge * 8;
+                    break;
+                case 'mantis':
+                    petName = '螳螂';
+                    humanAge = petAge * 7;
+                    break;
+                case 'snail':
+                    petName = '蜗牛';
+                    humanAge = petAge * 10;
+                    break;
+                case 'slug':
+                    petName = '蛞蝓';
+                    humanAge = petAge * 9;
+                    break;
+                case 'axolotl':
+                    petName = '六角恐龙';
+                    humanAge = petAge * 5;
+                    break;
+                case 'koi':
+                    petName = '锦鲤';
+                    humanAge = petAge * 4;
+                    break;
+                case 'betta':
+                    petName = '斗鱼';
+                    humanAge = petAge * 5;
+                    break;
+                default:
+                    petName = '宠物';
+                    humanAge = petAge * 7;
+            }
+            
+            resultDiv.innerHTML = `${petName}年龄 ${petAge} 岁 ≈ 人类年龄 ${humanAge} 岁`;
+            resultDiv.style.display = 'block';
+            
+            // 更新宠物图标
+            const icons = {
+                'dog': '🐶',
+                'cat': '🐱',
+                'rabbit': '🐰',
+                'hamster': '🐹',
+                'bird': '🐦',
+                'turtle': '🐢',
+                'guinea_pig': '🐹',
+                'ferret': '🦡',
+                'chinchilla': '🐭',
+                'hedgehog': '🦔',
+                'goldfish': '🐠',
+                'parrot': '🦜',
+                'canary': '🐤',
+                'budgie': '🦜',
+                'cockatiel': '🦜',
+                'lovebird': '🦜',
+                'finch': '🐦',
+                'dove': '🕊️',
+                'pigeon': '🕊️',
+                'mouse': '🐭',
+                'rat': '🐀',
+                'gerbil': '🐹',
+                'degus': '🐹',
+                'sugar_glider': '🦇',
+                'chipmunk': '🐿️',
+                'squirrel': '🐿️',
+                'frog': '🐸',
+                'toad': '🐸',
+                'newt': '🦎',
+                'salamander': '🦎',
+                'gecko': '🦎',
+                'iguana': '🦎',
+                'chameleon': '🦎',
+                'bearded_dragon': '🦎',
+                'snake': '🐍',
+                'python': '🐍',
+                'boa': '🐍',
+                'corn_snake': '🐍',
+                'king_snake': '🐍',
+                'milk_snake': '🐍',
+                'tarantula': '🕷️',
+                'scorpion': '🦂',
+                'hermit_crab': '🦀',
+                'stick_insect': '🦗',
+                'mantis': '🦗',
+                'snail': '🐌',
+                'slug': '🐌',
+                'axolotl': '🦎',
+                'koi': '🐟',
+                'betta': '🐠'
+            };
+            document.querySelector('.pet-icon').textContent = icons[petType];
+        }
+    </script>
+</body>
+</html>

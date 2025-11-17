@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>元素周期表查询工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .search-box {
+            margin-bottom: 20px;
+        }
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .element {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .element:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        .element-details {
+            margin-top: 30px;
+            padding: 25px;
+            border: none;
+            border-radius: 8px;
+            display: none;
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .element-details h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        .element-details p {
+            margin-bottom: 10px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .element-details span {
+            font-weight: 500;
+            color: #3498db;
+        }
+        .alkali-metal { background-color: #ff9999; }
+        .alkaline-earth { background-color: #ffdead; }
+        .transition-metal { background-color: #ffcc99; }
+        .basic-metal { background-color: #99cc99; }
+        .semimetal { background-color: #cccc99; }
+        .nonmetal { background-color: #99ffff; }
+        .halogen { background-color: #99ccff; }
+        .noble-gas { background-color: #cc99ff; }
+        .lanthanide { background-color: #ffccff; }
+        .actinide { background-color: #ff99cc; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>元素周期表查询工具</h1>
+        
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="输入元素名称、符号或原子序数...">
+            <button onclick="searchElement()">搜索</button>
+        </div>
+        
+        <div class="periodic-table" id="periodic-table">
+            <!-- 元素周期表将通过JavaScript动态生成 -->
+        </div>
+        
+        <div class="element-details" id="element-details">
+            <h2 id="element-name"></h2>
+            <p>符号: <span id="element-symbol"></span></p>
+            <p>原子序数: <span id="element-number"></span></p>
+            <p>原子量: <span id="element-weight"></span></p>
+            <p>类别: <span id="element-category"></span></p>
+            <p>电子排布: <span id="element-configuration"></span></p>
+            <p>发现年份: <span id="element-year"></span></p>
+            <p>简介: <span id="element-description"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // 元素数据
+        const elements = [
+            { number: 1, symbol: 'H', name: '氢', weight: 1.008, category: 'nonmetal', configuration: '1s1', year: '1766', description: '氢是最轻的元素，也是宇宙中最丰富的元素。' },
+            { number: 2, symbol: 'He', name: '氦', weight: 4.0026, category: 'noble-gas', configuration: '1s2', year: '1868', description: '氦是一种惰性气体，常用于气球和低温研究。' },
+            { number: 3, symbol: 'Li', name: '锂', weight: 6.94, category: 'alkali-metal', configuration: '[He] 2s1', year: '1817', description: '锂是最轻的金属，用于电池和精神病治疗。' },
+            { number: 4, symbol: 'Be', name: '铍', weight: 9.0122, category: 'alkaline-earth', configuration: '[He] 2s2', year: '1798', description: '铍是一种轻金属，用于航空航天和核应用。' },
+            { number: 5, symbol: 'B', name: '硼', weight: 10.81, category: 'semimetal', configuration: '[He] 2s2 2p1', year: '1808', description: '硼是一种半金属，用于玻璃和陶瓷制造。' },
+            { number: 6, symbol: 'C', name: '碳', weight: 12.011, category: 'nonmetal', configuration: '[He] 2s2 2p2', year: '古代', description: '碳是生命的基础元素，存在于所有有机化合物中。' },
+            { number: 7, symbol: 'N', name: '氮', weight: 14.007, category: 'nonmetal', configuration: '[He] 2s2 2p3', year: '1772', description: '氮是大气的主要成分，用于肥料和炸药。' },
+            { number: 8, symbol: 'O', name: '氧', weight: 15.999, category: 'nonmetal', configuration: '[He] 2s2 2p4', year: '1774', description: '氧是生命必需的元素，支持燃烧和呼吸。' },
+            { number: 9, symbol: 'F', name: '氟', weight: 18.998, category: 'halogen', configuration: '[He] 2s2 2p5', year: '1886', description: '氟是最活泼的非金属元素，用于牙膏和制冷剂。' },
+            { number: 10, symbol: 'Ne', name: '氖', weight: 20.180, category: 'noble-gas', configuration: '[He] 2s2 2p6', year: '1898', description: '氖用于霓虹灯和高压指示器。' },
+            { number: 11, symbol: 'Na', name: '钠', weight: 22.990, category: 'alkali-metal', configuration: '[Ne] 3s1', year: '1807', description: '钠是一种活泼的碱金属，广泛存在于食盐中。' },
+            { number: 12, symbol: 'Mg', name: '镁', weight: 24.305, category: 'alkaline-earth', configuration: '[Ne] 3s2', year: '1755', description: '镁是一种轻金属，用于合金和烟火制造。' },
+            { number: 13, symbol: 'Al', name: '铝', weight: 26.982, category: 'basic-metal', configuration: '[Ne] 3s2 3p1', year: '1825', description: '铝是最丰富的金属元素之一，广泛用于包装和建筑。' },
+            { number: 14, symbol: 'Si', name: '硅', weight: 28.085, category: 'semimetal', configuration: '[Ne] 3s2 3p2', year: '1824', description: '硅是地壳中第二丰富的元素，是半导体和玻璃的主要成分。' },
+            { number: 15, symbol: 'P', name: '磷', weight: 30.974, category: 'nonmetal', configuration: '[Ne] 3s2 3p3', year: '1669', description: '磷是生命必需元素，存在于DNA和骨骼中。' },
+            { number: 16, symbol: 'S', name: '硫', weight: 32.06, category: 'nonmetal', configuration: '[Ne] 3s2 3p4', year: '古代', description: '硫是一种黄色固体，用于制造硫酸和橡胶。' },
+            { number: 17, symbol: 'Cl', name: '氯', weight: 35.45, category: 'halogen', configuration: '[Ne] 3s2 3p5', year: '1774', description: '氯是一种有毒气体，用于消毒和塑料制造。' },
+            { number: 18, symbol: 'Ar', name: '氩', weight: 39.948, category: 'noble-gas', configuration: '[Ne] 3s2 3p6', year: '1894', description: '氩是最丰富的惰性气体，用于焊接和照明。' },
+            { number: 19, symbol: 'K', name: '钾', weight: 39.098, category: 'alkali-metal', configuration: '[Ar] 4s1', year: '1807', description: '钾是生命必需元素，参与神经传导和肌肉收缩。' },
+            { number: 20, symbol: 'Ca', name: '钙', weight: 40.078, category: 'alkaline-earth', configuration: '[Ar] 4s2', year: '1808', description: '钙是骨骼和牙齿的主要成分，也参与细胞信号传导。' },
+            { number: 21, symbol: 'Sc', name: '钪', weight: 44.956, category: 'transition-metal', configuration: '[Ar] 3d1 4s2', year: '1879', description: '钪是一种稀土金属，用于高强度合金和照明。' },
+            { number: 22, symbol: 'Ti', name: '钛', weight: 47.867, category: 'transition-metal', configuration: '[Ar] 3d2 4s2', year: '1791', description: '钛是一种高强度、低密度的金属，用于航空航天和医疗植入物。' },
+            { number: 23, symbol: 'V', name: '钒', weight: 50.942, category: 'transition-metal', configuration: '[Ar] 3d3 4s2', year: '1801', description: '钒用于制造高强度钢和催化剂。' },
+            { number: 24, symbol: 'Cr', name: '铬', weight: 51.996, category: 'transition-metal', configuration: '[Ar] 3d5 4s1', year: '1797', description: '铬用于不锈钢制造和电镀。' },
+            { number: 25, symbol: 'Mn', name: '锰', weight: 54.938, category: 'transition-metal', configuration: '[Ar] 3d5 4s2', year: '1774', description: '锰是钢铁生产中的重要合金元素。' },
+            { number: 26, symbol: 'Fe', name: '铁', weight: 55.845, category: 'transition-metal', configuration: '[Ar] 3d6 4s2', year: '古代', description: '铁是地核的主要成分，广泛用于建筑和制造业。' },
+            { number: 27, symbol: 'Co', name: '钴', weight: 58.933, category: 'transition-metal', configuration: '[Ar] 3d7 4s2', year: '1735', description: '钴用于制造磁性合金和电池。' },
+            { number: 28, symbol: 'Ni', name: '镍', weight: 58.693, category: 'transition-metal', configuration: '[Ar] 3d8 4s2', year: '1751', description: '镍用于不锈钢制造和电池。' },
+            { number: 29, symbol: 'Cu', name: '铜', weight: 63.546, category: 'transition-metal', configuration: '[Ar] 3d10 4s1', year: '古代', description: '铜是优良的导电体，用于电线和管道。' },
+            { number: 30, symbol: 'Zn', name: '锌', weight: 65.38, category: 'transition-metal', configuration: '[Ar] 3d10 4s2', year: '古代', description: '锌用于镀锌钢和电池制造。' },
+            { number: 31, symbol: 'Ga', name: '镓', weight: 69.723, category: 'basic-metal', configuration: '[Ar] 3d10 4s2 4p1', year: '1875', description: '镓是一种低熔点金属，用于半导体和LED。' },
+            { number: 32, symbol: 'Ge', name: '锗', weight: 72.630, category: 'semimetal', configuration: '[Ar] 3d10 4s2 4p2', year: '1886', description: '锗是重要的半导体材料，用于晶体管和光纤。' },
+            { number: 33, symbol: 'As', name: '砷', weight: 74.922, category: 'semimetal', configuration: '[Ar] 3d10 4s2 4p3', year: '古代', description: '砷是一种有毒元素，用于杀虫剂和半导体。' },
+            { number: 34, symbol: 'Se', name: '硒', weight: 78.971, category: 'nonmetal', configuration: '[Ar] 3d10 4s2 4p4', year: '1817', description: '硒是必需微量元素，用于光电设备和玻璃制造。' },
+            { number: 35, symbol: 'Br', name: '溴', weight: 79.904, category: 'halogen', configuration: '[Ar] 3d10 4s2 4p5', year: '1826', description: '溴是一种红棕色液体，用于阻燃剂和医药。' },
+            { number: 36, symbol: 'Kr', name: '氪', weight: 83.798, category: 'noble-gas', configuration: '[Ar] 3d10 4s2 4p6', year: '1898', description: '氪用于荧光灯和激光器。' },
+            { number: 37, symbol: 'Rb', name: '铷', weight: 85.468, category: 'alkali-metal', configuration: '[Kr] 5s1', year: '1861', description: '铷是一种活泼金属，用于原子钟和光电管。' },
+            { number: 38, symbol: 'Sr', name: '锶', weight: 87.62, category: 'alkaline-earth', configuration: '[Kr] 5s2', year: '1790', description: '锶用于烟花和信号弹制造。' },
+            { number: 39, symbol: 'Y', name: '钇', weight: 88.906, category: 'transition-metal', configuration: '[Kr] 4d1 5s2', year: '1794', description: '钇用于超导体和激光材料。' },
+            { number: 40, symbol: 'Zr', name: '锆', weight: 91.224, category: 'transition-metal', configuration: '[Kr] 4d2 5s2', year: '1789', description: '锆用于核反应堆和耐腐蚀材料。' },
+            { number: 41, symbol: 'Nb', name: '铌', weight: 92.906, category: 'transition-metal', configuration: '[Kr] 4d4 5s1', year: '1801', description: '铌用于超导体和耐热合金。' },
+            { number: 42, symbol: 'Mo', name: '钼', weight: 95.95, category: 'transition-metal', configuration: '[Kr] 4d5 5s1', year: '1778', description: '钼用于高强度钢和催化剂。' },
+            { number: 43, symbol: 'Tc', name: '锝', weight: 98, category: 'transition-metal', configuration: '[Kr] 4d5 5s2', year: '1937', description: '锝是第一个人工合成的元素，用于医学成像。' },
+            { number: 44, symbol: 'Ru', name: '钌', weight: 101.07, category: 'transition-metal', configuration: '[Kr] 4d7 5s1', year: '1844', description: '钌用于电子设备和催化剂。' },
+            { number: 45, symbol: 'Rh', name: '铑', weight: 102.91, category: 'transition-metal', configuration: '[Kr] 4d8 5s1', year: '1803', description: '铑用于催化剂和珠宝。' },
+            { number: 46, symbol: 'Pd', name: '钯', weight: 106.42, category: 'transition-metal', configuration: '[Kr] 4d10', year: '1803', description: '钯用于催化剂和电子设备。' },
+            { number: 47, symbol: 'Ag', name: '银', weight: 107.87, category: 'transition-metal', configuration: '[Kr] 4d10 5s1', year: '古代', description: '银是优良的导电体，用于珠宝和电子设备。' },
+            { number: 48, symbol: 'Cd', name: '镉', weight: 112.41, category: 'transition-metal', configuration: '[Kr] 4d10 5s2', year: '1817', description: '镉用于电池和颜料。' },
+            { number: 49, symbol: 'In', name: '铟', weight: 114.82, category: 'basic-metal', configuration: '[Kr] 4d10 5s2 5p1', year: '1863', description: '铟用于液晶显示器和半导体。' },
+            { number: 50, symbol: 'Sn', name: '锡', weight: 118.71, category: 'basic-metal', configuration: '[Kr] 4d10 5s2 5p2', year: '古代', description: '锡用于罐头和焊料。' },
+            { number: 51, symbol: 'Sb', name: '锑', weight: 121.76, category: 'semimetal', configuration: '[Kr] 4d10 5s2 5p3', year: '古代', description: '锑用于阻燃剂和合金制造。' },
+            { number: 52, symbol: 'Te', name: '碲', weight: 127.60, category: 'semimetal', configuration: '[Kr] 4d10 5s2 5p4', year: '1782', description: '碲用于半导体和合金。' },
+            { number: 53, symbol: 'I', name: '碘', weight: 126.90, category: 'halogen', configuration: '[Kr] 4d10 5s2 5p5', year: '1811', description: '碘是必需微量元素，用于消毒和医药。' },
+            { number: 54, symbol: 'Xe', name: '氙', weight: 131.29, category: 'noble-gas', configuration: '[Kr] 4d10 5s2 5p6', year: '1898', description: '氙用于照明和麻醉剂。' },
+            { number: 55, symbol: 'Cs', name: '铯', weight: 132.91, category: 'alkali-metal', configuration: '[Xe] 6s1', year: '1860', description: '铯是最活泼的金属，用于原子钟。' },
+            { number: 56, symbol: 'Ba', name: '钡', weight: 137.33, category: 'alkaline-earth', configuration: '[Xe] 6s2', year: '1808', description: '钡用于X射线造影剂和烟火。' },
+            { number: 57, symbol: 'La', name: '镧', weight: 138.91, category: 'lanthanide', configuration: '[Xe] 5d1 6s2', year: '1839', description: '镧是第一个镧系元素，用于光学玻璃。' },
+            { number: 58, symbol: 'Ce', name: '铈', weight: 140.12, category: 'lanthanide', configuration: '[Xe] 4f1 5d1 6s2', year: '1803', description: '铈用于打火石和催化剂。' },
+            { number: 59, symbol: 'Pr', name: '镨', weight: 140.91, category: 'lanthanide', configuration: '[Xe] 4f3 6s2', year: '1885', description: '镨用于永磁体和激光材料。' },
+            { number: 60, symbol: 'Nd', name: '钕', weight: 144.24, category: 'lanthanide', configuration: '[Xe] 4f4 6s2', year: '1885', description: '钕用于强力永磁体和激光器。' },
+            { number: 61, symbol: 'Pm', name: '钷', weight: 145, category: 'lanthanide', configuration: '[Xe] 4f5 6s2', year: '1945', description: '钷是人工合成的放射性元素，用于核电池。' },
+            { number: 62, symbol: 'Sm', name: '钐', weight: 150.36, category: 'lanthanide', configuration: '[Xe] 4f6 6s2', year: '1879', description: '钐用于激光材料和永磁体。' },
+            { number: 63, symbol: 'Eu', name: '铕', weight: 151.96, category: 'lanthanide', configuration: '[Xe] 4f7 6s2', year: '1901', description: '铕用于荧光粉和核反应控制棒。' },
+            { number: 64, symbol: 'Gd', name: '钆', weight: 157.25, category: 'lanthanide', configuration: '[Xe] 4f7 5d1 6s2', year: '1880', description: '钆用于MRI造影剂和核反应控制棒。' },
+            { number: 65, symbol: 'Tb', name: '铽', weight: 158.93, category: 'lanthanide', configuration: '[Xe] 4f9 6s2', year: '1843', description: '铽用于荧光材料和激光器。' },
+            { number: 66, symbol: 'Dy', name: '镝', weight: 162.50, category: 'lanthanide', configuration: '[Xe] 4f10 6s2', year: '1886', description: '镝用于永磁体和核反应控制棒。' },
+            { number: 67, symbol: 'Ho', name: '钬', weight: 164.93, category: 'lanthanide', configuration: '[Xe] 4f11 6s2', year: '1878', description: '钬用于激光材料和核反应控制棒。' },
+            { number: 68, symbol: 'Er', name: '铒', weight: 167.26, category: 'lanthanide', configuration: '[Xe] 4f12 6s2', year: '1843', description: '铒用于光纤放大器和激光材料。' },
+            { number: 69, symbol: 'Tm', name: '铥', weight: 168.93, category: 'lanthanide', configuration: '[Xe] 4f13 6s2', year: '1879', description: '铥用于便携式X射线设备和激光器。' },
+            { number: 70, symbol: 'Yb', name: '镱', weight: 173.05, category: 'lanthanide', configuration: '[Xe] 4f14 6s2', year: '1878', description: '镱用于激光材料和压力传感器。' },
+            { number: 71, symbol: 'Lu', name: '镥', weight: 174.97, category: 'lanthanide', configuration: '[Xe] 4f14 5d1 6s2', year: '1907', description: '镥是最后一个镧系元素，用于催化剂和医学成像。' },
+            { number: 72, symbol: 'Hf', name: '铪', weight: 178.49, category: 'transition-metal', configuration: '[Xe] 4f14 5d2 6s2', year: '1923', description: '铪用于核反应堆控制棒和合金。' },
+            { number: 73, symbol: 'Ta', name: '钽', weight: 180.95, category: 'transition-metal', configuration: '[Xe] 4f14 5d3 6s2', year: '1802', description: '钽用于电子元件和手术植入物。' },
+            { number: 74, symbol: 'W', name: '钨', weight: 183.84, category: 'transition-metal', configuration: '[Xe] 4f14 5d4 6s2', year: '1783', description: '钨用于灯泡灯丝和高速钢。' },
+            { number: 75, symbol: 'Re', name: '铼', weight: 186.21, category: 'transition-metal', configuration: '[Xe] 4f14 5d5 6s2', year: '1925', description: '铼用于高温合金和催化剂。' },
+            { number: 76, symbol: 'Os', name: '锇', weight: 190.23, category: 'transition-metal', configuration: '[Xe] 4f14 5d6 6s2', year: '1803', description: '锇是最密集的金属，用于合金和催化剂。' },
+            { number: 77, symbol: 'Ir', name: '铱', weight: 192.22, category: 'transition-metal', configuration: '[Xe] 4f14 5d7 6s2', year: '1803', description: '铱用于高熔点合金和标准米原器。' },
+            { number: 78, symbol: 'Pt', name: '铂', weight: 195.08, category: 'transition-metal', configuration: '[Xe] 4f14 5d9 6s1', year: '1735', description: '铂用于催化剂和珠宝。' },
+            { number: 79, symbol: 'Au', name: '金', weight: 196.97, category: 'transition-metal', configuration: '[Xe] 4f14 5d10 6s1', year: '古代', description: '金用于珠宝、电子设备和货币。' },
+            { number: 80, symbol: 'Hg', name: '汞', weight: 200.59, category: 'transition-metal', configuration: '[Xe] 4f14 5d10 6s2', year: '古代', description: '汞是唯一的液态金属，用于温度计和荧光灯。' },
+            { number: 81, symbol: 'Tl', name: '铊', weight: 204.38, category: 'post-transition-metal', configuration: '[Xe] 4f14 5d10 6s2 6p1', year: '1861', description: '铊用于电子设备和光学玻璃。' },
+            { number: 82, symbol: 'Pb', name: '铅', weight: 207.2, category: 'post-transition-metal', configuration: '[Xe] 4f14 5d10 6s2 6p2', year: '古代', description: '铅用于电池、防辐射材料和管道。' },
+            { number: 83, symbol: 'Bi', name: '铋', weight: 208.98, category: 'post-transition-metal', configuration: '[Xe] 4f14 5d10 6s2 6p3', year: '1753', description: '铋用于医药和低熔点合金。' },
+            { number: 84, symbol: 'Po', name: '钋', weight: 209, category: 'post-transition-metal', configuration: '[Xe] 4f14 5d10 6s2 6p4', year: '1898', description: '钋是放射性元素，用于核电池。' },
+            { number: 85, symbol: 'At', name: '砹', weight: 210, category: 'metalloid', configuration: '[Xe] 4f14 5d10 6s2 6p5', year: '1940', description: '砹是放射性元素，用于医学研究。' },
+            { number: 86, symbol: 'Rn', name: '氡', weight: 222, category: 'noble-gas', configuration: '[Xe] 4f14 5d10 6s2 6p6', year: '1900', description: '氡是放射性气体，用于放射治疗。' },
+            { number: 87, symbol: 'Fr', name: '钫', weight: 223, category: 'alkali-metal', configuration: '[Rn] 7s1', year: '1939', description: '钫是最不稳定的碱金属，用于研究。' },
+            { number: 88, symbol: 'Ra', name: '镭', weight: 226, category: 'alkaline-earth-metal', configuration: '[Rn] 7s2', year: '1898', description: '镭是放射性元素，曾用于发光涂料。' },
+            { number: 89, symbol: 'Ac', name: '锕', weight: 227, category: 'actinide', configuration: '[Rn] 6d1 7s2', year: '1899', description: '锕是第一个锕系元素，用于研究。' },
+            { number: 90, symbol: 'Th', name: '钍', weight: 232.04, category: 'actinide', configuration: '[Rn] 6d2 7s2', year: '1828', description: '钍用于核燃料和合金。' },
+            { number: 91, symbol: 'Pa', name: '镤', weight: 231.04, category: 'actinide', configuration: '[Rn] 5f2 6d1 7s2', year: '1913', description: '镤是放射性元素，用于研究。' },
+            { number: 92, symbol: 'U', name: '铀', weight: 238.03, category: 'actinide', configuration: '[Rn] 5f3 6d1 7s2', year: '1789', description: '铀是主要的核燃料，用于核能发电。' },
+            { number: 93, symbol: 'Np', name: '镎', weight: 237, category: 'actinide', configuration: '[Rn] 5f4 6d1 7s2', year: '1940', description: '镎是人工合成的放射性元素，用于研究。' },
+            { number: 94, symbol: 'Pu', name: '钚', weight: 244, category: 'actinide', configuration: '[Rn] 5f6 7s2', year: '1940', description: '钚用于核武器和核反应堆。' },
+            { number: 95, symbol: 'Am', name: '镅', weight: 243, category: 'actinide', configuration: '[Rn] 5f7 7s2', year: '1944', description: '镅是人工合成的放射性元素，用于烟雾探测器。' },
+            { number: 96, symbol: 'Cm', name: '锔', weight: 247, category: 'actinide', configuration: '[Rn] 5f7 6d1 7s2', year: '1944', description: '锔是人工合成的放射性元素，用于研究。' },
+            { number: 97, symbol: 'Bk', name: '锫', weight: 247, category: 'actinide', configuration: '[Rn] 5f9 7s2', year: '1949', description: '锫是人工合成的放射性元素，用于研究。' },
+            { number: 98, symbol: 'Cf', name: '锎', weight: 251, category: 'actinide', configuration: '[Rn] 5f10 7s2', year: '1950', description: '锎是人工合成的放射性元素，用于中子源。' },
+            { number: 99, symbol: 'Es', name: '锿', weight: 252, category: 'actinide', configuration: '[Rn] 5f11 7s2', year: '1952', description: '锿是人工合成的放射性元素，用于研究。' },
+            { number: 100, symbol: 'Fm', name: '镄', weight: 257, category: 'actinide', configuration: '[Rn] 5f12 7s2', year: '1952', description: '镄是人工合成的放射性元素，用于研究。' },
+            { number: 101, symbol: 'Md', name: '钔', weight: 258, category: 'actinide', configuration: '[Rn] 5f13 7s2', year: '1955', description: '钔是人工合成的放射性元素，用于研究。' },
+            { number: 102, symbol: 'No', name: '锘', weight: 259, category: 'actinide', configuration: '[Rn] 5f14 7s2', year: '1958', description: '锘是人工合成的放射性元素，用于研究。' },
+            { number: 103, symbol: 'Lr', name: '铹', weight: 262, category: 'actinide', configuration: '[Rn] 5f14 7s2 7p1', year: '1961', description: '铹是人工合成的放射性元素，用于研究。' },
+            { number: 104, symbol: 'Rf', name: '鑪', weight: 267, category: 'transition-metal', configuration: '[Rn] 5f14 6d2 7s2', year: '1964', description: '鑪是人工合成的放射性元素，用于研究。' },
+            { number: 105, symbol: 'Db', name: '𬭊', weight: 270, category: 'transition-metal', configuration: '[Rn] 5f14 6d3 7s2', year: '1967', description: '𬭊是人工合成的放射性元素，用于研究。' },
+            { number: 106, symbol: 'Sg', name: '𬭳', weight: 271, category: 'transition-metal', configuration: '[Rn] 5f14 6d4 7s2', year: '1974', description: '𬭳是人工合成的放射性元素，用于研究。' },
+            { number: 107, symbol: 'Bh', name: '𬭛', weight: 270, category: 'transition-metal', configuration: '[Rn] 5f14 6d5 7s2', year: '1976', description: '𬭛是人工合成的放射性元素，用于研究。' },
+            { number: 108, symbol: 'Hs', name: '𬭶', weight: 277, category: 'transition-metal', configuration: '[Rn] 5f14 6d6 7s2', year: '1984', description: '𬭶是人工合成的放射性元素，用于研究。' },
+            { number: 109, symbol: 'Mt', name: '鿏', weight: 276, category: 'transition-metal', configuration: '[Rn] 5f14 6d7 7s2', year: '1982', description: '鿏是人工合成的放射性元素，用于研究。' },
+            { number: 110, symbol: 'Ds', name: '𫟼', weight: 281, category: 'transition-metal', configuration: '[Rn] 5f14 6d9 7s1', year: '1994', description: '𫟼是人工合成的放射性元素，用于研究。' },
+            { number: 111, symbol: 'Rg', name: '𬬭', weight: 280, category: 'transition-metal', configuration: '[Rn] 5f14 6d10 7s1', year: '1994', description: '𬬭是人工合成的放射性元素，用于研究。' },
+            { number: 112, symbol: 'Cn', name: '鿔', weight: 285, category: 'transition-metal', configuration: '[Rn] 5f14 6d10 7s2', year: '1996', description: '鿔是人工合成的放射性元素，用于研究。' },
+            { number: 113, symbol: 'Nh', name: '鉨', weight: 286, category: 'post-transition-metal', configuration: '[Rn] 5f14 6d10 7s2 7p1', year: '2003', description: '鉨是人工合成的放射性元素，用于研究。' },
+            { number: 114, symbol: 'Fl', name: '𫓧', weight: 289, category: 'post-transition-metal', configuration: '[Rn] 5f14 6d10 7s2 7p2', year: '1998', description: '𫓧是人工合成的放射性元素，用于研究。' },
+            { number: 115, symbol: 'Mc', name: '镆', weight: 290, category: 'post-transition-metal', configuration: '[Rn] 5f14 6d10 7s2 7p3', year: '2003', description: '镆是人工合成的放射性元素，用于研究。' },
+            { number: 116, symbol: 'Lv', name: '𫟷', weight: 293, category: 'post-transition-metal', configuration: '[Rn] 5f14 6d10 7s2 7p4', year: '2000', description: '𫟷是人工合成的放射性元素，用于研究。' },
+            { number: 117, symbol: 'Ts', name: '鿬', weight: 294, category: 'metalloid', configuration: '[Rn] 5f14 6d10 7s2 7p5', year: '2010', description: '鿬是人工合成的放射性元素，用于研究。' },
+            { number: 118, symbol: 'Og', name: '鿫', weight: 294, category: 'noble-gas', configuration: '[Rn] 5f14 6d10 7s2 7p6', year: '2002', description: '鿫是人工合成的放射性元素，用于研究。' }
+        ];
+
+        // 生成周期表
+        function generatePeriodicTable() {
+            const table = document.getElementById('periodic-table');
+            
+            elements.forEach(element => {
+                const el = document.createElement('div');
+                el.className = `element ${element.category}`;
+                el.innerHTML = `
+                    <div>${element.number}</div>
+                    <div><strong>${element.symbol}</strong></div>
+                    <div>${element.name}</div>
+                `;
+                el.addEventListener('click', () => showElementDetails(element));
+                table.appendChild(el);
+            });
+        }
+
+        // 显示元素详情
+        function showElementDetails(element) {
+            document.getElementById('element-name').textContent = element.name;
+            document.getElementById('element-symbol').textContent = element.symbol;
+            document.getElementById('element-number').textContent = element.number;
+            document.getElementById('element-weight').textContent = element.weight;
+            document.getElementById('element-category').textContent = getCategoryName(element.category);
+            document.getElementById('element-configuration').textContent = element.configuration;
+            document.getElementById('element-year').textContent = element.year;
+            document.getElementById('element-description').textContent = element.description;
+            
+            document.getElementById('element-details').style.display = 'block';
+        }
+
+        // 获取类别名称
+        function getCategoryName(category) {
+            const categories = {
+                'alkali-metal': '碱金属',
+                'alkaline-earth': '碱土金属',
+                'transition-metal': '过渡金属',
+                'basic-metal': '基本金属',
+                'semimetal': '半金属',
+                'nonmetal': '非金属',
+                'halogen': '卤素',
+                'noble-gas': '惰性气体',
+                'lanthanide': '镧系元素',
+                'actinide': '锕系元素'
+            };
+            return categories[category] || category;
+        }
+
+        // 搜索元素
+        function searchElement() {
+            const input = document.getElementById('search-input').value.toLowerCase();
+            if (!input) return;
+            
+            const found = elements.find(el => 
+                el.name.toLowerCase() === input || 
+                el.symbol.toLowerCase() === input || 
+                el.number.toString() === input
+            );
+            
+            if (found) {
+                showElementDetails(found);
+            } else {
+                alert('未找到该元素！');
+            }
+        }
+
+        // 初始化
+        window.onload = generatePeriodicTable;
+    </script>
+</body>
+</html>

@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片EXIF信息查看器</title>
+    <script src="../vendor/exifjs/exif.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .upload-area:hover {
+            border-color: #74b9ff;
+            background-color: #f8fbff;
+        }
+
+        .upload-area.dragover {
+            border-color: #0984e3;
+            background-color: #e3f2fd;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(116, 185, 255, 0.3);
+        }
+
+        .clear-btn {
+            background: #e74c3c;
+        }
+
+        .clear-btn:hover {
+            background: #c0392b;
+            box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
+        }
+
+        .preview-section {
+            display: none;
+            margin-bottom: 30px;
+        }
+
+        .preview-container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .image-preview {
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .exif-container {
+            flex: 2;
+        }
+
+        .exif-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .exif-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .exif-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .exif-label {
+            font-weight: 600;
+            color: #495057;
+            padding: 8px 0;
+        }
+
+        .exif-value {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 8px 12px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+        }
+
+        .no-data {
+            color: #6c757d;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #74b9ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .gps-map {
+            margin-top: 15px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            font-size: 0.9em;
+            padding: 6px 12px;
+            margin-left: 10px;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+        }
+
+        @media (max-width: 768px) {
+            .preview-container {
+                flex-direction: column;
+            }
+            
+            .exif-grid {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+            
+            .exif-label {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📷 图片EXIF信息查看器</h1>
+            <p>上传图片，查看详细的拍摄信息和元数据</p>
+        </div>
+        
+        <div class="content">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">🖼️</div>
+                <div class="upload-text">点击选择图片或拖拽图片到此处</div>
+                <button class="btn" onclick="document.getElementById('fileInput').click()">选择文件</button>
+                <button class="btn clear-btn" id="clearBtn" onclick="clearAll()" style="display: none;">🗑️ 清除</button>
+                <input type="file" id="fileInput" accept="image/*">
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>正在读取EXIF信息...</p>
+            </div>
+
+            <div id="messageArea"></div>
+
+            <div class="preview-section" id="previewSection">
+                <div class="preview-container">
+                    <div class="image-preview">
+                        <img id="previewImage" class="preview-image" alt="预览图片">
+                        <div class="file-info" id="fileInfo"></div>
+                    </div>
+                    
+                    <div class="exif-container">
+                        <!-- 基本信息 -->
+                        <div class="exif-section">
+                            <div class="exif-title">
+                                📋 基本信息
+                            </div>
+                            <div class="exif-grid" id="basicInfo">
+                                <div class="no-data">暂无数据</div>
+                            </div>
+                        </div>
+
+                        <!-- 拍摄参数 -->
+                        <div class="exif-section">
+                            <div class="exif-title">
+                                📸 拍摄参数
+                            </div>
+                            <div class="exif-grid" id="cameraInfo">
+                                <div class="no-data">暂无数据</div>
+                            </div>
+                        </div>
+
+                        <!-- GPS信息 -->
+                        <div class="exif-section">
+                            <div class="exif-title">
+                                🌍 GPS位置信息
+                            </div>
+                            <div class="exif-grid" id="gpsInfo">
+                                <div class="no-data">暂无GPS数据</div>
+                            </div>
+                        </div>
+
+                        <!-- 其他信息 -->
+                        <div class="exif-section">
+                            <div class="exif-title">
+                                ⚙️ 其他信息
+                            </div>
+                            <div class="exif-grid" id="otherInfo">
+                                <div class="no-data">暂无数据</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const previewSection = document.getElementById('previewSection');
+        const previewImage = document.getElementById('previewImage');
+        const loading = document.getElementById('loading');
+        const messageArea = document.getElementById('messageArea');
+        const fileInfo = document.getElementById('fileInfo');
+        const clearBtn = document.getElementById('clearBtn');
+
+        // 文件选择事件
+        fileInput.addEventListener('change', handleFileSelect);
+
+        // 拖拽事件
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        // 点击上传区域
+        uploadArea.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('btn')) {
+                fileInput.click();
+            }
+        });
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            // 验证文件类型
+            if (!file.type.startsWith('image/')) {
+                showMessage('请选择有效的图片文件！', 'error');
+                return;
+            }
+
+            // 验证文件大小 (50MB)
+            if (file.size > 50 * 1024 * 1024) {
+                showMessage('文件大小不能超过50MB！', 'error');
+                return;
+            }
+
+            clearMessages();
+            loading.style.display = 'block';
+            previewSection.style.display = 'none';
+
+            // 显示文件信息
+            const fileSize = (file.size / 1024).toFixed(2);
+            const fileSizeUnit = fileSize > 1024 ? `${(fileSize / 1024).toFixed(2)} MB` : `${fileSize} KB`;
+            
+            fileInfo.innerHTML = `
+                <strong>文件名：</strong>${file.name}<br>
+                <strong>文件大小：</strong>${fileSizeUnit}<br>
+                <strong>文件类型：</strong>${file.type}<br>
+                <strong>最后修改：</strong>${new Date(file.lastModified).toLocaleString()}
+            `;
+
+            // 预览图片
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewImage.onload = () => {
+                    // 读取EXIF信息
+                    readExifData(file);
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function readExifData(file) {
+            EXIF.getData(file, function() {
+                const allMetaData = EXIF.getAllTags(this);
+                
+                loading.style.display = 'none';
+                previewSection.style.display = 'block';
+                clearBtn.style.display = 'inline-block';
+
+                if (Object.keys(allMetaData).length === 0) {
+                    showMessage('该图片不包含EXIF信息', 'error');
+                    clearExifSections();
+                    return;
+                }
+
+                showMessage('EXIF信息读取成功！', 'success');
+                displayExifData(allMetaData);
+            });
+        }
+
+        function displayExifData(exifData) {
+            // 基本信息
+            const basicData = {
+                '图片宽度': exifData.PixelXDimension || exifData.ExifImageWidth || '未知',
+                '图片高度': exifData.PixelYDimension || exifData.ExifImageHeight || '未知',
+                '拍摄时间': exifData.DateTime || exifData.DateTimeOriginal || '未知',
+                '修改时间': exifData.DateTimeDigitized || '未知',
+                '图片方向': getOrientation(exifData.Orientation),
+                '颜色空间': exifData.ColorSpace === 1 ? 'sRGB' : (exifData.ColorSpace || '未知')
+            };
+
+            // 拍摄参数
+            const cameraData = {
+                '相机品牌': exifData.Make || '未知',
+                '相机型号': exifData.Model || '未知',
+                '镜头型号': exifData.LensModel || '未知',
+                '光圈值': exifData.FNumber ? `f/${exifData.FNumber}` : '未知',
+                '快门速度': formatShutterSpeed(exifData.ExposureTime),
+                'ISO感光度': exifData.ISOSpeedRatings || exifData.ISO || '未知',
+                '焦距': exifData.FocalLength ? `${exifData.FocalLength}mm` : '未知',
+                '等效焦距': exifData.FocalLengthIn35mmFilm ? `${exifData.FocalLengthIn35mmFilm}mm` : '未知',
+                '曝光模式': getExposureMode(exifData.ExposureMode),
+                '测光模式': getMeteringMode(exifData.MeteringMode),
+                '闪光灯': getFlashMode(exifData.Flash),
+                '白平衡': getWhiteBalance(exifData.WhiteBalance)
+            };
+
+            // GPS信息
+            const gpsData = {};
+            if (exifData.GPSLatitude && exifData.GPSLongitude) {
+                const lat = convertDMSToDD(exifData.GPSLatitude, exifData.GPSLatitudeRef);
+                const lon = convertDMSToDD(exifData.GPSLongitude, exifData.GPSLongitudeRef);
+                
+                gpsData['纬度'] = `${lat.toFixed(6)}°`;
+                gpsData['经度'] = `${lon.toFixed(6)}°`;
+                gpsData['海拔高度'] = exifData.GPSAltitude ? `${exifData.GPSAltitude}m` : '未知';
+                gpsData['GPS时间'] = exifData.GPSTimeStamp ? formatGPSTime(exifData.GPSTimeStamp) : '未知';
+                gpsData['地图链接'] = `https://www.google.com/maps?q=${lat},${lon}`;
+            }
+
+            // 其他信息
+            const otherData = {
+                '软件版本': exifData.Software || '未知',
+                '艺术家': exifData.Artist || '未知',
+                '版权信息': exifData.Copyright || '未知',
+                '用户评论': exifData.UserComment || '未知',
+                '图像描述': exifData.ImageDescription || '未知',
+                '压缩方式': exifData.Compression || '未知',
+                '分辨率单位': exifData.ResolutionUnit === 2 ? '英寸' : (exifData.ResolutionUnit === 3 ? '厘米' : '未知'),
+                'X分辨率': exifData.XResolution || '未知',
+                'Y分辨率': exifData.YResolution || '未知'
+            };
+
+            // 显示数据
+            displaySection('basicInfo', basicData);
+            displaySection('cameraInfo', cameraData);
+            displaySection('gpsInfo', gpsData);
+            displaySection('otherInfo', otherData);
+        }
+
+        function displaySection(sectionId, data) {
+            const section = document.getElementById(sectionId);
+            const filteredData = Object.fromEntries(
+                Object.entries(data).filter(([key, value]) => value && value !== '未知' && value !== '')
+            );
+
+            if (Object.keys(filteredData).length === 0) {
+                section.innerHTML = '<div class="no-data">暂无数据</div>';
+                return;
+            }
+
+            let html = '';
+            for (const [key, value] of Object.entries(filteredData)) {
+                if (key === '地图链接') {
+                    html += `
+                        <div class="exif-label">${key}</div>
+                        <div class="exif-value">
+                            <a href="${value}" target="_blank" style="color: #007bff; text-decoration: none;">
+                                🗺️ 在Google地图中查看
+                            </a>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="exif-label">${key}</div>
+                        <div class="exif-value">
+                            ${value}
+                            <button class="copy-btn" onclick="copyToClipboard('${value}')">📋</button>
+                        </div>
+                    `;
+                }
+            }
+            section.innerHTML = html;
+        }
+
+        function clearExifSections() {
+            ['basicInfo', 'cameraInfo', 'gpsInfo', 'otherInfo'].forEach(id => {
+                document.getElementById(id).innerHTML = '<div class="no-data">暂无数据</div>';
+            });
+        }
+
+        // 辅助函数
+        function getOrientation(orientation) {
+            const orientations = {
+                1: '正常',
+                2: '水平翻转',
+                3: '旋转180°',
+                4: '垂直翻转',
+                5: '逆时针旋转90°并水平翻转',
+                6: '顺时针旋转90°',
+                7: '顺时针旋转90°并水平翻转',
+                8: '逆时针旋转90°'
+            };
+            return orientations[orientation] || '未知';
+        }
+
+        function formatShutterSpeed(exposureTime) {
+            if (!exposureTime) return '未知';
+            if (exposureTime >= 1) return `${exposureTime}s`;
+            return `1/${Math.round(1/exposureTime)}s`;
+        }
+
+        function getExposureMode(mode) {
+            const modes = {
+                0: '自动曝光',
+                1: '手动曝光',
+                2: '自动包围曝光'
+            };
+            return modes[mode] || '未知';
+        }
+
+        function getMeteringMode(mode) {
+            const modes = {
+                0: '未知',
+                1: '平均测光',
+                2: '中央重点测光',
+                3: '点测光',
+                4: '多点测光',
+                5: '评价测光',
+                6: '局部测光'
+            };
+            return modes[mode] || '未知';
+        }
+
+        function getFlashMode(flash) {
+            if (!flash) return '未知';
+            return (flash & 1) ? '闪光灯开启' : '闪光灯关闭';
+        }
+
+        function getWhiteBalance(wb) {
+            const modes = {
+                0: '自动白平衡',
+                1: '手动白平衡'
+            };
+            return modes[wb] || '未知';
+        }
+
+        function convertDMSToDD(dms, ref) {
+            let dd = dms[0] + dms[1]/60 + dms[2]/3600;
+            if (ref === 'S' || ref === 'W') dd = dd * -1;
+            return dd;
+        }
+
+        function formatGPSTime(timeArray) {
+            if (!timeArray || timeArray.length < 3) return '未知';
+            const hours = Math.floor(timeArray[0]);
+            const minutes = Math.floor(timeArray[1]);
+            const seconds = Math.floor(timeArray[2]);
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showMessage('已复制到剪贴板！', 'success');
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showMessage('已复制到剪贴板！', 'success');
+            } catch (err) {
+                showMessage('复制失败，请手动复制。', 'error');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function clearAll() {
+            fileInput.value = '';
+            previewSection.style.display = 'none';
+            loading.style.display = 'none';
+            clearBtn.style.display = 'none';
+            clearMessages();
+            previewImage.src = '';
+            fileInfo.innerHTML = '';
+            clearExifSections();
+            showMessage('已清除所有内容！', 'success');
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}-message`;
+            messageDiv.textContent = message;
+            messageArea.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.parentNode.removeChild(messageDiv);
+                }
+            }, 3000);
+        }
+
+        function clearMessages() {
+            messageArea.innerHTML = '';
+        }
+
+        // 阻止页面默认的拖拽行为
+        document.addEventListener('dragover', (e) => e.preventDefault());
+        document.addEventListener('drop', (e) => e.preventDefault());
+    </script>
+</body>
+</html>

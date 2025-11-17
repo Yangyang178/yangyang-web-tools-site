@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交互式粒子系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #000;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        #canvas {
+            display: block;
+            cursor: crosshair;
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(145deg, rgba(20, 20, 40, 0.9), rgba(10, 10, 30, 0.9));
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            z-index: 10;
+            width: 320px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .controls h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #fff;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-group {
+            margin-bottom: 18px;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #e0e0e0;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(145deg, #4a9eff, #3a7ed8);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(74, 158, 255, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 2px 12px rgba(74, 158, 255, 0.6);
+        }
+
+        .control-group input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .control-group input[type="color"]:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .control-group button {
+            flex: 1;
+            margin: 0 5px;
+            padding: 12px 15px;
+            background: linear-gradient(145deg, #4a9eff, #3a7ed8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 158, 255, 0.3);
+        }
+
+        .control-group button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(74, 158, 255, 0.5);
+        }
+
+        .control-group button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(74, 158, 255, 0.3);
+        }
+
+        .info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: linear-gradient(145deg, rgba(20, 20, 40, 0.8), rgba(10, 10, 30, 0.8));
+            backdrop-filter: blur(10px);
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #e0e0e0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .value-display {
+            display: inline-block;
+            width: 40px;
+            text-align: right;
+            color: #4a9eff;
+            font-weight: 600;
+        }
+
+        .color-preview {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-left: 10px;
+            vertical-align: middle;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="controls">
+        <h3>粒子系统控制面板</h3>
+        
+        <div class="control-group">
+            <label>粒子数量: <span class="value-display" id="particleCountValue">100</span></label>
+            <input type="range" id="particleCount" min="10" max="500" value="100">
+        </div>
+        
+        <div class="control-group">
+            <label>粒子大小: <span class="value-display" id="particleSizeValue">3</span></label>
+            <input type="range" id="particleSize" min="1" max="10" value="3">
+        </div>
+        
+        <div class="control-group">
+            <label>粒子速度: <span class="value-display" id="particleSpeedValue">1</span></label>
+            <input type="range" id="particleSpeed" min="0.1" max="5" step="0.1" value="1">
+        </div>
+        
+        <div class="control-group">
+            <label>连接距离: <span class="value-display" id="connectionDistanceValue">100</span></label>
+            <input type="range" id="connectionDistance" min="50" max="200" value="100">
+        </div>
+        
+        <div class="control-group">
+            <label>粒子颜色: <span class="color-preview" id="particleColorPreview"></span></label>
+            <input type="color" id="particleColor" value="#ffffff">
+        </div>
+        
+        <div class="control-group">
+            <label>连接线颜色: <span class="color-preview" id="lineColorPreview"></span></label>
+            <input type="color" id="lineColor" value="#ffffff">
+        </div>
+        
+        <div class="control-group button-group">
+            <button id="resetBtn">重置粒子</button>
+            <button id="pauseBtn">暂停</button>
+        </div>
+    </div>
+    
+    <div class="info">
+        <p>鼠标移动: 吸引粒子 | 鼠标点击: 爆炸效果</p>
+    </div>
+
+    <script>
+        // 获取画布和上下文
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 设置画布大小
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // 获取控制元素
+        const particleCountSlider = document.getElementById('particleCount');
+        const particleSizeSlider = document.getElementById('particleSize');
+        const particleSpeedSlider = document.getElementById('particleSpeed');
+        const connectionDistanceSlider = document.getElementById('connectionDistance');
+        const particleColorPicker = document.getElementById('particleColor');
+        const lineColorPicker = document.getElementById('lineColor');
+        const resetBtn = document.getElementById('resetBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        
+        // 颜色预览元素
+        const particleColorPreview = document.getElementById('particleColorPreview');
+        const lineColorPreview = document.getElementById('lineColorPreview');
+        
+        // 显示值的元素
+        const particleCountValue = document.getElementById('particleCountValue');
+        const particleSizeValue = document.getElementById('particleSizeValue');
+        const particleSpeedValue = document.getElementById('particleSpeedValue');
+        const connectionDistanceValue = document.getElementById('connectionDistanceValue');
+        
+        // 粒子系统参数
+        let particleCount = parseInt(particleCountSlider.value);
+        let particleSize = parseInt(particleSizeSlider.value);
+        let particleSpeed = parseFloat(particleSpeedSlider.value);
+        let connectionDistance = parseInt(connectionDistanceSlider.value);
+        let particleColor = particleColorPicker.value;
+        let lineColor = lineColorPicker.value;
+        let isPaused = false;
+        
+        // 初始化颜色预览
+        particleColorPreview.style.backgroundColor = particleColor;
+        lineColorPreview.style.backgroundColor = lineColor;
+        
+        // 爆炸效果参数
+        let explosionActive = false;
+        let explosionEndTime = 0;
+        const explosionDuration = 2000; // 爆炸效果持续时间（毫秒）
+        
+        // 鼠标位置
+        let mouseX = -1000;
+        let mouseY = -1000;
+        let mouseRadius = 150;
+        let mouseAttractionForce = 0.3; // 降低鼠标吸引力
+        
+        // 粒子类
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * particleSpeed;
+                this.vy = (Math.random() - 0.5) * particleSpeed;
+                this.radius = particleSize;
+                this.color = particleColor;
+            }
+            
+            update() {
+                // 边界检测
+                if (this.x < 0 || this.x > canvas.width) {
+                    this.vx = -this.vx;
+                }
+                if (this.y < 0 || this.y > canvas.height) {
+                    this.vy = -this.vy;
+                }
+                
+                // 鼠标交互
+                const dx = mouseX - this.x;
+                const dy = mouseY - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < mouseRadius) {
+                    const force = (mouseRadius - distance) / mouseRadius;
+                    const angle = Math.atan2(dy, dx);
+                    
+                    // 使用较小的吸引力，并考虑粒子当前速度
+                    const attractionForceX = Math.cos(angle) * force * mouseAttractionForce;
+                    const attractionForceY = Math.sin(angle) * force * mouseAttractionForce;
+                    
+                    // 如果粒子正在快速移动（可能是刚爆炸），减少吸引力的影响
+                    const currentSpeed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                    const speedFactor = Math.max(0.1, 1 - currentSpeed / (particleSpeed * 5));
+                    
+                    this.vx += attractionForceX * speedFactor;
+                    this.vy += attractionForceY * speedFactor;
+                }
+                
+                // 速度限制
+                const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                if (speed > particleSpeed * 2) {
+                    this.vx = (this.vx / speed) * particleSpeed * 2;
+                    this.vy = (this.vy / speed) * particleSpeed * 2;
+                }
+                
+                // 更新位置
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // 应用摩擦力，但对高速粒子使用较小的摩擦力
+                const currentSpeed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                let frictionFactor = 0.99;
+                
+                // 如果处于爆炸状态，使用更小的摩擦力
+                if (explosionActive && Date.now() < explosionEndTime) {
+                    frictionFactor = 0.998;
+                } else if (currentSpeed > particleSpeed * 3) {
+                    // 对高速粒子使用较小的摩擦力
+                    frictionFactor = 0.996;
+                }
+                
+                this.vx *= frictionFactor;
+                this.vy *= frictionFactor;
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.closePath();
+            }
+        }
+        
+        // 创建粒子数组
+        let particles = [];
+        
+        // 初始化粒子
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+        initParticles();
+        
+        // 绘制连接线
+        function drawConnections() {
+            // 检查是否处于爆炸状态
+            const currentTime = Date.now();
+            if (explosionActive && currentTime < explosionEndTime) {
+                // 爆炸期间不绘制连接线
+                return;
+            } else if (explosionActive && currentTime >= explosionEndTime) {
+                // 爆炸结束，恢复连接线
+                explosionActive = false;
+            }
+            
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < connectionDistance) {
+                        const opacity = 1 - distance / connectionDistance;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = lineColor + Math.floor(opacity * 255).toString(16).padStart(2, '0');
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
+                }
+            }
+        }
+        
+        // 动画循环
+        function animate() {
+            if (!isPaused) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // 更新和绘制粒子
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                }
+                
+                // 绘制连接线
+                drawConnections();
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        animate();
+        
+        // 鼠标事件
+        canvas.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+        
+        canvas.addEventListener('mouseleave', () => {
+            mouseX = -1000;
+            mouseY = -1000;
+        });
+        
+        canvas.addEventListener('click', (e) => {
+            // 爆炸效果
+            const clickX = e.clientX;
+            const clickY = e.clientY;
+            const explosionRadius = 200;
+            const explosionForce = 30;
+            
+            // 设置爆炸状态
+            explosionActive = true;
+            explosionEndTime = Date.now() + explosionDuration;
+            
+            for (let i = 0; i < particles.length; i++) {
+                const dx = particles[i].x - clickX;
+                const dy = particles[i].y - clickY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < explosionRadius) {
+                    // 计算爆炸力度，距离越近力度越大
+                    const force = (explosionRadius - distance) / explosionRadius;
+                    const angle = Math.atan2(dy, dx);
+                    
+                    // 应用爆炸力，使用更强烈的力度
+                    particles[i].vx = Math.cos(angle) * force * explosionForce;
+                    particles[i].vy = Math.sin(angle) * force * explosionForce;
+                    
+                    // 临时增加粒子速度，使爆炸效果更明显
+                    particles[i].vx *= 2;
+                    particles[i].vy *= 2;
+                }
+            }
+            
+            // 临时禁用鼠标吸引力，让粒子能够完全炸开
+            const tempMouseX = mouseX;
+            const tempMouseY = mouseY;
+            mouseX = -1000;
+            mouseY = -1000;
+            
+            // 1.5秒后恢复鼠标位置
+            setTimeout(() => {
+                mouseX = tempMouseX;
+                mouseY = tempMouseY;
+            }, 1500);
+        });
+        
+        // 控制面板事件
+        particleCountSlider.addEventListener('input', (e) => {
+            particleCount = parseInt(e.target.value);
+            particleCountValue.textContent = particleCount;
+            initParticles();
+        });
+        
+        particleSizeSlider.addEventListener('input', (e) => {
+            particleSize = parseInt(e.target.value);
+            particleSizeValue.textContent = particleSize;
+            particles.forEach(particle => {
+                particle.radius = particleSize;
+            });
+        });
+        
+        particleSpeedSlider.addEventListener('input', (e) => {
+            particleSpeed = parseFloat(e.target.value);
+            particleSpeedValue.textContent = particleSpeed;
+        });
+        
+        connectionDistanceSlider.addEventListener('input', (e) => {
+            connectionDistance = parseInt(e.target.value);
+            connectionDistanceValue.textContent = connectionDistance;
+        });
+        
+        particleColorPicker.addEventListener('input', (e) => {
+            particleColor = e.target.value;
+            particleColorPreview.style.backgroundColor = particleColor;
+            particles.forEach(particle => {
+                particle.color = particleColor;
+            });
+        });
+        
+        lineColorPicker.addEventListener('input', (e) => {
+            lineColor = e.target.value;
+            lineColorPreview.style.backgroundColor = lineColor;
+        });
+        
+        resetBtn.addEventListener('click', () => {
+            initParticles();
+        });
+        
+        pauseBtn.addEventListener('click', () => {
+            isPaused = !isPaused;
+            pauseBtn.textContent = isPaused ? '继续' : '暂停';
+        });
+    </script>
+</body>
+</html>

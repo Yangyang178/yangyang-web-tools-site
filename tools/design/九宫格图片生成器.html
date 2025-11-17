@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>九宫格图片生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 2px;
+            animation: expandLine 1s ease-in-out;
+        }
+        
+        @keyframes expandLine {
+            from { width: 0; }
+            to { width: 100px; }
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #e4edf9 0%, #d3e0f7 100%);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .upload-area.drag-over {
+            border-color: #ff6b6b;
+            background: linear-gradient(135deg, #ffe0e0 0%, #ffd3d3 100%);
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 3em;
+            color: #667eea;
+            margin-bottom: 15px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .upload-text {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        
+        .upload-hint {
+            font-size: 0.9em;
+            color: #888;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 30px 0;
+            perspective: 1000px;
+        }
+        
+        .grid-item {
+            aspect-ratio: 1/1;
+            overflow: hidden;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+        
+        .grid-item:hover {
+            transform: translateY(-10px) rotateX(10deg) rotateY(10deg);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+        
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .slider-container {
+            margin: 20px 0;
+        }
+        
+        .slider-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .slider-value {
+            display: inline-block;
+            width: 40px;
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 50%;
+            padding: 5px;
+            margin-left: 10px;
+        }
+        
+        input[type="range"] {
+            width: 80%;
+            height: 8px;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #fff;
+            border: 3px solid #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: #667eea;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        button:disabled {
+            background: linear-gradient(45deg, #cccccc, #999999);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        button:active::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .download-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+        
+        .download-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); }
+            50% { box-shadow: 0 5px 25px rgba(32, 201, 151, 0.4); }
+            100% { box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); }
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .upload-area {
+                padding: 20px;
+            }
+            
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>九宫格图片生成器</h1>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">拖拽图片到此处或点击选择图片</div>
+            <div class="upload-hint">支持 JPG, PNG, GIF 格式</div>
+            <input type="file" id="imageInput" accept="image/*">
+        </div>
+        
+        <div class="controls">
+            <button id="generateBtn" disabled>生成九宫格</button>
+            
+            <div class="slider-container">
+                <label for="borderWidth" class="slider-label">
+                    网格线粗细: <span id="borderWidthValue" class="slider-value">5</span>px
+                </label>
+                <input type="range" id="borderWidth" min="0" max="20" value="5">
+            </div>
+        </div>
+        
+        <div id="gridContainer" class="grid-container">
+            <!-- 九宫格将在这里生成 -->
+        </div>
+        
+        <div class="buttons">
+            <button id="downloadBtn" disabled>下载九宫格图片</button>
+            <button id="clearBtn">清除图片</button>
+        </div>
+        
+        <a id="downloadLink" class="download-link" style="display:none;">下载九宫格图片</a>
+    </div>
+    
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const gridContainer = document.getElementById('gridContainer');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const downloadLink = document.getElementById('downloadLink');
+        const borderWidth = document.getElementById('borderWidth');
+        const borderWidthValue = document.getElementById('borderWidthValue');
+        const clearBtn = document.getElementById('clearBtn');
+        
+        let originalImage = null;
+        
+        // 当用户选择图片时
+        imageInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    originalImage = new Image();
+                    originalImage.onload = function() {
+                        generateBtn.disabled = false;
+                    };
+                    originalImage.src = event.target.result;
+                };
+                
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+        
+        // 拖拽上传功能
+        const uploadArea = document.getElementById('uploadArea');
+        
+        // 阻止拖拽事件的默认行为
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        // 添加拖拽时的视觉反馈
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight(e) {
+            uploadArea.classList.add('drag-over');
+            e.preventDefault();
+        }
+        
+        function unhighlight(e) {
+            uploadArea.classList.remove('drag-over');
+            e.preventDefault();
+        }
+        
+        // 处理文件拖拽
+        uploadArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+            uploadArea.classList.remove('drag-over');
+        }
+        
+        // 点击上传区域选择文件
+        uploadArea.addEventListener('click', function() {
+            imageInput.click();
+        });
+        
+        // 处理文件
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.match('image.*')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(event) {
+                        originalImage = new Image();
+                        originalImage.onload = function() {
+                            generateBtn.disabled = false;
+                            // 添加按钮动画效果
+                            generateBtn.style.transform = 'scale(1.05)';
+                            setTimeout(() => {
+                                generateBtn.style.transform = '';
+                            }, 300);
+                        };
+                        originalImage.src = event.target.result;
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+        
+        // 为所有按钮添加点击动画效果
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function() {
+                this.classList.add('clicked');
+                setTimeout(() => {
+                    this.classList.remove('clicked');
+                }, 300);
+            });
+        });
+        
+        // 清除图片功能
+        clearBtn.addEventListener('click', function() {
+            // 清空上传的图片
+            originalImage = null;
+            imageInput.value = '';
+            
+            // 清空生成的九宫格
+            gridContainer.innerHTML = '';
+            
+            // 重置按钮状态
+            generateBtn.disabled = true;
+            downloadBtn.disabled = true;
+            downloadLink.style.display = 'none';
+            
+            // 重置网格线粗细滑块
+            borderWidth.value = 5;
+            borderWidthValue.textContent = '5';
+            
+            // 移除上传区域的拖拽状态
+            uploadArea.classList.remove('drag-over');
+            
+            // 添加按钮动画效果
+            this.classList.add('clicked');
+            setTimeout(() => {
+                this.classList.remove('clicked');
+            }, 300);
+        });
+        
+        // 网格线粗细调节
+        borderWidth.addEventListener('input', function() {
+            borderWidthValue.textContent = this.value;
+            // 如果已经生成了九宫格，则重新生成以实时预览网格线粗细
+            if (originalImage && !generateBtn.disabled) {
+                generateGrid();
+            }
+        });
+        
+        // 生成九宫格的函数
+        function generateGrid() {
+            if (!originalImage) return;
+            
+            // 清空之前的九宫格
+            gridContainer.innerHTML = '';
+            
+            // 创建画布来处理图片
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 计算图片的宽高比
+            const aspectRatio = originalImage.width / originalImage.height;
+            
+            // 确定裁剪区域的尺寸（正方形）
+            const size = Math.min(originalImage.width, originalImage.height);
+            
+            // 计算裁剪区域的起始坐标（居中裁剪）
+            const startX = (originalImage.width - size) / 2;
+            const startY = (originalImage.height - size) / 2;
+            
+            // 设置画布尺寸
+            canvas.width = size;
+            canvas.height = size;
+            
+            // 裁剪图片为正方形
+            ctx.drawImage(
+                originalImage,
+                startX, startY, size, size,
+                0, 0, size, size
+            );
+            
+            // 计算每个小格子的尺寸
+            const tileSize = size / 3;
+            
+            // 获取网格线粗细值
+            const borderWidthValue = parseInt(borderWidth.value);
+            
+            // 生成九宫格
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 3; col++) {
+                    // 创建小格子的画布
+                    const tileCanvas = document.createElement('canvas');
+                    const tileCtx = tileCanvas.getContext('2d');
+                    
+                    // 设置小格子的尺寸
+                    tileCanvas.width = tileSize;
+                    tileCanvas.height = tileSize;
+                    
+                    // 从大画布中复制对应区域
+                    tileCtx.drawImage(
+                        canvas,
+                        col * tileSize, row * tileSize, tileSize, tileSize,
+                        0, 0, tileSize, tileSize
+                    );
+                    
+                    // 如果网格线粗细大于0，则在格子边缘绘制网格线
+                    if (borderWidthValue > 0) {
+                        // 只在右边和下边绘制线条（避免重复绘制）
+                        tileCtx.strokeStyle = '#FFFFFF';
+                        tileCtx.lineWidth = borderWidthValue;
+                        
+                        // 绘制右边的线（最后一列不绘制）
+                        if (col < 2) {
+                            tileCtx.beginPath();
+                            tileCtx.moveTo(tileSize - borderWidthValue/2, 0);
+                            tileCtx.lineTo(tileSize - borderWidthValue/2, tileSize);
+                            tileCtx.stroke();
+                        }
+                        
+                        // 绘制下边的线（最后一行不绘制）
+                        if (row < 2) {
+                            tileCtx.beginPath();
+                            tileCtx.moveTo(0, tileSize - borderWidthValue/2);
+                            tileCtx.lineTo(tileSize, tileSize - borderWidthValue/2);
+                            tileCtx.stroke();
+                        }
+                        
+                        // 绘制左边的线（第一列）
+                        if (col === 0) {
+                            tileCtx.beginPath();
+                            tileCtx.moveTo(borderWidthValue/2, 0);
+                            tileCtx.lineTo(borderWidthValue/2, tileSize);
+                            tileCtx.stroke();
+                        }
+                        
+                        // 绘制上边的线（第一行）
+                        if (row === 0) {
+                            tileCtx.beginPath();
+                            tileCtx.moveTo(0, borderWidthValue/2);
+                            tileCtx.lineTo(tileSize, borderWidthValue/2);
+                            tileCtx.stroke();
+                        }
+                    }
+                    
+                    // 创建格子元素
+                    const gridItem = document.createElement('div');
+                    gridItem.className = 'grid-item';
+                    
+                    // 创建图片元素
+                    const img = document.createElement('img');
+                    img.src = tileCanvas.toDataURL('image/png');
+                    
+                    // 添加到格子中
+                    gridItem.appendChild(img);
+                    gridContainer.appendChild(gridItem);
+                }
+            }
+            
+            // 启用下载按钮
+            downloadBtn.disabled = false;
+        }
+        
+        // 生成九宫格
+        generateBtn.addEventListener('click', function() {
+            generateGrid();
+        });
+        
+        // 下载九宫格图片
+        downloadBtn.addEventListener('click', function() {
+            // 创建一个大画布来合并所有格子
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 设置画布尺寸 (3格 * 格子尺寸)
+            const tileSize = 200; // 每个小格子的尺寸
+            canvas.width = 3 * tileSize;
+            canvas.height = 3 * tileSize;
+            
+            // 获取所有格子图片
+            const gridItems = document.querySelectorAll('.grid-item img');
+            
+            // 将每个格子绘制到大画布上
+            gridItems.forEach((img, index) => {
+                const row = Math.floor(index / 3);
+                const col = index % 3;
+                
+                ctx.drawImage(
+                    img,
+                    col * tileSize, row * tileSize, tileSize, tileSize
+                );
+            });
+            
+            // 绘制网格线
+            const borderWidthValue = parseInt(document.getElementById('borderWidth').value);
+            if (borderWidthValue > 0) {
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = borderWidthValue;
+                
+                // 绘制垂直线
+                for (let i = 1; i < 3; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(i * tileSize, 0);
+                    ctx.lineTo(i * tileSize, 3 * tileSize);
+                    ctx.stroke();
+                }
+                
+                // 绘制水平线
+                for (let i = 1; i < 3; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, i * tileSize);
+                    ctx.lineTo(3 * tileSize, i * tileSize);
+                    ctx.stroke();
+                }
+            }
+            
+            // 创建下载链接
+            const dataURL = canvas.toDataURL('image/png');
+            downloadLink.href = dataURL;
+            downloadLink.download = '九宫格图片.png';
+            downloadLink.style.display = 'block';
+            downloadLink.innerText = '点击下载九宫格图片';
+            
+            // 触发下载
+            downloadLink.click();
+        });
+    </script>
+</body>
+</html>

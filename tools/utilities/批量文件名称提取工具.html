@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>批量文件名称提取工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background-color: #f8f9ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background-color: #f0f2ff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-list {
+            margin-bottom: 30px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .file-size {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f2ff;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .output-area {
+            margin-top: 30px;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .output-text {
+            width: 100%;
+            min-height: 300px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            resize: vertical;
+            background: #f8f9ff;
+        }
+
+        .stats {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .stat-item {
+            display: inline-block;
+            margin: 0 20px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+        }
+
+        .format-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .format-option {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .format-option.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📁 批量文件名称提取工具</h1>
+            <p>快速提取多个文件的名称，并导出为文本格式</p>
+        </div>
+        
+        <div class="content">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📎</div>
+                <h3>拖拽文件到此处</h3>
+                <p>或点击选择文件</p>
+                <input type="file" id="fileInput" class="file-input" multiple webkitdirectory directory>
+            </div>
+
+            <div class="stats" id="stats" style="display: none;">
+                <div class="stat-item">
+                    <div class="stat-number" id="fileCount">0</div>
+                    <div class="stat-label">文件数量</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalSize">0 KB</div>
+                    <div class="stat-label">总大小</div>
+                </div>
+            </div>
+
+            <div class="file-list" id="fileList"></div>
+
+            <div class="controls">
+                <button class="btn btn-primary" onclick="exportNames()">💾 导出文件名</button>
+                <button class="btn btn-secondary" onclick="clearAll()">🗑️ 清空列表</button>
+                <button class="btn btn-secondary" onclick="copyToClipboard()">📋 复制到剪贴板</button>
+            </div>
+
+            <div class="format-options">
+                <div class="format-option active" data-format="plain">纯文本</div>
+                <div class="format-option" data-format="numbered">编号列表</div>
+                <div class="format-option" data-format="csv">CSV格式</div>
+                <div class="format-option" data-format="json">JSON格式</div>
+                <div class="format-option" data-format="path">完整路径</div>
+            </div>
+
+            <div class="output-area">
+                <div class="output-header">
+                    <h3>输出结果</h3>
+                </div>
+                <textarea class="output-text" id="outputText" placeholder="文件名将显示在这里..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let files = [];
+        let currentFormat = 'plain';
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const outputText = document.getElementById('outputText');
+        const stats = document.getElementById('stats');
+        const fileCount = document.getElementById('fileCount');
+        const totalSize = document.getElementById('totalSize');
+
+        // 拖拽上传
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const items = e.dataTransfer.items;
+            if (items) {
+                processDataTransferItems(items);
+            } else {
+                handleFiles(e.dataTransfer.files);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        // 处理拖拽的文件和文件夹
+        async function processDataTransferItems(items) {
+            const newFiles = [];
+            
+            for (let item of items) {
+                const entry = item.webkitGetAsEntry();
+                if (entry) {
+                    await traverseFileTree(entry, newFiles);
+                }
+            }
+            
+            handleFiles(newFiles);
+        }
+
+        async function traverseFileTree(item, filesList) {
+            if (item.isFile) {
+                const file = await new Promise(resolve => item.file(resolve));
+                filesList.push(file);
+            } else if (item.isDirectory) {
+                const dirReader = item.createReader();
+                const entries = await new Promise(resolve => dirReader.readEntries(resolve));
+                
+                for (let entry of entries) {
+                    await traverseFileTree(entry, filesList);
+                }
+            }
+        }
+
+        function handleFiles(newFiles) {
+            files = Array.from(newFiles);
+            displayFiles();
+            updateOutput();
+            updateStats();
+        }
+
+        function displayFiles() {
+            if (files.length === 0) {
+                fileList.innerHTML = '<div class="empty-state">暂无文件</div>';
+                stats.style.display = 'none';
+                return;
+            }
+
+            fileList.innerHTML = '';
+            files.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-size">${formatFileSize(file.size)}</div>
+                `;
+                fileList.appendChild(fileItem);
+            });
+
+            stats.style.display = 'block';
+        }
+
+        function updateStats() {
+            fileCount.textContent = files.length;
+            const total = files.reduce((sum, file) => sum + file.size, 0);
+            totalSize.textContent = formatFileSize(total);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function updateOutput() {
+            if (files.length === 0) {
+                outputText.value = '';
+                return;
+            }
+
+            let output = '';
+            
+            switch (currentFormat) {
+                case 'plain':
+                    output = files.map(f => f.name).join('\n');
+                    break;
+                case 'numbered':
+                    output = files.map((f, i) => `${i + 1}. ${f.name}`).join('\n');
+                    break;
+                case 'csv':
+                    output = files.map(f => `"${f.name}","${formatFileSize(f.size)}"`).join('\n');
+                    break;
+                case 'json':
+                    const jsonData = files.map(f => ({
+                        name: f.name,
+                        size: f.size,
+                        sizeFormatted: formatFileSize(f.size),
+                        lastModified: new Date(f.lastModified).toISOString()
+                    }));
+                    output = JSON.stringify(jsonData, null, 2);
+                    break;
+                case 'path':
+                    output = files.map(f => f.webkitRelativePath || f.name).join('\n');
+                    break;
+            }
+            
+            outputText.value = output;
+        }
+
+        function exportNames() {
+            if (files.length === 0) {
+                alert('请先选择文件！');
+                return;
+            }
+
+            const extension = currentFormat === 'json' ? '.json' : 
+                             currentFormat === 'csv' ? '.csv' : '.txt';
+            const filename = `文件名列表_${new Date().toISOString().slice(0, 10)}${extension}`;
+            
+            const blob = new Blob([outputText.value], { 
+                type: currentFormat === 'json' ? 'application/json' : 
+                      currentFormat === 'csv' ? 'text/csv' : 'text/plain' 
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function clearAll() {
+            files = [];
+            fileInput.value = '';
+            displayFiles();
+            updateOutput();
+            updateStats();
+        }
+
+        function copyToClipboard() {
+            if (files.length === 0) {
+                alert('请先选择文件！');
+                return;
+            }
+
+            outputText.select();
+            document.execCommand('copy');
+            
+            // 显示复制成功提示
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✅ 已复制！';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
+        }
+
+        // 格式选项切换
+        document.querySelectorAll('.format-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.format-option').forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                currentFormat = option.dataset.format;
+                updateOutput();
+            });
+        });
+
+        // 初始化
+        displayFiles();
+    </script>
+</body>
+</html>

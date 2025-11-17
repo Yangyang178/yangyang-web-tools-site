@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>房贷计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .calculator {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9f7ef;
+            border-radius: 4px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>房贷计算器</h1>
+    <div class="calculator">
+        <div class="form-group">
+            <label for="loanAmount">贷款金额 (元)</label>
+            <input type="number" id="loanAmount" placeholder="请输入贷款金额">
+        </div>
+        <div class="form-group">
+            <label for="loanTerm">贷款期限 (年)</label>
+            <input type="number" id="loanTerm" placeholder="请输入贷款期限">
+        </div>
+        <div class="form-group">
+            <label for="interestRate">年利率 (%)</label>
+            <input type="number" id="interestRate" step="0.01" placeholder="请输入年利率">
+        </div>
+        <button onclick="calculateMortgage()">计算</button>
+        <div class="result" id="result">
+            <h3>计算结果</h3>
+            <p>每月还款: <span id="monthlyPayment"></span> 元</p>
+            <p>总还款金额: <span id="totalPayment"></span> 元</p>
+            <p>总支付利息: <span id="totalInterest"></span> 元</p>
+        </div>
+    </div>
+
+    <script>
+        function calculateMortgage() {
+            const loanAmount = parseFloat(document.getElementById('loanAmount').value);
+            const loanTerm = parseFloat(document.getElementById('loanTerm').value);
+            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100;
+
+            if (isNaN(loanAmount) || isNaN(loanTerm) || isNaN(interestRate)) {
+                alert('请输入有效的数值');
+                return;
+            }
+
+            const monthlyRate = interestRate / 12;
+            const numberOfPayments = loanTerm * 12;
+            
+            // 等额本息计算公式
+            const monthlyPayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / 
+                                  (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+            
+            const totalPayment = monthlyPayment * numberOfPayments;
+            const totalInterest = totalPayment - loanAmount;
+
+            document.getElementById('monthlyPayment').textContent = monthlyPayment.toFixed(2);
+            document.getElementById('totalPayment').textContent = totalPayment.toFixed(2);
+            document.getElementById('totalInterest').textContent = totalInterest.toFixed(2);
+            
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💊 智能药品相互作用检查器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: backgroundShift 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes backgroundShift {
+            0% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+            100% { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease-in-out infinite;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+            opacity: 0.8;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            box-shadow: inset 5px 5px 10px #d1d9e6, inset -5px -5px 10px #ffffff;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-field:focus {
+            box-shadow: inset 8px 8px 16px #d1d9e6, inset -8px -8px 16px #ffffff, 0 0 20px rgba(102, 126, 234, 0.3);
+            transform: scale(1.02);
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #495057;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .drug-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5em;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(-50%) translateY(0); }
+            40% { transform: translateY(-50%) translateY(-10px); }
+            60% { transform: translateY(-50%) translateY(-5px); }
+        }
+
+        .check-button {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            background-size: 200% 200%;
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.2em;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            animation: buttonPulse 2s infinite;
+            margin-top: 20px;
+        }
+
+        .check-button:hover {
+            background-position: right center;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .check-button:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes buttonPulse {
+            0%, 100% { box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); }
+            50% { box-shadow: 0 15px 30px rgba(255, 107, 107, 0.4); }
+        }
+
+        .result-card {
+            margin-top: 40px;
+            padding: 30px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transform: scale(0);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            opacity: 0;
+        }
+
+        .result-card.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .result-safe {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            border-left: 5px solid #4ecdc4;
+        }
+
+        .result-warning {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            border-left: 5px solid #ff6b6b;
+        }
+
+        .result-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            animation: iconSpin 1s ease-in-out;
+        }
+
+        @keyframes iconSpin {
+            0% { transform: rotate(0deg) scale(0); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        .result-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .result-description {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #495057;
+        }
+
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 107, 107, 0.1);
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            background: rgba(78, 205, 196, 0.1);
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        .shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            background: rgba(69, 183, 209, 0.1);
+            bottom: 20%;
+            left: 30%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .input-field {
+                font-size: 14px;
+                padding: 12px 15px;
+            }
+            
+            .check-button {
+                padding: 15px 30px;
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="container">
+        <h1>💊 智能药品相互作用检查器</h1>
+        <p class="subtitle">安全用药，从了解药物相互作用开始</p>
+        
+        <div class="input-group">
+            <div class="input-wrapper">
+                <label class="input-label" for="drug1">🔍 药品一</label>
+                <input type="text" id="drug1" class="input-field" placeholder="请输入第一个药品名称" autocomplete="off">
+                <span class="drug-icon">💊</span>
+            </div>
+            
+            <div class="input-wrapper">
+                <label class="input-label" for="drug2">🔍 药品二</label>
+                <input type="text" id="drug2" class="input-field" placeholder="请输入第二个药品名称" autocomplete="off">
+                <span class="drug-icon">💊</span>
+            </div>
+        </div>
+        
+        <button class="check-button" onclick="checkInteraction()">
+            <span>🚀 立即检查相互作用</span>
+        </button>
+        
+        <div class="result-card" id="resultCard" style="display: none;">
+            <div class="result-icon" id="resultIcon">🔍</div>
+            <div class="result-title" id="resultTitle">检查结果</div>
+            <div class="result-description" id="resultDescription">请输入两种药品名称以检查相互作用...</div>
+        </div>
+    
+    <script>
+        // 药品相互作用数据库（全面版）
+        const interactionDatabase = {
+            // 心血管系统用药
+            "阿司匹林": {
+                "华法林": "可能增加出血风险",
+                "布洛芬": "可能降低阿司匹林的心血管保护作用",
+                "甲氨蝶呤": "可能增加甲氨蝶呤毒性",
+                "肝素": "增加出血风险",
+                "氯吡格雷": "增加出血风险",
+                "奥美拉唑": "可能降低阿司匹林效果",
+                "利伐沙班": "增加出血风险",
+                "达比加群": "增加出血风险"
+            },
+            "华法林": {
+                "阿司匹林": "可能增加出血风险",
+                "维生素K": "可能降低华法林效果",
+                "抗生素": "可能增强或减弱华法林效果",
+                "肝素": "增加出血风险",
+                "非甾体抗炎药": "增加出血风险",
+                "胺碘酮": "可能增强华法林效果",
+                "利伐沙班": "增加出血风险",
+                "达比加群": "增加出血风险"
+            },
+            "地高辛": {
+                "利尿剂": "可能增加地高辛毒性",
+                "钙剂": "可能增加心律失常风险",
+                "奎尼丁": "可能增加地高辛血药浓度",
+                "胺碘酮": "可能增加地高辛血药浓度",
+                "维拉帕米": "可能增加地高辛血药浓度"
+            },
+            "硝苯地平": {
+                "西咪替丁": "可能增加硝苯地平血药浓度",
+                "葡萄柚汁": "可能增加硝苯地平血药浓度",
+                "β受体阻滞剂": "可能增强降压效果",
+                "利福平": "可能降低硝苯地平效果"
+            },
+            "美托洛尔": {
+                "地尔硫卓": "可能增强降压和负性肌力作用",
+                "胺碘酮": "可能增强负性肌力作用",
+                "西咪替丁": "可能增加美托洛尔血药浓度",
+                "胰岛素": "可能掩盖低血糖症状"
+            },
+            "氨氯地平": {
+                "西咪替丁": "可能增加氨氯地平血药浓度",
+                "葡萄柚汁": "可能增加氨氯地平血药浓度",
+                "辛伐他汀": "可能增加辛伐他汀血药浓度"
+            },
+            "缬沙坦": {
+                "钾剂": "可能增加高钾血症风险",
+                "ACE抑制剂": "可能增加高钾血症风险",
+                "利尿剂": "可能增强降压效果"
+            },
+
+            // 降糖药
+            "胰岛素": {
+                "β受体阻滞剂": "可能掩盖低血糖症状",
+                "噻嗪类利尿剂": "可能减弱胰岛素效果",
+                "糖皮质激素": "可能减弱胰岛素效果",
+                "酒精": "可能增强或减弱胰岛素效果"
+            },
+            "二甲双胍": {
+                "酒精": "可能增加乳酸酸中毒风险",
+                "碘造影剂": "可能增加乳酸酸中毒风险",
+                "ACE抑制剂": "可能增强降糖效果"
+            },
+            "格列美脲": {
+                "β受体阻滞剂": "可能掩盖低血糖症状",
+                "华法林": "可能增强华法林效果",
+                "氟康唑": "可能增加格列美脲血药浓度"
+            },
+            "阿卡波糖": {
+                "消化酶": "可能降低阿卡波糖效果",
+                "地高辛": "可能降低地高辛吸收"
+            },
+
+            // 降脂药
+            "阿托伐他汀": {
+                "红霉素": "可能增加阿托伐他汀血药浓度",
+                "葡萄柚汁": "可能增加阿托伐他汀血药浓度",
+                "华法林": "可能增加华法林效果",
+                "环孢素": "可能增加阿托伐他汀血药浓度"
+            },
+            "辛伐他汀": {
+                "红霉素": "可能增加辛伐他汀血药浓度",
+                "葡萄柚汁": "可能增加辛伐他汀血药浓度",
+                "胺碘酮": "可能增加辛伐他汀血药浓度",
+                "环孢素": "可能增加辛伐他汀血药浓度"
+            },
+
+            // 抗生素
+            "阿莫西林": {
+                "丙磺舒": "可能增加阿莫西林血药浓度",
+                "避孕药": "可能降低避孕药效果",
+                "华法林": "可能增强华法林效果"
+            },
+            "头孢曲松": {
+                "酒精": "可能引起双硫仑样反应",
+                "华法林": "可能增强华法林效果",
+                "氨基糖苷类": "可能增加肾毒性"
+            },
+            "左氧氟沙星": {
+                "抗酸药": "可能降低左氧氟沙星吸收",
+                "华法林": "可能增强华法林效果",
+                "非甾体抗炎药": "可能增加中枢神经系统刺激"
+            },
+            "阿奇霉素": {
+                "地高辛": "可能增加地高辛血药浓度",
+                "华法林": "可能增强华法林效果",
+                "麦角碱": "可能增加麦角中毒风险"
+            },
+
+            // 胃肠道用药
+            "奥美拉唑": {
+                "氯吡格雷": "可能降低氯吡格雷效果",
+                "地高辛": "可能增加地高辛血药浓度",
+                "华法林": "可能增强华法林效果",
+                "酮康唑": "可能降低酮康唑吸收"
+            },
+            "雷尼替丁": {
+                "华法林": "可能增强华法林效果",
+                "地高辛": "可能增加地高辛血药浓度",
+                "酮康唑": "可能降低酮康唑吸收"
+            },
+            "多潘立酮": {
+                "酮康唑": "可能增加多潘立酮血药浓度",
+                "红霉素": "可能增加多潘立酮血药浓度",
+                "地高辛": "可能降低地高辛吸收"
+            },
+
+            // 神经系统用药
+            "苯妥英钠": {
+                "华法林": "可能减弱华法林效果",
+                "地塞米松": "可能降低苯妥英钠血药浓度",
+                "西咪替丁": "可能增加苯妥英钠血药浓度",
+                "酒精": "可能增强苯妥英钠中枢抑制作用"
+            },
+            "卡马西平": {
+                "华法林": "可能减弱华法林效果",
+                "地尔硫卓": "可能增加卡马西平血药浓度",
+                "红霉素": "可能增加卡马西平血药浓度"
+            },
+            "丙戊酸钠": {
+                "华法林": "可能增强华法林效果",
+                "阿司匹林": "可能增加出血风险",
+                "苯妥英钠": "可能改变丙戊酸钠血药浓度"
+            },
+
+            // 免疫抑制剂
+            "甲氨蝶呤": {
+                "阿司匹林": "可能增加甲氨蝶呤毒性",
+                "非甾体抗炎药": "可能增加甲氨蝶呤毒性",
+                "磺胺类": "可能增加甲氨蝶呤毒性",
+                "丙磺舒": "可能增加甲氨蝶呤毒性"
+            },
+            "环孢素": {
+                "红霉素": "可能增加环孢素血药浓度",
+                "葡萄柚汁": "可能增加环孢素血药浓度",
+                "酮康唑": "可能增加环孢素血药浓度",
+                "利福平": "可能降低环孢素效果"
+            },
+
+            // 感冒发烧头痛用药
+            "对乙酰氨基酚": {
+                "华法林": "长期大剂量可能增强华法林效果",
+                "酒精": "可能增加肝毒性风险",
+                "抗癫痫药": "可能增加肝毒性风险",
+                "异烟肼": "可能增加肝毒性风险"
+            },
+            "布洛芬": {
+                "阿司匹林": "可能降低阿司匹林心血管保护作用",
+                "华法林": "可能增加出血风险",
+                "ACE抑制剂": "可能减弱降压效果",
+                "利尿剂": "可能减弱利尿效果",
+                "甲氨蝶呤": "可能增加甲氨蝶呤毒性"
+            },
+            "阿司匹林": {
+                "华法林": "可能增加出血风险",
+                "布洛芬": "可能降低阿司匹林心血管保护作用",
+                "甲氨蝶呤": "可能增加甲氨蝶呤毒性",
+                "ACE抑制剂": "可能减弱降压效果"
+            },
+            
+            // 感冒药和止咳药
+            "伪麻黄碱": {
+                "MAO抑制剂": "可能引起高血压危象",
+                "三环类抗抑郁药": "可能增强升压作用",
+                "β受体阻滞剂": "可能减弱降压效果"
+            },
+            "右美沙芬": {
+                "MAO抑制剂": "可能引起5-羟色胺综合征",
+                "SSRIs": "可能增加5-羟色胺综合征风险"
+            },
+            "氯苯那敏": {
+                "酒精": "可能增强中枢抑制作用",
+                "镇静催眠药": "可能增强中枢抑制作用",
+                "抗胆碱药": "可能增强抗胆碱作用"
+            },
+            
+            // 抗病毒药
+            "奥司他韦": {
+                "丙磺舒": "可能增加奥司他韦血药浓度",
+                "甲氨蝶呤": "可能增加甲氨蝶呤毒性"
+            },
+            
+            // 抗生素（感冒继发感染）
+            "阿莫西林": {
+                "丙磺舒": "可能增加阿莫西林血药浓度",
+                "避孕药": "可能降低避孕药效果",
+                "华法林": "可能增强华法林效果"
+            },
+            "阿奇霉素": {
+                "地高辛": "可能增加地高辛血药浓度",
+                "华法林": "可能增强华法林效果",
+                "麦角碱": "可能增加麦角中毒风险"
+            },
+            
+            // 祛痰止咳药
+            "氨溴索": {
+                "抗生素": "可能增加抗生素在肺组织的浓度",
+                "镇咳药": "可能降低祛痰效果"
+            },
+            "乙酰半胱氨酸": {
+                "硝酸甘油": "可能增强硝酸甘油血管扩张作用",
+                "活性炭": "可能降低乙酰半胱氨酸吸收"
+            },
+            
+            // 其他常用药物
+            "地塞米松": {
+                "胰岛素": "可能减弱胰岛素效果",
+                "华法林": "可能增强华法林效果",
+                "苯妥英钠": "可能降低苯妥英钠血药浓度"
+            }
+        };
+        
+        function checkInteraction() {
+            const drug1 = document.getElementById('drug1').value.trim();
+            const drug2 = document.getElementById('drug2').value.trim();
+            const resultCard = document.getElementById('resultCard');
+            const resultIcon = document.getElementById('resultIcon');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDescription = document.getElementById('resultDescription');
+            
+            // 添加按钮点击动画
+            const button = document.querySelector('.check-button');
+            button.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                button.style.transform = '';
+            }, 150);
+            
+            if (!drug1 || !drug2) {
+                showResult('⚠️', '输入不完整', '请输入两种药品名称以进行检查', 'result-warning');
+                return;
+            }
+            
+            if (drug1 === drug2) {
+                showResult('⚠️', '重复药品', '请输入两种不同的药品名称', 'result-warning');
+                return;
+            }
+            
+            // 检查相互作用
+            let interaction = null;
+            
+            if (interactionDatabase[drug1] && interactionDatabase[drug1][drug2]) {
+                interaction = interactionDatabase[drug1][drug2];
+            } else if (interactionDatabase[drug2] && interactionDatabase[drug2][drug1]) {
+                interaction = interactionDatabase[drug2][drug1];
+            }
+            
+            if (interaction) {
+                showResult('🚨', '发现相互作用', `<strong>${drug1}</strong> 和 <strong>${drug2}</strong> 可能存在配伍禁忌<br><br><strong>风险提示：</strong>${interaction}<br><br><em>⚠️ 请务必咨询医生或药师后再使用！</em>`, 'result-warning');
+            } else {
+                showResult('✅', '安全提示', `<strong>${drug1}</strong> 和 <strong>${drug2}</strong> 未发现已知的配伍禁忌<br><br><em>💡 数据库可能不完整，使用时仍需谨慎，如有疑问请咨询医生</em>`, 'result-safe');
+            }
+        }
+        
+        function showResult(icon, title, description, className) {
+            const resultCard = document.getElementById('resultCard');
+            const resultIcon = document.getElementById('resultIcon');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDescription = document.getElementById('resultDescription');
+            
+            resultCard.style.display = 'block';
+            resultCard.className = 'result-card';
+            
+            // 添加结果显示动画
+            setTimeout(() => {
+                resultCard.classList.add('show');
+                resultCard.classList.add(className);
+            }, 100);
+            
+            resultIcon.textContent = icon;
+            resultTitle.textContent = title;
+            resultDescription.innerHTML = description;
+            
+            // 滚动到结果区域
+            setTimeout(() => {
+                resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 300);
+        }
+        
+        // 添加输入框回车键支持
+        document.getElementById('drug1').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('drug2').focus();
+            }
+        });
+        
+        document.getElementById('drug2').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkInteraction();
+            }
+        });
+        
+        // 添加输入框焦点动画
+        const inputs = document.querySelectorAll('.input-field');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('pulse');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('pulse');
+            });
+        });
+        
+        // 页面加载动画
+        window.addEventListener('load', function() {
+            document.querySelector('.container').style.animation = 'fadeInUp 0.8s ease-out';
+        });
+        
+        // 添加CSS动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+    </div>
+</body>
+</html>

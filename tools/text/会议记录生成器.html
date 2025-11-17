@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 会议记录生成器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .form-section, .preview-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-section:hover, .preview-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(255, 255, 255, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 700;
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        h1::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        h2 {
+            color: #2d3748;
+            margin-bottom: 25px;
+            font-size: 1.6em;
+            font-weight: 600;
+            padding-bottom: 15px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::after {
+            content: '';
+            flex: 1;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 15px;
+        }
+
+        label i {
+            color: #667eea;
+            width: 16px;
+        }
+
+        .form-group:focus-within label {
+            color: #667eea;
+            transform: translateX(2px);
+            transition: all 0.3s ease;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(226, 232, 240, 0.8);
+            border-radius: 12px;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 
+                0 0 0 4px rgba(102, 126, 234, 0.1),
+                0 8px 25px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .agenda-item, .conclusion-item {
+            background: linear-gradient(135deg, rgba(247, 250, 252, 0.9) 0%, rgba(237, 242, 247, 0.9) 100%);
+            border: 1px solid rgba(226, 232, 240, 0.6);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .agenda-item::before, .conclusion-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 0 2px 2px 0;
+        }
+
+        .agenda-item:hover, .conclusion-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        .agenda-item input, .conclusion-item input {
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-right: 12px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+        }
+
+        .btn-success:hover {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(56, 161, 105, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(56, 161, 105, 0);
+            }
+        }
+
+        .remove-btn {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        .preview {
+            background: linear-gradient(135deg, rgba(248, 249, 250, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+            border: 1px solid rgba(222, 226, 230, 0.6);
+            border-radius: 15px;
+            padding: 25px;
+            min-height: 400px;
+            font-family: 'Times New Roman', serif;
+            line-height: 1.7;
+            backdrop-filter: blur(5px);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            border-radius: 15px 15px 0 0;
+        }
+
+        .preview h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.8em;
+        }
+
+        .preview .meta-info {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(247, 250, 252, 0.9) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.5);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .preview .section {
+            margin-bottom: 20px;
+        }
+
+        .preview .section h4 {
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 5px;
+        }
+
+        .preview ol, .preview ul {
+            padding-left: 25px;
+        }
+
+        .preview li {
+            margin-bottom: 8px;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            text-align: center;
+        }
+
+        .signature-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .signature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .signature-item {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-section, .preview-section {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .form-section {
+            animation-delay: 0.1s;
+        }
+
+        .preview-section {
+            animation-delay: 0.2s;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .form-section, .preview-section {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+                padding: 20px;
+            }
+
+            .btn {
+                width: 100%;
+                margin-right: 0;
+            }
+
+            .empty-state i {
+                font-size: 2em !important;
+            }
+            
+            label {
+                font-size: 14px;
+            }
+            
+            .btn i {
+                margin-right: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 会议记录生成器</h1>
+        
+        <div class="form-section">
+            <h2><i class="fas fa-edit"></i> 会议信息录入</h2>
+            
+            <div class="form-group">
+                <label for="meetingTitle"><i class="fas fa-bullhorn"></i> 会议主题</label>
+                <input type="text" id="meetingTitle" placeholder="✨ 请输入会议主题">
+            </div>
+
+            <div class="form-group">
+                <label for="meetingDate"><i class="fas fa-calendar-alt"></i> 会议时间</label>
+                <input type="datetime-local" id="meetingDate">
+            </div>
+
+            <div class="form-group">
+                <label for="meetingLocation"><i class="fas fa-map-marker-alt"></i> 会议地点</label>
+                <input type="text" id="meetingLocation" placeholder="📍 请输入会议地点">
+            </div>
+
+            <div class="form-group">
+                <label for="meetingHost"><i class="fas fa-user-tie"></i> 会议主持人</label>
+                <input type="text" id="meetingHost" placeholder="👨‍💼 请输入主持人姓名">
+            </div>
+
+            <div class="form-group">
+                <label for="participants"><i class="fas fa-users"></i> 参会人员</label>
+                <textarea id="participants" placeholder="👥 请输入参会人员，用逗号分隔"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-list-ul"></i> 会议议题</label>
+                <div id="agendaContainer">
+                    <div class="agenda-item">
+                        <input type="text" placeholder="议题标题" class="agenda-title">
+                        <textarea placeholder="议题详细内容" class="agenda-content"></textarea>
+                        <button type="button" class="btn remove-btn" onclick="removeAgenda(this)">
+                            <i class="fas fa-times"></i> 删除
+                        </button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="addAgenda()">
+                    <i class="fas fa-plus"></i> 添加议题
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-check-circle"></i> 会议结论与决议</label>
+                <div id="conclusionContainer">
+                    <div class="conclusion-item">
+                        <input type="text" placeholder="结论标题" class="conclusion-title">
+                        <textarea placeholder="具体结论内容" class="conclusion-content"></textarea>
+                        <input type="text" placeholder="责任人" class="conclusion-responsible">
+                        <input type="date" placeholder="完成时间" class="conclusion-deadline">
+                        <button type="button" class="btn remove-btn" onclick="removeConclusion(this)">
+                            <i class="fas fa-times"></i> 删除
+                        </button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="addConclusion()">
+                    <i class="fas fa-plus"></i> 添加结论
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label for="nextMeeting"><i class="fas fa-arrow-right"></i> 下次会议安排</label>
+                <textarea id="nextMeeting" placeholder="⏰ 下次会议时间、地点、议题等"></textarea>
+            </div>
+
+            <div class="actions">
+                <button type="button" class="btn" onclick="generatePreview()">
+                    <i class="fas fa-eye"></i> 生成预览
+                </button>
+                <button type="button" class="btn btn-success" onclick="exportToPDF()">
+                    <i class="fas fa-file-pdf"></i> 导出PDF
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                    <i class="fas fa-trash-alt"></i> 清空表单
+                </button>
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <h2><i class="fas fa-file-alt"></i> 会议纪要预览</h2>
+            <div id="preview" class="preview">
+                <div class="empty-state">
+                    <i class="fas fa-file-alt" style="font-size: 3em; color: #cbd5e0; margin-bottom: 20px;"></i>
+                    <p style="text-align: center; color: #666; margin-top: 20px; font-size: 1.1em;">
+                        ✨ 请填写左侧表单信息，然后点击"生成预览"按钮
+                    </p>
+                    <p style="text-align: center; color: #999; margin-top: 10px;">
+                        开始创建您的专业会议纪要
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer style="text-align: center; margin-top: 40px; padding: 20px; color: rgba(255, 255, 255, 0.8);">
+        <div style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 15px; padding: 20px; display: inline-block;">
+            <p style="margin: 0; font-size: 14px;">
+                <i class="fas fa-heart" style="color: #ff6b6b;"></i> 
+                Made with love by CodeBuddy | 
+                <i class="fas fa-rocket"></i> 
+                让会议记录更简单高效
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // 设置默认时间为当前时间
+        document.getElementById('meetingDate').value = new Date().toISOString().slice(0, 16);
+
+        function addAgenda() {
+            const container = document.getElementById('agendaContainer');
+            const agendaItem = document.createElement('div');
+            agendaItem.className = 'agenda-item';
+            agendaItem.innerHTML = `
+                <input type="text" placeholder="议题标题" class="agenda-title">
+                <textarea placeholder="议题详细内容" class="agenda-content"></textarea>
+                <button type="button" class="btn remove-btn" onclick="removeAgenda(this)">
+                    <i class="fas fa-times"></i> 删除
+                </button>
+            `;
+            container.appendChild(agendaItem);
+        }
+
+        function removeAgenda(button) {
+            const container = document.getElementById('agendaContainer');
+            if (container.children.length > 1) {
+                button.parentElement.remove();
+            } else {
+                alert('至少需要保留一个议题！');
+            }
+        }
+
+        function addConclusion() {
+            const container = document.getElementById('conclusionContainer');
+            const conclusionItem = document.createElement('div');
+            conclusionItem.className = 'conclusion-item';
+            conclusionItem.innerHTML = `
+                <input type="text" placeholder="结论标题" class="conclusion-title">
+                <textarea placeholder="具体结论内容" class="conclusion-content"></textarea>
+                <input type="text" placeholder="责任人" class="conclusion-responsible">
+                <input type="date" placeholder="完成时间" class="conclusion-deadline">
+                <button type="button" class="btn remove-btn" onclick="removeConclusion(this)">
+                    <i class="fas fa-times"></i> 删除
+                </button>
+            `;
+            container.appendChild(conclusionItem);
+        }
+
+        function removeConclusion(button) {
+            const container = document.getElementById('conclusionContainer');
+            if (container.children.length > 1) {
+                button.parentElement.remove();
+            } else {
+                alert('至少需要保留一个结论！');
+            }
+        }
+
+        function formatDateTime(dateTimeString) {
+            if (!dateTimeString) return '';
+            const date = new Date(dateTimeString);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function generatePreview() {
+            const title = document.getElementById('meetingTitle').value || '会议纪要';
+            const dateTime = formatDateTime(document.getElementById('meetingDate').value);
+            const location = document.getElementById('meetingLocation').value;
+            const host = document.getElementById('meetingHost').value;
+            const participants = document.getElementById('participants').value;
+            const nextMeeting = document.getElementById('nextMeeting').value;
+
+            // 收集议题
+            const agendaItems = Array.from(document.querySelectorAll('.agenda-item')).map(item => ({
+                title: item.querySelector('.agenda-title').value,
+                content: item.querySelector('.agenda-content').value
+            })).filter(item => item.title || item.content);
+
+            // 收集结论
+            const conclusionItems = Array.from(document.querySelectorAll('.conclusion-item')).map(item => ({
+                title: item.querySelector('.conclusion-title').value,
+                content: item.querySelector('.conclusion-content').value,
+                responsible: item.querySelector('.conclusion-responsible').value,
+                deadline: item.querySelector('.conclusion-deadline').value
+            })).filter(item => item.title || item.content);
+
+            let previewHTML = `
+                <h3>${title}</h3>
+                <div class="meta-info">
+                    <p><strong>会议时间：</strong>${dateTime}</p>
+                    <p><strong>会议地点：</strong>${location}</p>
+                    <p><strong>会议主持：</strong>${host}</p>
+                    <p><strong>参会人员：</strong>${participants}</p>
+                </div>
+            `;
+
+            if (agendaItems.length > 0) {
+                previewHTML += `
+                    <div class="section">
+                        <h4>会议议题</h4>
+                        <ol>
+                `;
+                agendaItems.forEach(item => {
+                    previewHTML += `
+                        <li>
+                            <strong>${item.title}</strong>
+                            ${item.content ? `<br>${item.content.replace(/\n/g, '<br>')}` : ''}
+                        </li>
+                    `;
+                });
+                previewHTML += `</ol></div>`;
+            }
+
+            if (conclusionItems.length > 0) {
+                previewHTML += `
+                    <div class="section">
+                        <h4>会议结论与决议</h4>
+                        <ol>
+                `;
+                conclusionItems.forEach(item => {
+                    previewHTML += `
+                        <li>
+                            <strong>${item.title}</strong>
+                            ${item.content ? `<br>${item.content.replace(/\n/g, '<br>')}` : ''}
+                            ${item.responsible ? `<br><strong>责任人：</strong>${item.responsible}` : ''}
+                            ${item.deadline ? `<br><strong>完成时间：</strong>${new Date(item.deadline).toLocaleDateString('zh-CN')}` : ''}
+                        </li>
+                    `;
+                });
+                previewHTML += `</ol></div>`;
+            }
+
+            if (nextMeeting) {
+                previewHTML += `
+                    <div class="section">
+                        <h4>下次会议安排</h4>
+                        <p>${nextMeeting.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+            }
+
+            previewHTML += `
+                <div class="signature-section">
+                    <h4>签名确认</h4>
+                    <div class="signature-grid">
+                        <div class="signature-item">
+                            <div>会议记录人</div>
+                        </div>
+                        <div class="signature-item">
+                            <div>会议主持人</div>
+                        </div>
+                    </div>
+                    <p style="text-align: right; margin-top: 20px;">
+                        记录时间：${new Date().toLocaleDateString('zh-CN')}
+                    </p>
+                </div>
+            `;
+
+            document.getElementById('preview').innerHTML = previewHTML;
+        }
+
+        function exportToPDF() {
+            const previewContent = document.getElementById('preview').innerHTML;
+            if (!previewContent || previewContent.includes('请填写左侧表单信息')) {
+                alert('请先生成预览内容！');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>会议纪要</title>
+                    <style>
+                        body { 
+                            font-family: 'Microsoft YaHei', Arial, sans-serif; 
+                            line-height: 1.6; 
+                            margin: 40px;
+                            color: #333;
+                        }
+                        h3 { 
+                            text-align: center; 
+                            margin-bottom: 30px; 
+                            font-size: 24px;
+                            color: #2d3748;
+                        }
+                        .meta-info { 
+                            margin-bottom: 30px; 
+                            padding: 20px; 
+                            background: #f8f9fa; 
+                            border-radius: 5px;
+                        }
+                        .section { 
+                            margin-bottom: 25px; 
+                        }
+                        .section h4 { 
+                            color: #4a5568; 
+                            margin-bottom: 15px; 
+                            font-size: 18px;
+                            border-bottom: 2px solid #e2e8f0; 
+                            padding-bottom: 8px;
+                        }
+                        ol, ul { 
+                            padding-left: 25px; 
+                        }
+                        li { 
+                            margin-bottom: 10px; 
+                        }
+                        .signature-section {
+                            margin-top: 40px;
+                            padding-top: 20px;
+                            border-top: 1px solid #e2e8f0;
+                        }
+                        .signature-grid {
+                            display: flex;
+                            justify-content: space-around;
+                            margin-top: 20px;
+                        }
+                        .signature-item {
+                            text-align: center;
+                            padding: 30px 0;
+                            border-bottom: 1px solid #333;
+                            min-width: 150px;
+                        }
+                        @media print {
+                            body { margin: 20px; }
+                            .signature-item { page-break-inside: avoid; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${previewContent}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function clearForm() {
+            if (confirm('确定要清空所有表单内容吗？')) {
+                document.getElementById('meetingTitle').value = '';
+                document.getElementById('meetingDate').value = new Date().toISOString().slice(0, 16);
+                document.getElementById('meetingLocation').value = '';
+                document.getElementById('meetingHost').value = '';
+                document.getElementById('participants').value = '';
+                document.getElementById('nextMeeting').value = '';
+                
+                // 重置议题
+                const agendaContainer = document.getElementById('agendaContainer');
+                agendaContainer.innerHTML = `
+                    <div class="agenda-item">
+                        <input type="text" placeholder="议题标题" class="agenda-title">
+                        <textarea placeholder="议题详细内容" class="agenda-content"></textarea>
+                        <button type="button" class="btn remove-btn" onclick="removeAgenda(this)">
+                            <i class="fas fa-times"></i> 删除
+                        </button>
+                    </div>
+                `;
+                
+                // 重置结论
+                const conclusionContainer = document.getElementById('conclusionContainer');
+                conclusionContainer.innerHTML = `
+                    <div class="conclusion-item">
+                        <input type="text" placeholder="结论标题" class="conclusion-title">
+                        <textarea placeholder="具体结论内容" class="conclusion-content"></textarea>
+                        <input type="text" placeholder="责任人" class="conclusion-responsible">
+                        <input type="date" placeholder="完成时间" class="conclusion-deadline">
+                        <button type="button" class="btn remove-btn" onclick="removeConclusion(this)">
+                            <i class="fas fa-times"></i> 删除
+                        </button>
+                    </div>
+                `;
+                
+                // 清空预览
+                document.getElementById('preview').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-file-alt" style="font-size: 3em; color: #cbd5e0; margin-bottom: 20px;"></i>
+                        <p style="text-align: center; color: #666; margin-top: 20px; font-size: 1.1em;">
+                            ✨ 请填写左侧表单信息，然后点击"生成预览"按钮
+                        </p>
+                        <p style="text-align: center; color: #999; margin-top: 10px;">
+                            开始创建您的专业会议纪要
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        // 自动保存功能
+        function autoSave() {
+            const formData = {
+                meetingTitle: document.getElementById('meetingTitle').value,
+                meetingDate: document.getElementById('meetingDate').value,
+                meetingLocation: document.getElementById('meetingLocation').value,
+                meetingHost: document.getElementById('meetingHost').value,
+                participants: document.getElementById('participants').value,
+                nextMeeting: document.getElementById('nextMeeting').value
+            };
+            localStorage.setItem('meetingFormData', JSON.stringify(formData));
+        }
+
+        // 加载保存的数据
+        function loadSavedData() {
+            const savedData = localStorage.getItem('meetingFormData');
+            if (savedData) {
+                const formData = JSON.parse(savedData);
+                document.getElementById('meetingTitle').value = formData.meetingTitle || '';
+                document.getElementById('meetingDate').value = formData.meetingDate || new Date().toISOString().slice(0, 16);
+                document.getElementById('meetingLocation').value = formData.meetingLocation || '';
+                document.getElementById('meetingHost').value = formData.meetingHost || '';
+                document.getElementById('participants').value = formData.participants || '';
+                document.getElementById('nextMeeting').value = formData.nextMeeting || '';
+            }
+        }
+
+        // 页面加载时恢复数据
+        window.addEventListener('load', loadSavedData);
+
+        // 表单变化时自动保存
+        document.addEventListener('input', autoSave);
+    </script>
+</body>
+</html>

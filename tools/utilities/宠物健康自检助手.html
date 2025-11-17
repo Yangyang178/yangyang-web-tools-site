@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宠物健康自检助手</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section h2 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .symptoms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .symptom-item {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .symptom-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .symptom-item.selected {
+            background: #e8f5e9;
+            border-color: #4CAF50;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 20px auto;
+            width: 200px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33,150,243,0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .disease {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .disease h3 {
+            color: #e74c3c;
+            margin-top: 0;
+        }
+        
+        .care-advice {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+            color: #856404;
+        }
+        
+        @media (max-width: 600px) {
+            .symptoms-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐾 宠物健康自检助手</h1>
+            <p>选择宠物症状，获取可能的疾病及护理建议</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <h2>选择宠物症状</h2>
+                <div class="symptoms-grid" id="symptomsGrid">
+                    <!-- 症状选项将通过JavaScript动态生成 -->
+                </div>
+                <button class="btn" onclick="checkHealth()">开始诊断</button>
+            </div>
+            
+            <div class="result" id="result">
+                <h2>诊断结果</h2>
+                <div id="diseasesList"></div>
+                <button class="btn" onclick="resetSelection()" style="background: linear-gradient(45deg, #FF9800, #F57C00);">重新选择</button>
+                <div class="warning">
+                    ⚠️ 请注意：此诊断仅供参考，不能替代专业兽医诊断。如有严重症状，请立即联系兽医。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 宠物症状数据
+        const symptoms = [
+            { id: 1, name: "食欲不振", icon: "🍽️" },
+            { id: 2, name: "呕吐", icon: "🤮" },
+            { id: 3, name: "腹泻", icon: "💩" },
+            { id: 4, name: "精神萎靡", icon: "😴" },
+            { id: 5, name: "咳嗽", icon: "🤧" },
+            { id: 6, name: "流鼻涕", icon: "👃" },
+            { id: 7, name: "发烧", icon: "🌡️" },
+            { id: 8, name: "皮肤瘙痒", icon: "🐾" },
+            { id: 9, name: "脱毛", icon: "✂️" },
+            { id: 10, name: "眼睛红肿", icon: "👁️" },
+            { id: 11, name: "呼吸困难", icon: "💨" },
+            { id: 12, name: "走路不稳", icon: "🦵" },
+            { id: 13, name: "打喷嚏", icon: "🤧" },
+            { id: 14, name: "流口水", icon: "🤤" },
+            { id: 15, name: "牙龈红肿", icon: "👄" },
+            { id: 16, name: "频繁抓耳", icon: "👂" },
+            { id: 17, name: "尿频", icon: "トイレ" },
+            { id: 18, name: "便秘", icon: "💩" },
+            { id: 19, name: "体重下降", icon: "📉" },
+            { id: 20, name: "过度舔毛", icon: "🐱" }
+        ];
+        
+        // 疾病数据
+        const diseases = [
+            {
+                id: 1,
+                name: "肠胃炎",
+                symptoms: [1, 2, 3],
+                advice: [
+                    "禁食12-24小时，只提供清水",
+                    "症状缓解后逐渐恢复饮食，从易消化食物开始",
+                    "观察宠物精神状态和排便情况",
+                    "如症状持续超过24小时，请及时就医"
+                ]
+            },
+            {
+                id: 2,
+                name: "感冒",
+                symptoms: [4, 5, 6, 7],
+                advice: [
+                    "保持环境温暖，避免受凉",
+                    "增加营养丰富的食物，提高抵抗力",
+                    "保持室内空气流通但避免直吹风",
+                    "如发烧超过39.5°C或症状加重，请就医"
+                ]
+            },
+            {
+                id: 3,
+                name: "皮肤病",
+                symptoms: [8, 9, 10],
+                advice: [
+                    "避免宠物抓挠患处，可佩戴伊丽莎白圈",
+                    "保持皮肤清洁干燥",
+                    "使用宠物专用洗毛液清洗",
+                    "如症状持续或扩散，请就医检查过敏源"
+                ]
+            },
+            {
+                id: 4,
+                name: "呼吸道感染",
+                symptoms: [5, 6, 11],
+                advice: [
+                    "保持环境温暖湿润，可使用加湿器",
+                    "避免剧烈运动和外出",
+                    "观察呼吸频率和困难程度",
+                    "如出现张口呼吸或呼吸急促，请立即就医"
+                ]
+            },
+            {
+                id: 5,
+                name: "中毒",
+                symptoms: [1, 2, 3, 11],
+                advice: [
+                    "立即联系兽医，说明可能的中毒原因",
+                    "如知道中毒物质，带上包装或样本就医",
+                    "不要自行催吐，除非兽医指示",
+                    "紧急情况下可拨打宠物急救电话"
+                ]
+            },
+            {
+                id: 6,
+                name: "内耳感染",
+                symptoms: [4, 12],
+                advice: [
+                    "避免让水进入耳朵",
+                    "保持耳朵清洁干燥",
+                    "不要用棉签深入耳道清理",
+                    "如症状持续或伴有摇头频繁，请就医"
+                ]
+            },
+            {
+                id: 7,
+                name: "口腔疾病",
+                symptoms: [1, 14, 15, 20],
+                advice: [
+                    "定期检查宠物口腔，观察牙龈颜色",
+                    "使用宠物专用牙刷和牙膏清洁牙齿",
+                    "提供洁牙玩具或洁牙骨帮助清洁牙齿",
+                    "如牙龈持续红肿或流口水严重，请就医"
+                ]
+            },
+            {
+                id: 8,
+                name: "泌尿系统感染",
+                symptoms: [1, 17, 18],
+                advice: [
+                    "增加宠物饮水量，保持充足水分摄入",
+                    "保持猫砂盆或排便区域清洁",
+                    "观察排尿频率和排便困难程度",
+                    "如出现血尿或完全无法排尿，请立即就医"
+                ]
+            },
+            {
+                id: 9,
+                name: "过敏性皮炎",
+                symptoms: [8, 9, 13, 20],
+                advice: [
+                    "检查宠物是否接触新的食物、洗护用品或环境",
+                    "避免使用人用洗护产品给宠物洗澡",
+                    "保持环境清洁，定期除螨",
+                    "如症状严重或持续，请就医进行过敏源检测"
+                ]
+            }
+        ];
+        
+        // 初始化症状选择界面
+        function initSymptoms() {
+            const grid = document.getElementById('symptomsGrid');
+            symptoms.forEach(symptom => {
+                const item = document.createElement('div');
+                item.className = 'symptom-item';
+                item.innerHTML = `${symptom.icon}<br>${symptom.name}`;
+                item.onclick = () => toggleSymptom(item, symptom.id);
+                grid.appendChild(item);
+            });
+        }
+        
+        // 切换症状选择状态
+        function toggleSymptom(element, symptomId) {
+            element.classList.toggle('selected');
+            // 将症状ID存储在元素的data属性中
+            element.dataset.symptomId = symptomId;
+        }
+        
+        // 获取选中的症状
+        function getSelectedSymptoms() {
+            const selectedItems = document.querySelectorAll('.symptom-item.selected');
+            return Array.from(selectedItems).map(item => {
+                // 从data属性中获取症状ID
+                return parseInt(item.dataset.symptomId);
+            });
+        }
+        
+        // 健康检查主函数
+        function checkHealth() {
+            const selectedSymptoms = getSelectedSymptoms();
+            
+            if (selectedSymptoms.length === 0) {
+                alert('请至少选择一个症状');
+                return;
+            }
+            
+            // 匹配可能的疾病
+            const possibleDiseases = matchDiseases(selectedSymptoms);
+            
+            // 显示结果
+            displayResults(possibleDiseases);
+        }
+        
+        // 匹配疾病
+        function matchDiseases(selectedSymptoms) {
+            return diseases.filter(disease => {
+                // 计算匹配的症状数量
+                const matchedSymptoms = disease.symptoms.filter(symptomId => 
+                    selectedSymptoms.includes(symptomId)
+                );
+                
+                // 如果匹配的症状超过总症状的50%，则认为可能患病
+                return matchedSymptoms.length > 0 && 
+                       matchedSymptoms.length >= disease.symptoms.length * 0.5;
+            });
+        }
+        
+        // 显示诊断结果
+        function displayResults(diseases) {
+            const resultDiv = document.getElementById('result');
+            const diseasesList = document.getElementById('diseasesList');
+            
+            if (diseases.length === 0) {
+                diseasesList.innerHTML = `
+                    <div class="disease">
+                        <h3>暂无匹配的疾病</h3>
+                        <p>根据您选择的症状，目前没有匹配的常见疾病。但这不代表宠物完全健康，如果症状持续或加重，请及时咨询兽医。</p>
+                    </div>
+                `;
+            } else {
+                diseasesList.innerHTML = diseases.map(disease => `
+                    <div class="disease">
+                        <h3>${disease.name}</h3>
+                        <p><strong>可能症状：</strong>${
+                            disease.symptoms.map(id => {
+                                const symptom = symptoms.find(s => s.id === id);
+                                return symptom ? symptom.name : '';
+                            }).filter(name => name !== '').join('、')
+                        }</p>
+                        <div class="care-advice">
+                            <strong>护理建议：</strong>
+                            <ul>${disease.advice.map(advice => `<li>${advice}</li>`).join('')}</ul>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            resultDiv.style.display = 'block';
+            
+            // 滚动到结果区域
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // 重置选择
+        function resetSelection() {
+            // 清除所有选中的症状
+            const selectedItems = document.querySelectorAll('.symptom-item.selected');
+            selectedItems.forEach(item => {
+                item.classList.remove('selected');
+                // 清除data属性
+                delete item.dataset.symptomId;
+            });
+            
+            // 隐藏结果区域
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'none';
+            
+            // 滚动到症状选择区域
+            document.querySelector('.section').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', initSymptoms);
+    </script>
+</body>
+</html>

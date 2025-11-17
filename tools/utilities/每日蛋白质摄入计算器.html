@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蛋白质摄入计算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .calculator-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 8px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .result h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+
+        .result-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .result-details {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .activity-level-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f4fd;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .activity-level-info h3 {
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .activity-level-info ul {
+            list-style-position: inside;
+            line-height: 1.8;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>💪 蛋白质摄入计算器</h1>
+        
+        <div class="input-group">
+            <label for="weight">体重 (kg)</label>
+            <input type="number" id="weight" placeholder="请输入体重" min="30" max="200" step="0.1">
+        </div>
+
+        <div class="input-group">
+            <label for="gender">性别</label>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="gender" value="male" checked>
+                    男性
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="gender" value="female">
+                    女性
+                </label>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="age">年龄</label>
+            <input type="number" id="age" placeholder="请输入年龄" min="15" max="100">
+        </div>
+
+        <div class="input-group">
+            <label for="activity">活动水平</label>
+            <select id="activity">
+                <option value="sedentary">久坐不动 (办公室工作，很少运动)</option>
+                <option value="light">轻度活动 (每周1-3次轻度运动)</option>
+                <option value="moderate" selected>中度活动 (每周3-5次中等强度运动)</option>
+                <option value="active">高度活动 (每周6-7次高强度运动)</option>
+                <option value="very-active">极度活动 (体力工作或每日高强度训练)</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="goal">健身目标</label>
+            <select id="goal">
+                <option value="maintenance">维持体重</option>
+                <option value="muscle">增肌</option>
+                <option value="fat-loss">减脂</option>
+            </select>
+        </div>
+
+        <button class="calculate-btn" onclick="calculateProtein()">计算蛋白质需求</button>
+
+        <div id="result" class="result hidden">
+            <h2>每日蛋白质需求</h2>
+            <div class="result-value" id="protein-amount">0g</div>
+            <div class="result-details" id="result-details"></div>
+        </div>
+
+        <div class="activity-level-info">
+            <h3>活动水平说明：</h3>
+            <ul>
+                <li><strong>久坐不动：</strong>办公室工作，很少或不运动</li>
+                <li><strong>轻度活动：</strong>每周1-3次轻度运动或散步</li>
+                <li><strong>中度活动：</strong>每周3-5次中等强度运动</li>
+                <li><strong>高度活动：</strong>每周6-7次高强度运动或体力劳动</li>
+                <li><strong>极度活动：</strong>每日高强度训练或重体力劳动</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function calculateProtein() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            const age = parseInt(document.getElementById('age').value);
+            const activity = document.getElementById('activity').value;
+            const goal = document.getElementById('goal').value;
+
+            if (!weight || !age) {
+                alert('请填写完整的体重和年龄信息！');
+                return;
+            }
+
+            // 基础蛋白质需求系数 (g/kg体重)
+            let baseProtein = 0.8;
+            
+            // 根据活动水平调整
+            const activityMultipliers = {
+                'sedentary': 1.0,
+                'light': 1.2,
+                'moderate': 1.4,
+                'active': 1.6,
+                'very-active': 1.8
+            };
+
+            // 根据健身目标调整
+            const goalMultipliers = {
+                'maintenance': 1.0,
+                'muscle': 1.2,
+                'fat-loss': 1.1
+            };
+
+            // 年龄调整
+            let ageMultiplier = 1.0;
+            if (age > 50) {
+                ageMultiplier = 1.1; // 老年人需要更多蛋白质
+            }
+
+            // 性别调整
+            let genderMultiplier = gender === 'male' ? 1.1 : 1.0;
+
+            // 计算最终蛋白质需求
+            let proteinPerKg = baseProtein * activityMultipliers[activity] * goalMultipliers[goal] * ageMultiplier * genderMultiplier;
+            
+            // 设置上下限
+            proteinPerKg = Math.max(0.8, Math.min(proteinPerKg, 2.5));
+            
+            let totalProtein = Math.round(weight * proteinPerKg);
+
+            // 计算蛋白质食物参考
+            const proteinSources = {
+                '鸡胸肉': 31,
+                '鸡蛋': 13,
+                '牛肉': 26,
+                '三文鱼': 25,
+                '豆腐': 8,
+                '希腊酸奶': 10,
+                '乳清蛋白粉': 25
+            };
+
+            let foodExamples = [];
+            for (let [food, proteinPer100g] of Object.entries(proteinSources)) {
+                let amount = Math.round((totalProtein / proteinPer100g) * 100);
+                if (amount < 100) {
+                    foodExamples.push(`${amount}g ${food}`);
+                } else {
+                    let grams = Math.round(amount / 100) * 100;
+                    foodExamples.push(`${grams}g ${food}`);
+                }
+            }
+
+            // 显示结果
+            document.getElementById('protein-amount').textContent = `${totalProtein}g`;
+            
+            let details = `基于您的体重 ${weight}kg，活动水平和健身目标，<br>
+                           建议每日蛋白质摄入量为 <strong>${totalProtein}g</strong><br>
+                           相当于每公斤体重 ${proteinPerKg.toFixed(1)}g 蛋白质<br><br>
+                           <strong>食物参考：</strong><br>`;
+            
+            foodExamples.slice(0, 4).forEach(example => {
+                details += `• ${example}<br>`;
+            });
+
+            document.getElementById('result-details').innerHTML = details;
+            document.getElementById('result').classList.remove('hidden');
+            
+            // 平滑滚动到结果
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 回车键计算
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculateProtein();
+            }
+        });
+    </script>
+</body>
+</html>

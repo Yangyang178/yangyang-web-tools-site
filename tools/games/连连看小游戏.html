@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>连连看 - 多样图案与难度选择的益智游戏</title>
+    <style>
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: #fff;
+        }
+        
+        h1 {
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            color: #fff;
+            font-weight: bold;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 90vw;
+        }
+        
+        .settings {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .setting-group {
+            margin: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .setting-group label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 1.1em;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .setting-group select {
+            padding: 8px 12px;
+            border-radius: 25px;
+            border: 2px solid #ffd700;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1em;
+            outline: none;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+        
+        .setting-group select:focus {
+            border-color: #ff6b6b;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(8, 60px);
+            grid-gap: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+            justify-content: center;
+        }
+        
+        .tile {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tile::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+        
+        .tile:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+        
+        .tile:hover::before {
+            opacity: 1;
+            animation: shine 0.5s ease;
+        }
+        
+        @keyframes shine {
+            0% { transform: rotate(45deg) translate(-100%, -100%); }
+            100% { transform: rotate(45deg) translate(100%, 100%); }
+        }
+        
+        .tile.selected {
+            background: linear-gradient(145deg, #ffeb3b, #ffc107);
+            transform: scale(1.15) rotate(10deg);
+            box-shadow: 0 0 20px rgba(255, 235, 59, 0.7);
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1.15) rotate(10deg); }
+            50% { transform: scale(1.3) rotate(-5deg); }
+            100% { transform: scale(1.15) rotate(10deg); }
+        }
+        
+        .tile.matched {
+            transform: scale(0);
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+        
+        .controls {
+            margin-top: 25px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            background: linear-gradient(45deg, #ff6b6b, #ffa502);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            margin: 0 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .message {
+            margin-top: 25px;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-align: center;
+            min-height: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 装饰元素 */
+        .decoration {
+            position: absolute;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .decoration.circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .decoration.triangle {
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 100px solid rgba(255,255,255,0.05);
+            animation: rotate 8s linear infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>连连看小游戏</h1>
+    <div class="game-container">
+        <div class="settings">
+            <div class="setting-group">
+                <label for="patternType">图案类型:</label>
+                <select id="patternType">
+                    <option value="emoji">表情符号</option>
+                    <option value="number">数字</option>
+                    <option value="letter">字母</option>
+                </select>
+            </div>
+            <div class="setting-group">
+                <label for="boardSize">游戏板大小:</label>
+                <select id="boardSize">
+                    <option value="4">4x4 (8对)</option>
+                    <option value="6">6x6 (18对)</option>
+                    <option value="8" selected>8x8 (32对)</option>
+                    <option value="10">10x10 (50对)</option>
+                    <option value="12">12x12 (72对)</option>
+                </select>
+            </div>
+            <div class="setting-group">
+                <label for="difficulty">难度选择:</label>
+                <select id="difficulty">
+                    <option value="none">不计时</option>
+                    <option value="easy">简单 (300秒)</option>
+                    <option value="medium">中等 (180秒)</option>
+                    <option value="hard">困难 (120秒)</option>
+                    <option value="expert">专家 (60秒)</option>
+                </select>
+            </div>
+            <button onclick="applySettings()">应用设置</button>
+        </div>
+        <div class="game-board" id="gameBoard"></div>
+        <div class="controls">
+            <button onclick="startGame()">开始游戏</button>
+            <button onclick="resetGame()">重新开始</button>
+        </div>
+        <div class="message" id="message"></div>
+    </div>
+    
+    <!-- 装饰元素 -->
+    <div class="decoration circle" style="top: 10%; left: 5%;"></div>
+    <div class="decoration circle" style="top: 20%; right: 10%;"></div>
+    <div class="decoration triangle" style="bottom: 15%; left: 15%;"></div>
+    <div class="decoration triangle" style="bottom: 25%; right: 20%;"></div>
+
+    <script>
+        // 游戏变量
+        const emojiPatterns = ['🍎', '🍌', '🍇', '🍊', '🍓', '🍒', '🍑', '🍍', '🥝', '🥭', '🍋', '🍉', '🥥', '🍇', '🍈', '🍐'];
+        const numberPatterns = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '0️⃣', '🔢', '💯', '✅', '❌', '❗', '❓'];
+        const letterPatterns = ['🇦', '🇧', '🇨', '🇩', '🇪', '🇫', '🇬', '🇭', '🇮', '🇯', '🇰', '🇱', '🇲', '🇳', '🇴', '🇵'];
+        let patterns = [];
+        let board = [];
+        let selectedTiles = [];
+        let gameStarted = false;
+        let boardSize = 8; // 默认8x8
+        let timer = null;
+        let timeLeft = 0;
+        let totalTime = 0;
+        let difficulty = 'none'; // 默认不计时
+
+        // 应用设置
+        function applySettings() {
+            if (gameStarted) {
+                alert('游戏进行中，请先重新开始游戏再更改设置');
+                return;
+            }
+            
+            const patternType = document.getElementById('patternType').value;
+            boardSize = parseInt(document.getElementById('boardSize').value);
+            difficulty = document.getElementById('difficulty').value;
+            
+            // 根据选择设置图案
+            switch(patternType) {
+                case 'emoji':
+                    patterns = [...emojiPatterns];
+                    break;
+                case 'number':
+                    patterns = [...numberPatterns];
+                    break;
+                case 'letter':
+                    patterns = [...letterPatterns];
+                    break;
+            }
+            
+            // 设置计时时间
+            switch(difficulty) {
+                case 'easy':
+                    totalTime = 300; // 5分钟
+                    break;
+                case 'medium':
+                    totalTime = 180; // 3分钟
+                    break;
+                case 'hard':
+                    totalTime = 120; // 2分钟
+                    break;
+                case 'expert':
+                    totalTime = 60; // 1分钟
+                    break;
+                default:
+                    totalTime = 0; // 不计时
+            }
+            
+            // 初始化游戏
+            initGame();
+            
+            // 应用设置后需要点击开始游戏按钮才能开始
+            document.getElementById('message').textContent = '设置已应用，请点击"开始游戏"按钮开始游戏';
+        }
+
+        // 初始化游戏
+        function initGame() {
+            const gameBoard = document.getElementById('gameBoard');
+            
+            // 根据游戏板大小设置网格列数
+            gameBoard.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`;
+            
+            gameBoard.innerHTML = '';
+            board = [];
+            selectedTiles = [];
+            
+            // 计算需要的图案对数
+            const pairsNeeded = (boardSize * boardSize) / 2;
+            
+            // 创建图案数组（每种图案2个）
+            let patternArray = [];
+            
+            // 根据需要的对数选择图案
+            for (let i = 0; i < pairsNeeded; i++) {
+                const pattern = patterns[i % patterns.length];
+                patternArray.push(pattern, pattern);
+            }
+            
+            // 随机打乱图案
+            patternArray = shuffleArray(patternArray);
+            
+            // 创建游戏板
+            for (let i = 0; i < boardSize * boardSize; i++) {
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+                tile.dataset.index = i;
+                tile.dataset.pattern = patternArray[i];
+                // 明棋模式：初始化时就显示图案
+                tile.textContent = patternArray[i];
+                tile.addEventListener('click', () => handleTileClick(tile));
+                gameBoard.appendChild(tile);
+                board.push({
+                    element: tile,
+                    pattern: patternArray[i],
+                    matched: false
+                });
+            }
+            
+            document.getElementById('message').textContent = '设置已应用，请点击"开始游戏"按钮开始游戏';
+        }
+
+        // 洗牌算法
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // 开始游戏
+        function startGame() {
+            // 检查是否已应用设置
+            if (patterns.length === 0) {
+                document.getElementById('message').textContent = '请先应用设置再开始游戏';
+                return;
+            }
+            
+            if (gameStarted) return;
+            
+            gameStarted = true;
+            
+            // 如果选择了计时模式，启动计时器
+            if (totalTime > 0) {
+                timeLeft = totalTime;
+                updateTimerDisplay();
+                timer = setInterval(updateTimer, 1000);
+                document.getElementById('message').textContent = `游戏进行中... 剩余时间: ${timeLeft}秒`;
+            } else {
+                document.getElementById('message').textContent = '游戏进行中...';
+            }
+        }
+
+        // 处理方块点击
+        function handleTileClick(tile) {
+            if (!gameStarted || tile.classList.contains('matched')) return;
+            
+            const index = parseInt(tile.dataset.index);
+            
+            // 如果已经选中两个方块，重置选择
+            if (selectedTiles.length >= 2) {
+                selectedTiles.forEach(t => t.element.classList.remove('selected'));
+                selectedTiles = [];
+            }
+            
+            // 选中当前方块
+            tile.classList.add('selected');
+            // 添加点击动画效果
+            tile.style.transform = 'scale(1.2) rotate(15deg)';
+            setTimeout(() => {
+                if (tile.classList.contains('selected')) {
+                    tile.style.transform = '';
+                }
+            }, 200);
+            
+            // 明棋模式：图案已经可见，无需额外显示
+            selectedTiles.push({
+                element: tile,
+                index: index,
+                pattern: board[index].pattern
+            });
+            
+            // 检查是否匹配
+            if (selectedTiles.length === 2) {
+                setTimeout(checkMatch, 500);
+            }
+        }
+
+        // 检查是否匹配
+        function checkMatch() {
+            if (selectedTiles.length !== 2) return;
+            
+            const [tile1, tile2] = selectedTiles;
+            
+            if (tile1.pattern === tile2.pattern && tile1.index !== tile2.index) {
+                // 匹配成功
+                tile1.element.classList.remove('selected');
+                tile2.element.classList.remove('selected');
+                tile1.element.classList.add('matched');
+                tile2.element.classList.add('matched');
+                
+                board[tile1.index].matched = true;
+                board[tile2.index].matched = true;
+                
+                // 检查游戏是否结束
+                checkGameEnd();
+            } else {
+                // 匹配失败
+                tile1.element.classList.remove('selected');
+                tile2.element.classList.remove('selected');
+                
+                // 明棋模式：图案保持可见
+            }
+            
+            selectedTiles = [];
+        }
+
+        // 检查游戏是否结束
+        function checkGameEnd() {
+            const allMatched = board.every(tile => tile.matched);
+            if (allMatched) {
+                // 清除计时器
+                if (timer) {
+                    clearInterval(timer);
+                    timer = null;
+                }
+                document.getElementById('message').textContent = '恭喜你，完成游戏！';
+                gameStarted = false;
+            }
+        }
+
+        // 更新计时器显示
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('message').textContent = `游戏进行中... 剩余时间: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+        
+        // 更新计时器
+        function updateTimer() {
+            timeLeft--;
+            updateTimerDisplay();
+            
+            // 时间到，游戏结束
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                gameStarted = false;
+                document.getElementById('message').textContent = '时间到，游戏结束!';
+            }
+        }
+        
+        // 重新开始游戏
+        function resetGame() {
+            // 清除计时器
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
+            gameStarted = false;
+            // 重新应用当前设置
+            applySettings();
+        }
+
+        // 页面加载完成后初始化游戏
+        window.onload = function() {
+            // 应用默认设置
+            applySettings();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP请求模拟器</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dfe6e9;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        input[type="text"]:focus, textarea:focus, select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+        button {
+            padding: 12px 20px;
+            background: linear-gradient(to right, #3498db, #2ecc71);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .response {
+            margin-top: 30px;
+            padding: 20px;
+            border: 2px solid #dfe6e9;
+            border-radius: 8px;
+            background-color: white;
+        }
+        .header-row {
+            display: flex;
+            margin-bottom: 10px;
+            gap: 10px;
+            align-items: center;
+        }
+        .header-row input {
+            flex: 1;
+            margin-right: 0;
+        }
+        .header-row button {
+            background: linear-gradient(to right, #e74c3c, #f39c12);
+            padding: 10px 15px;
+        }
+        #response-info {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        #response-info p {
+            margin: 5px 0;
+            color: #2c3e50;
+        }
+        #response-info strong {
+            color: #3498db;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            .header-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HTTP请求模拟器</h1>
+        
+        <div class="form-group">
+            <label for="method">HTTP方法:</label>
+            <select id="method">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="url">请求地址:</label>
+            <input type="text" id="url" placeholder="https://example.com/api">
+        </div>
+        
+        <div class="form-group">
+            <label>请求头:</label>
+            <div id="headers">
+                <div class="header-row">
+                    <input type="text" placeholder="Header name">
+                    <input type="text" placeholder="Header value">
+                    <button type="button" onclick="removeHeader(this)">删除</button>
+                </div>
+            </div>
+            <button type="button" onclick="addHeader()">添加请求头</button>
+        </div>
+        
+        <div class="form-group" id="body-group">
+            <label for="body">请求体 (JSON):</label>
+            <textarea id="body" rows="5" placeholder="{\n    \"key\": \"value\"\n}"></textarea>
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+    <button type="button" onclick="sendRequest()">发送请求</button>
+    <button type="button" onclick="clearAll()">清除内容</button>
+</div>
+        
+        <div class="response">
+            <h3>响应结果</h3>
+            <div id="response-info"></div>
+            <pre id="response-content"></pre>
+        </div>
+    </div>
+
+    <script>
+        function addHeader() {
+            const headersDiv = document.getElementById('headers');
+            const headerRow = document.createElement('div');
+            headerRow.className = 'header-row';
+            headerRow.innerHTML = `
+                <input type="text" placeholder="Header name">
+                <input type="text" placeholder="Header value">
+                <button type="button" onclick="removeHeader(this)">Remove</button>
+            `;
+            headersDiv.appendChild(headerRow);
+        }
+        
+        function removeHeader(button) {
+            button.parentElement.remove();
+        }
+        
+        function clearAll() {
+    document.getElementById('url').value = '';
+    document.getElementById('body').value = '';
+    document.getElementById('headers').innerHTML = '<div class="header-row">\n    <input type="text" placeholder="Header name">\n    <input type="text" placeholder="Header value">\n    <button type="button" onclick="removeHeader(this)">删除</button>\n</div>';
+    document.getElementById('response-info').innerHTML = '';
+    document.getElementById('response-content').textContent = '';
+}
+
+function sendRequest() {
+            const method = document.getElementById('method').value;
+            const url = document.getElementById('url').value;
+            
+            if (!url) {
+                alert('请输入URL地址');
+                return;
+            }
+            
+            // Collect headers
+            const headers = {};
+            const headerRows = document.querySelectorAll('#headers .header-row');
+            headerRows.forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                const name = inputs[0].value.trim();
+                const value = inputs[1].value.trim();
+                if (name && value) {
+                    headers[name] = value;
+                }
+            });
+            
+            // Prepare request options
+            const options = {
+                method: method,
+                headers: headers
+            };
+            
+            // Add body for POST requests
+            if (method === 'POST') {
+                const bodyText = document.getElementById('body').value;
+                if (bodyText) {
+                    try {
+                        options.body = JSON.parse(bodyText);
+                    } catch (e) {
+                        alert('请求体中的JSON格式无效');
+                        return;
+                    }
+                }
+            }
+            
+            // Clear previous response
+            document.getElementById('response-info').innerHTML = '';
+            document.getElementById('response-content').textContent = '';
+            
+            // Send request and measure time
+            const startTime = performance.now();
+            
+            fetch(url, options)
+                .then(async response => {
+                    const endTime = performance.now();
+                    const responseTime = (endTime - startTime).toFixed(2);
+                    
+                    const responseInfo = document.getElementById('response-info');
+                    responseInfo.innerHTML = `
+                        <p><strong>状态:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>耗时:</strong> ${responseTime} 毫秒</p>
+                    `;
+                    
+                    const responseContent = document.getElementById('response-content');
+                    try {
+                        const data = await response.json();
+                        responseContent.textContent = JSON.stringify(data, null, 2);
+                    } catch (e) {
+                        const text = await response.text();
+                        responseContent.textContent = text;
+                    }
+                })
+                .catch(error => {
+                    const endTime = performance.now();
+                    const responseTime = (endTime - startTime).toFixed(2);
+                    
+                    document.getElementById('response-info').innerHTML = `
+                        <p><strong>错误:</strong> ${error.message}</p>
+                        <p><strong>耗时:</strong> ${responseTime} 毫秒</p>
+                    `;
+                });
+        }
+        
+        // Toggle body field based on method
+        document.getElementById('method').addEventListener('change', function() {
+            const bodyGroup = document.getElementById('body-group');
+            if (this.value === 'POST') {
+                bodyGroup.style.display = 'block';
+            } else {
+                bodyGroup.style.display = 'none';
+            }
+        });
+        
+        // Initialize
+        document.getElementById('body-group').style.display = 'none';
+    </script>
+</body>
+</html>

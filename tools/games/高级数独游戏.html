@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级数独游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .game-title {
+            font-size: 2.2em;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .game-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-label {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: bold;
+        }
+
+        select, button {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        select:focus, button:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .game-board-container {
+            margin: 20px auto;
+            max-width: 600px;
+        }
+
+        .sudoku-board {
+            display: grid;
+            gap: 2px;
+            background: #333;
+            border: 3px solid #333;
+            border-radius: 10px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .sudoku-cell {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #ddd;
+            position: relative;
+        }
+
+        .sudoku-cell:hover {
+            background: #f0f0f0;
+        }
+
+        .sudoku-cell input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            background: transparent;
+            color: #333;
+        }
+
+        .sudoku-cell input:focus {
+            outline: 2px solid #667eea;
+            background: #f8f9ff;
+        }
+
+        .sudoku-cell.prefilled {
+            background: #f8f9fa;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .sudoku-cell.prefilled input {
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .sudoku-cell.error {
+            background: #ffe6e6;
+            color: #d63384;
+        }
+
+        .sudoku-cell.correct {
+            background: #e6ffe6;
+            color: #198754;
+        }
+
+        .sudoku-cell.highlight {
+            background: #fff3cd;
+        }
+
+        /* 标准数独 - 经典3×3宫格 */
+        .standard .sudoku-board {
+            border: 3px solid #333;
+            background: #333;
+        }
+
+        .standard .sudoku-cell {
+            background: white;
+            border: 1px solid #ccc;
+        }
+
+        .standard .sudoku-cell:nth-child(3n):not(:nth-child(9n)) {
+            border-right: 3px solid #333;
+        }
+
+        .standard .sudoku-cell:nth-child(n+19):nth-child(-n+27),
+        .standard .sudoku-cell:nth-child(n+46):nth-child(-n+54) {
+            border-bottom: 3px solid #333;
+        }
+
+        /* 对角线数独 - 黄色对角线高亮 */
+        .diagonal .sudoku-board {
+            border: 3px solid #ff9800;
+            background: #ff9800;
+        }
+
+        .diagonal .sudoku-cell {
+            background: white;
+            border: 1px solid #ffb74d;
+        }
+
+        .diagonal .diagonal-cell {
+            background: #fff9c4 !important;
+            border: 2px solid #fbc02d !important;
+            box-shadow: 0 0 5px rgba(251, 192, 45, 0.5);
+        }
+
+        /* 不规则数独 - 彩色区域 */
+        .irregular .sudoku-board {
+            border: 3px solid #9c27b0;
+            background: #9c27b0;
+        }
+
+        .irregular .sudoku-cell {
+            background: white;
+            border: 1px solid #ddd;
+        }
+
+        .irregular .region-1 { background: #e3f2fd !important; border: 2px solid #2196f3 !important; }
+        .irregular .region-2 { background: #f3e5f5 !important; border: 2px solid #9c27b0 !important; }
+        .irregular .region-3 { background: #e8f5e8 !important; border: 2px solid #4caf50 !important; }
+        .irregular .region-4 { background: #fff3e0 !important; border: 2px solid #ff9800 !important; }
+        .irregular .region-5 { background: #fce4ec !important; border: 2px solid #e91e63 !important; }
+        .irregular .region-6 { background: #f1f8e9 !important; border: 2px solid #8bc34a !important; }
+        .irregular .region-7 { background: #fff8e1 !important; border: 2px solid #ffc107 !important; }
+        .irregular .region-8 { background: #efebe9 !important; border: 2px solid #795548 !important; }
+        .irregular .region-9 { background: #e0f2f1 !important; border: 2px solid #009688 !important; }
+
+        /* 杀手数独 - 红色边框 */
+        .killer .sudoku-board {
+            border: 3px solid #d32f2f;
+            background: #d32f2f;
+        }
+
+        .killer .sudoku-cell {
+            background: #fff3e0 !important;
+            border: 2px dashed #d32f2f !important;
+            border-radius: 4px;
+        }
+
+        .killer-cell {
+            background: #fff3e0 !important;
+            border: 2px dashed #d32f2f !important;
+            border-radius: 4px;
+        }
+
+        /* 窗口数独 - 蓝色主题 */
+        .window .sudoku-board {
+            border: 3px solid #2196f3;
+            background: #2196f3;
+        }
+
+        .window .sudoku-cell {
+            background: white;
+            border: 1px solid #90caf9;
+        }
+
+        .window .window-cell {
+            background: #e3f2fd !important;
+            border: 2px solid #1976d2 !important;
+        }
+
+        /* 立体数独 - 紫色主题 */
+        .cube .sudoku-board {
+            border: 3px solid #9c27b0;
+            background: #9c27b0;
+        }
+
+        .cube .sudoku-cell {
+            background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+            border: 1px solid #ba68c8;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* 网格大小适配 */
+        .difficulty-4x4 {
+            grid-template-columns: repeat(4, 1fr);
+            max-width: 200px;
+        }
+
+        .difficulty-6x6 {
+            grid-template-columns: repeat(6, 1fr);
+            max-width: 300px;
+        }
+
+        .difficulty-9x9 {
+            grid-template-columns: repeat(9, 1fr);
+            max-width: 450px;
+        }
+
+        .difficulty-16x16 {
+            grid-template-columns: repeat(16, 1fr);
+            max-width: 800px;
+        }
+
+        .difficulty-4x4 .sudoku-cell {
+            width: 35px;
+            height: 35px;
+            font-size: 14px;
+        }
+
+        .difficulty-6x6 .sudoku-cell {
+            width: 40px;
+            height: 40px;
+            font-size: 16px;
+        }
+
+        .difficulty-16x16 .sudoku-cell {
+            width: 35px;
+            height: 35px;
+            font-size: 12px;
+        }
+
+        .game-info {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .timer {
+            font-size: 1.2em;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .message {
+            font-size: 1.1em;
+            color: #333;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .type-indicator {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .type-standard { background: #f0f0f0; color: #333; }
+        .type-diagonal { background: #fff9c4; color: #f57f17; }
+        .type-irregular { background: linear-gradient(45deg, #e3f2fd, #f3e5f5, #e8f5e8); color: #333; }
+        .type-killer { background: #fff3e0; color: #d32f2f; }
+        .type-window { background: #e3f2fd; color: #1976d2; }
+        .type-cube { background: linear-gradient(135deg, #f5f5f5, #e0e0e0); color: #7b1fa2; }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 15px;
+                margin: 10px;
+            }
+            
+            .sudoku-cell {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+            
+            .difficulty-9x9 .sudoku-cell {
+                width: 30px;
+                height: 30px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">高级数独游戏</h1>
+            <div class="type-indicator type-standard" id="typeIndicator">
+                标准数独 - 经典3×3宫格
+            </div>
+        </div>
+
+        <div class="game-controls">
+            <div class="control-group">
+                <label class="control-label">数独类型</label>
+                <select id="gameType">
+                    <option value="standard">标准数独</option>
+                    <option value="diagonal">对角线数独</option>
+                    <option value="irregular">不规则数独</option>
+                    <option value="killer">杀手数独</option>
+                    <option value="window">窗口数独</option>
+                    <option value="cube">立体数独</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label class="control-label">网格大小</label>
+                <select id="gridSize">
+                    <option value="4">4×4</option>
+                    <option value="6">6×6</option>
+                    <option value="9" selected>9×9</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label class="control-label">难度</label>
+                <select id="difficulty">
+                    <option value="easy">简单</option>
+                    <option value="medium" selected>中等</option>
+                    <option value="hard">困难</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="game-controls">
+            <button onclick="newGame()">新游戏</button>
+            <button onclick="showHint()">提示</button>
+            <button onclick="showSolution()">显示答案</button>
+            <button onclick="checkSolution()">检查答案</button>
+        </div>
+
+        <div class="game-board-container">
+            <div class="sudoku-board" id="sudokuBoard"></div>
+        </div>
+
+        <div class="game-info">
+            <div class="timer" id="timer">时间: 00:00</div>
+            <div class="message" id="message">选择数独类型开始游戏！</div>
+        </div>
+    </div>
+
+    <script>
+        class DistinguishedSudokuGame {
+            constructor() {
+                this.board = [];
+                this.solution = [];
+                this.size = 9;
+                this.gameType = 'standard';
+                this.difficulty = 'medium';
+                this.startTime = null;
+                this.timerInterval = null;
+                this.typeDescriptions = {
+                    standard: "标准数独：每行、每列、每个3×3宫格包含1-9不重复",
+                    diagonal: "对角线数独：标准规则 + 两条对角线也包含1-9不重复",
+                    irregular: "不规则数独：标准规则 + 彩色区域包含1-9不重复",
+                    killer: "杀手数独：标准规则 + 虚线框内数字之和等于左上角数字",
+                    window: "窗口数独：标准规则 + 额外3×3窗口包含1-9不重复",
+                    cube: "立体数独：标准规则 + 考虑立体空间约束"
+                };
+                this.typeIndicators = {
+                    standard: "标准数独 - 经典3×3宫格",
+                    diagonal: "对角线数独 - 注意对角线约束",
+                    irregular: "不规则数独 - 彩色区域规则",
+                    killer: "杀手数独 - 注意虚线框总和",
+                    window: "窗口数独 - 额外窗口约束",
+                    cube: "立体数独 - 立体空间思维"
+                };
+                this.initializeGame();
+            }
+
+            initializeGame() {
+                document.getElementById('gameType').addEventListener('change', (e) => {
+                    this.gameType = e.target.value;
+                    this.updateTypeIndicator();
+                    this.newGame();
+                });
+
+                document.getElementById('gridSize').addEventListener('change', (e) => {
+                    this.size = parseInt(e.target.value);
+                    this.newGame();
+                });
+
+                document.getElementById('difficulty').addEventListener('change', (e) => {
+                    this.difficulty = e.target.value;
+                    this.newGame();
+                });
+
+                this.newGame();
+            }
+
+            updateTypeIndicator() {
+                const indicator = document.getElementById('typeIndicator');
+                indicator.textContent = this.typeIndicators[this.gameType];
+                indicator.className = `type-indicator type-${this.gameType}`;
+            }
+
+            newGame() {
+                this.size = parseInt(document.getElementById('gridSize').value);
+                this.gameType = document.getElementById('gameType').value;
+                this.difficulty = document.getElementById('difficulty').value;
+                
+                this.updateTypeIndicator();
+                this.generateBoard();
+                this.renderBoard();
+                this.startTimer();
+                this.showMessage(this.typeDescriptions[this.gameType]);
+            }
+
+            generateBoard() {
+                this.board = Array(this.size).fill(null).map(() => Array(this.size).fill(0));
+                this.solution = Array(this.size).fill(null).map(() => Array(this.size).fill(0));
+                
+                // 简化的数独生成
+                this.generateSolution();
+                this.createPuzzle();
+            }
+
+            generateSolution() {
+                // 基础数独解生成
+                for (let i = 0; i < this.size; i++) {
+                    for (let j = 0; j < this.size; j++) {
+                        this.solution[i][j] = ((i * Math.floor(Math.sqrt(this.size)) + Math.floor(i / Math.floor(Math.sqrt(this.size))) + j) % this.size) + 1;
+                    }
+                }
+            }
+
+            createPuzzle() {
+                // 根据难度创建谜题
+                const cellsToRemove = this.getCellsToRemove();
+                this.board = this.solution.map(row => [...row]);
+                
+                for (let i = 0; i < cellsToRemove; i++) {
+                    const row = Math.floor(Math.random() * this.size);
+                    const col = Math.floor(Math.random() * this.size);
+                    this.board[row][col] = 0;
+                }
+            }
+
+            getCellsToRemove() {
+                const totalCells = this.size * this.size;
+                switch (this.difficulty) {
+                    case 'easy': return Math.floor(totalCells * 0.3);
+                    case 'medium': return Math.floor(totalCells * 0.5);
+                    case 'hard': return Math.floor(totalCells * 0.7);
+                    default: return Math.floor(totalCells * 0.5);
+                }
+            }
+
+            renderBoard() {
+                const board = document.getElementById('sudokuBoard');
+                board.className = `sudoku-board difficulty-${this.size}x${this.size} ${this.gameType}`;
+                board.innerHTML = '';
+
+                for (let i = 0; i < this.size; i++) {
+                    for (let j = 0; j < this.size; j++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'sudoku-cell';
+                        
+                        // 根据类型添加视觉区分
+                        switch (this.gameType) {
+                            case 'diagonal':
+                                if (i === j || i + j === this.size - 1) {
+                                    cell.classList.add('diagonal-cell');
+                                }
+                                break;
+                            case 'irregular':
+                                const region = this.getRegion(i, j);
+                                cell.classList.add(`region-${region}`);
+                                break;
+                            case 'killer':
+                                cell.classList.add('killer-cell');
+                                break;
+                            case 'window':
+                                if ((i >= 1 && i <= 3 && j >= 1 && j <= 3) || 
+                                    (i >= 5 && i <= 7 && j >= 5 && j <= 7)) {
+                                    cell.classList.add('window-cell');
+                                }
+                                break;
+                            case 'cube':
+                                cell.classList.add('cube-cell');
+                                break;
+                        }
+
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.maxLength = 1;
+                        input.dataset.row = i;
+                        input.dataset.col = j;
+                        
+                        if (this.board[i][j] !== 0) {
+                            input.value = this.board[i][j];
+                            input.readOnly = true;
+                            cell.classList.add('prefilled');
+                        }
+
+                        input.addEventListener('input', (e) => this.handleInput(e));
+                        cell.appendChild(input);
+                        board.appendChild(cell);
+                    }
+                }
+            }
+
+            getRegion(row, col) {
+                // 为不规则数独计算区域
+                return ((row * Math.floor(Math.sqrt(this.size)) + Math.floor(row / Math.floor(Math.sqrt(this.size))) + col) % 9) + 1;
+            }
+
+            handleInput(e) {
+                const value = e.target.value;
+                const row = parseInt(e.target.dataset.row);
+                const col = parseInt(e.target.dataset.col);
+                
+                if (value === '' || /^[1-9]$/.test(value)) {
+                    this.board[row][col] = value === '' ? 0 : parseInt(value);
+                    this.checkCell(row, col, value);
+                } else {
+                    e.target.value = '';
+                    this.board[row][col] = 0;
+                }
+            }
+
+            checkCell(row, col, value) {
+                if (value === '' || value === 0) return;
+                
+                const numValue = parseInt(value);
+                if (numValue === this.solution[row][col]) {
+                    this.showMessage('正确！', 'success');
+                } else {
+                    this.showMessage('错误，请重试', 'error');
+                }
+            }
+
+            checkSolution() {
+                let isCorrect = true;
+                for (let i = 0; i < this.size; i++) {
+                    for (let j = 0; j < this.size; j++) {
+                        if (this.board[i][j] !== this.solution[i][j]) {
+                            isCorrect = false;
+                            break;
+                        }
+                    }
+                }
+                
+                if (isCorrect) {
+                    this.showMessage('恭喜！完成数独！', 'success');
+                    this.stopTimer();
+                } else {
+                    this.showMessage('还有错误，请继续尝试', 'error');
+                }
+            }
+
+            showHint() {
+                // 显示提示
+                this.showMessage(`提示：${this.typeDescriptions[this.gameType]}`, 'success');
+            }
+
+            showSolution() {
+                for (let i = 0; i < this.size; i++) {
+                    for (let j = 0; j < this.size; j++) {
+                        const input = document.querySelector(`input[data-row="${i}"][data-col="${j}"]`);
+                        if (input && !input.readOnly) {
+                            input.value = this.solution[i][j];
+                            this.board[i][j] = this.solution[i][j];
+                        }
+                    }
+                }
+                this.showMessage('答案已显示', 'success');
+            }
+
+            showMessage(text, type = '') {
+                const message = document.getElementById('message');
+                message.textContent = text;
+                message.className = `message ${type}`;
+            }
+
+            startTimer() {
+                this.startTime = Date.now();
+                this.timerInterval = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                    const seconds = (elapsed % 60).toString().padStart(2, '0');
+                    document.getElementById('timer').textContent = `时间: ${minutes}:${seconds}`;
+                }, 1000);
+            }
+
+            stopTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+            }
+        }
+
+        // 全局函数
+        let game;
+
+        function newGame() {
+            if (game) {
+                game.newGame();
+            }
+        }
+
+        function showHint() {
+            if (game) {
+                game.showHint();
+            }
+        }
+
+        function showSolution() {
+            if (game) {
+                game.showSolution();
+            }
+        }
+
+        function checkSolution() {
+            if (game) {
+                game.checkSolution();
+            }
+        }
+
+        // 初始化游戏
+        document.addEventListener('DOMContentLoaded', () => {
+            game = new DistinguishedSudokuGame();
+        });
+    </script>
+</body>
+</html>

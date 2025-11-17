@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI文案优化工具</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        h1 {
+            color: #3a4a6d;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 15px;
+            padding: 15px;
+            border: 2px solid #e0e5ec;
+            border-radius: 10px;
+            font-size: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        textarea:focus {
+            border-color: #3a4a6d;
+            box-shadow: 0 4px 12px rgba(58, 74, 109, 0.1);
+            outline: none;
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(to right, #3a4a6d, #4a6baf);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            box-shadow: 0 4px 8px rgba(58, 74, 109, 0.3);
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(58, 74, 109, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        #clearBtn {
+            background: linear-gradient(to right, #ff6b6b, #ff8e8e);
+        }
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            border: 2px solid #e0e5ec;
+            border-radius: 10px;
+            min-height: 150px;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .original, .optimized {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .original {
+            background-color: #f8f9fa;
+            border-left: 4px solid #adb5bd;
+        }
+        .optimized {
+            background-color: #e6f7ff;
+            border-left: 4px solid #1890ff;
+            color: #3a4a6d;
+            font-weight: 500;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .pulse {
+            animation: pulse 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI文案优化工具</h1>
+    <p>输入您的广告文案，AI将为您提供更吸引人的表达建议</p>
+    
+    <textarea id="originalText" placeholder="在此输入您的广告文案..."></textarea>
+    <div class="button-group">
+        <button id="optimizeBtn">✨ 优化文案</button>
+        <button id="clearBtn">🗑️ 清除文案</button>
+    </div>
+    
+    <div id="result">
+        <p>优化后的文案将显示在这里...</p>
+    </div>
+
+    <script>
+        // 添加清除按钮功能
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            document.getElementById('originalText').value = '';
+            document.getElementById('result').innerHTML = '<p>优化后的文案将显示在这里...</p>';
+        });
+        
+        // 优化按钮点击效果
+        document.getElementById('optimizeBtn').addEventListener('click', async function() {
+            this.classList.add('pulse');
+            setTimeout(() => this.classList.remove('pulse'), 500);
+            const originalText = document.getElementById('originalText').value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            if (!originalText) {
+                resultDiv.innerHTML = '<p style="color:red;">请输入要优化的文案</p>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p>AI正在优化您的文案，请稍候...</p>';
+            
+            // 这里应该是调用AI API的代码
+            // 由于没有实际的API密钥，我们模拟一个优化结果
+            setTimeout(() => {
+                const optimizedText = simulateAIOptimization(originalText);
+                resultDiv.innerHTML = `
+                    <div class="original"><strong>原始文案:</strong><br>${originalText}</div>
+                    <div class="optimized"><strong>优化建议:</strong><br>${optimizedText}</div>
+                `;
+            }, 1500);
+        });
+        
+        function simulateAIOptimization(text) {
+            // 模拟AI优化效果
+            const optimizations = {
+                '便宜': '超值优惠',
+                '好': '卓越品质',
+                '快': '闪电速度',
+                '买': '立即拥有',
+                '卖': '热销中',
+                '限时': '独家限时',
+                '折扣': '惊喜折扣',
+                '免费': '0元畅享',
+                '新': '全新上市',
+                '好': '绝佳体验'
+            };
+            
+            let result = text;
+            for (const [key, value] of Object.entries(optimizations)) {
+                result = result.replace(new RegExp(key, 'g'), value);
+            }
+            
+            // 添加一些营销短语
+            const phrases = [
+                '不容错过！',
+                '限量发售！',
+                '立即行动！',
+                '独家优惠！',
+                '品质保证！'
+            ];
+            
+            return result + ' ' + phrases[Math.floor(Math.random() * phrases.length)];
+        }
+    </script>
+</body>
+</html>

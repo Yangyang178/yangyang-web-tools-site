@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>数学公式可视化工具</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Plotly 和 Math.js CDN -->
+  <script src="https://cdn.plot.ly/plotly-2.29.1.min.js"></script>
+  <script src="../vendor/mathjs/math.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #22d3ee;
+      --danger: #ef4444;
+      --border: #1f2937;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: linear-gradient(180deg, #0b1220, #0f172a 60%);
+      color: var(--text);
+    }
+    header {
+      padding: 24px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(17, 24, 39, 0.7);
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(8px);
+      z-index: 10;
+    }
+    h1 { margin: 0 0 8px; font-size: 28px; text-align: center; }
+    .desc { color: var(--muted); font-size: 14px; text-align: center; }
+
+    .container { max-width: 1100px; margin: 20px auto; padding: 0 14px; }
+    .panel {
+      background: rgba(17, 24, 39, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; }
+    .col-12 { grid-column: span 12; }
+    .col-6 { grid-column: span 6; }
+    .col-4 { grid-column: span 4; }
+    .col-3 { grid-column: span 3; }
+    .col-2 { grid-column: span 2; }
+    @media (max-width: 860px) {
+      .col-6, .col-4, .col-3, .col-2 { grid-column: span 12; }
+    }
+
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 10px 12px;
+      background: #0b1220;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      outline: none;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type="number"] { -moz-appearance: textfield; }
+
+    .actions { display: flex; gap: 10px; align-items: center; }
+    button {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text);
+      background: #0b1220;
+    }
+    .btn-primary { border-color: #0ea5e9; background: linear-gradient(90deg, #0ea5e9, #22d3ee); color: #071922; }
+    .btn-secondary { border-color: var(--border); }
+    .btn-danger { border-color: var(--danger); color: #fee2e2; }
+
+    .help { font-size: 12px; color: var(--muted); }
+    .msg { margin-top: 8px; font-size: 13px; }
+    .msg.error { color: #fecaca; }
+    .msg.success { color: #a7f3d0; }
+
+    #plot.panel { padding: 0; }
+    #plot {
+      width: 100%;
+      min-height: 420px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(2, 6, 23, 0.6);
+      overflow: hidden; /* 避免内部图表溢出导致不齐 */
+      margin: 0 auto; /* 居中对齐 */
+    }
+  </style>
+  <!-- 联系我们样式 -->
+  <style>
+    .contact-btn { position: fixed; right: 80px; bottom: 80px; background: linear-gradient(135deg,#ff7a59,#ff4d4d); color:#fff; border:none; border-radius:999px; padding:12px 22px; box-shadow:0 8px 20px rgba(0,0,0,.25); display:flex; align-items:center; gap:10px; font-weight:700; cursor:pointer; z-index:20; transition:transform .2s ease, box-shadow .2s ease; }
+    .contact-btn i { font-size:18px }
+    .contact-btn:hover { transform: translateY(-2px); box-shadow:0 12px 24px rgba(0,0,0,.35) }
+    .contact-overlay { position: fixed; inset:0; background: rgba(0,0,0,.35); backdrop-filter: blur(3px); display:none; align-items:center; justify-content:center; z-index:50 }
+    .contact-modal { width:min(760px,92vw); background:#fff; color:#111; border-radius:20px; box-shadow:0 24px 60px rgba(0,0,0,.30); overflow:hidden }
+    .contact-header { display:flex; align-items:center; justify-content:space-between; padding:18px 22px; background: linear-gradient(135deg,#7c4dff,#5b8bff); color:#fff }
+    .contact-header .left { display:flex; align-items:center; gap:12px; font-size:24px; font-weight:800 }
+    .contact-close { background:transparent; border:none; color:#fff; font-size:22px; cursor:pointer }
+    .contact-body { padding:20px }
+    .contact-item { display:flex; align-items:center; gap:16px; background:#f5f7fb; border-radius:16px; padding:16px; border-left:6px solid #5b8bff }
+    .contact-item + .contact-item { margin-top:16px }
+    .contact-item .icon { width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg,#6a8cff,#7c4dff); color:#fff; font-size:22px; flex:0 0 50px }
+    .contact-item .info { display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+    .contact-item .label { font-weight:800; color:#1f2937 }
+    .contact-item .value { background:#fff; border-radius:10px; padding:8px 12px; color:#374151; box-shadow:0 2px 8px rgba(0,0,0,.08) }
+    .contact-footer { margin:16px 20px 22px; padding:14px 18px; border-radius:14px; color:#fff; background: linear-gradient(135deg,#7c4dff,#5b8bff); text-align:center; font-weight:700 }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>数学公式可视化工具</h1>
+    <div class="desc">输入数学公式，生成二维或三维图形；支持常见函数和解析几何（参数形式与曲面）。</div>
+  </header>
+
+  <div class="container">
+    <div class="panel">
+      <div class="grid">
+        <div class="col-6">
+          <label for="mode">可视化类型</label>
+          <select id="mode">
+            <option value="2d_func">二维函数：y = f(x)</option>
+            <option value="2d_param">二维参数曲线：x(t), y(t)</option>
+            <option value="3d_surface">三维曲面：z = f(x, y)</option>
+            <option value="3d_param">三维参数曲面：x(u,v), y(u,v), z(u,v)</option>
+          </select>
+        </div>
+        <div class="col-6">
+          <label for="example">示例预设</label>
+          <select id="example">
+            <option value="">选择示例以快速填充</option>
+          </select>
+        </div>
+      </div>
+      <div class="msg help">提示：使用 math.js 语法，例如 `sin(x)`, `cos(y)`, `pi`, `sqrt(x)`, `^` 表示乘方。</div>
+    </div>
+
+    <!-- 配置区：根据模式显示不同输入 -->
+    <div class="panel" id="cfg-2d-func">
+      <div class="grid">
+        <div class="col-12">
+          <label>函数表达式（y = f(x)）</label>
+          <input type="text" id="yExpr" placeholder="例如：sin(x) 或 x^3 - 2*x" value="sin(x)" />
+        </div>
+        <div class="col-3">
+          <label>x 最小值</label>
+          <input type="number" id="xMin" value="-6.28" step="0.1" />
+        </div>
+        <div class="col-3">
+          <label>x 最大值</label>
+          <input type="number" id="xMax" value="6.28" step="0.1" />
+        </div>
+        <div class="col-3">
+          <label>采样点数（50-600）</label>
+          <input type="number" id="xSteps" value="400" step="10" />
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="cfg-2d-param" style="display:none;">
+      <div class="grid">
+        <div class="col-6">
+          <label>x(t)</label>
+          <input type="text" id="pxExpr" placeholder="例如：cos(t)" value="cos(t)" />
+        </div>
+        <div class="col-6">
+          <label>y(t)</label>
+          <input type="text" id="pyExpr" placeholder="例如：sin(t)" value="sin(t)" />
+        </div>
+        <div class="col-3">
+          <label>t 最小值</label>
+          <input type="number" id="tMin" value="0" step="0.1" />
+        </div>
+        <div class="col-3">
+          <label>t 最大值</label>
+          <input type="number" id="tMax" value="6.28" step="0.1" />
+        </div>
+        <div class="col-3">
+          <label>采样点数（50-800）</label>
+          <input type="number" id="tSteps" value="500" step="10" />
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="cfg-3d-surface" style="display:none;">
+      <div class="grid">
+        <div class="col-12">
+          <label>曲面表达式（z = f(x, y)）</label>
+          <input type="text" id="zExpr" placeholder="例如：sin(x)*cos(y)" value="sin(x)*cos(y)" />
+        </div>
+        <div class="col-3">
+          <label>x 最小值</label>
+          <input type="number" id="sxMin" value="-6.28" step="0.1" />
+        </div>
+        <div class="col-3">
+          <label>x 最大值</label>
+          <input type="number" id="sxMax" value="6.28" step="0.1" />
+        </div>
+        <div class="col-3">
+          <label>y 最小值</label>
+          <input type="number" id="syMin" value="-6.28" step="0.1" />
+        </div>
+        <div class="col-3">
+          <label>y 最大值</label>
+          <input type="number" id="syMax" value="6.28" step="0.1" />
+        </div>
+        <div class="col-3">
+          <label>x 方向点数（20-150）</label>
+          <input type="number" id="sxSteps" value="60" step="1" />
+        </div>
+        <div class="col-3">
+          <label>y 方向点数（20-150）</label>
+          <input type="number" id="sySteps" value="60" step="1" />
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="cfg-3d-param" style="display:none;">
+      <div class="grid">
+        <div class="col-4">
+          <label>x(u, v)</label>
+          <input type="text" id="psxExpr" placeholder="例如：sin(u)*cos(v)" value="sin(u)*cos(v)" />
+        </div>
+        <div class="col-4">
+          <label>y(u, v)</label>
+          <input type="text" id="psyExpr" placeholder="例如：sin(u)*sin(v)" value="sin(u)*sin(v)" />
+        </div>
+        <div class="col-4">
+          <label>z(u, v)</label>
+          <input type="text" id="pszExpr" placeholder="例如：cos(u)" value="cos(u)" />
+        </div>
+        <div class="col-3">
+          <label>u 最小值</label>
+          <input type="number" id="uMin" value="0" step="0.1" />
+        </div>
+        <div class="col-3">
+          <label>u 最大值</label>
+          <input type="number" id="uMax" value="3.14" step="0.1" />
+        </div>
+        <div class="col-3">
+          <label>v 最小值</label>
+          <input type="number" id="vMin" value="0" step="0.1" />
+        </div>
+        <div class="col-3">
+          <label>v 最大值</label>
+          <input type="number" id="vMax" value="6.28" step="0.1" />
+        </div>
+        <div class="col-3">
+          <label>u 方向点数（20-120）</label>
+          <input type="number" id="uSteps" value="50" step="1" />
+        </div>
+        <div class="col-3">
+          <label>v 方向点数（20-120）</label>
+          <input type="number" id="vSteps" value="80" step="1" />
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="actions">
+        <button class="btn-primary" id="plotBtn">绘制图形</button>
+        <button class="btn-secondary" id="resetBtn">清空图形</button>
+      </div>
+      <div id="message" class="msg"></div>
+    </div>
+
+    <!-- 外观与导出设置 -->
+    <div class="panel">
+      <div class="grid">
+        <div class="col-4">
+          <label for="bgColor">背景颜色</label>
+          <input type="color" id="bgColor" value="#0f172a" />
+          <div class="help">应用于画布背景与三维场景背景</div>
+        </div>
+        <div class="col-4">
+          <label for="pageBgColor">页面背景颜色</label>
+          <input type="color" id="pageBgColor" value="#0f172a" />
+          <div class="help">改变整个页面的背景颜色</div>
+        </div>
+        <div class="col-4" style="display:flex; align-items:flex-end;">
+          <button class="btn-secondary" id="applyPageBgBtn">应用页面背景</button>
+        </div>
+        <div class="col-4">
+          <label for="imgFormat">导出图片格式</label>
+          <select id="imgFormat">
+            <option value="png">PNG</option>
+            <option value="jpeg">JPEG</option>
+            <option value="webp">WEBP</option>
+            <option value="svg">SVG（矢量）</option>
+          </select>
+        </div>
+        <div class="col-4" style="display:flex; align-items:flex-end;">
+          <button class="btn-primary" id="downloadBtn">下载图片</button>
+        </div>
+      </div>
+    </div>
+
+  <div id="plot" class="panel"></div>
+  </div>
+
+  <script>
+    // 简易工具函数
+    const clampInt = (val, min, max) => Math.max(min, Math.min(max, Math.round(val)));
+    const showMsg = (text, type = 'success') => {
+      const el = document.getElementById('message');
+      el.textContent = text;
+      el.className = `msg ${type}`;
+    };
+    const clearMsg = () => {
+      const el = document.getElementById('message');
+      el.textContent = '';
+      el.className = 'msg';
+    };
+
+    // 外观设置 DOM
+    const bgColorInput = document.getElementById('bgColor');
+    const pageBgColorInput = document.getElementById('pageBgColor');
+    const applyPageBgBtn = document.getElementById('applyPageBgBtn');
+    const imgFormatSel = document.getElementById('imgFormat');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    // 颜色辅助与主题
+    function hexToRgb(hex) {
+      const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      if (!m) return null;
+      return { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) };
+    }
+    function luminance({ r, g, b }) {
+      const [R, G, B] = [r, g, b].map(v => {
+        v /= 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
+      return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+    }
+    function getAxisTheme(bgHex) {
+      const rgb = hexToRgb(bgHex);
+      if (!rgb) {
+        // 默认深色主题
+        return { lineColor: '#9ca3af', gridColor: '#1f2937', tickColor: '#9ca3af', textColor: '#e5e7eb' };
+      }
+      const lum = luminance(rgb);
+      // lum 越大越偏亮
+      if (lum > 0.6) {
+        return { lineColor: '#111827', gridColor: '#d1d5db', tickColor: '#111827', textColor: '#111827' };
+      } else if (lum > 0.35) {
+        return { lineColor: '#1f2937', gridColor: '#cbd5e1', tickColor: '#1f2937', textColor: '#0b1220' };
+      }
+      return { lineColor: '#9ca3af', gridColor: '#1f2937', tickColor: '#9ca3af', textColor: '#e5e7eb' };
+    }
+
+    // 统计工具：求数组内有限值的最小/最大
+    function finiteMinMax(arr) {
+      let min = Infinity, max = -Infinity;
+      for (const v of arr) {
+        if (typeof v === 'number' && isFinite(v)) {
+          if (v < min) min = v;
+          if (v > max) max = v;
+        }
+      }
+      if (min === Infinity || max === -Infinity) return null;
+      return { min, max };
+    }
+
+    // 统计二维矩阵的有限值 min/max
+    function finiteMinMax2D(mat) {
+      let min = Infinity, max = -Infinity;
+      for (const row of mat) {
+        for (const v of row) {
+          if (typeof v === 'number' && isFinite(v)) {
+            if (v < min) min = v;
+            if (v > max) max = v;
+          }
+        }
+      }
+      if (min === Infinity || max === -Infinity) return null;
+      return { min, max };
+    }
+
+    // 生成 2D 原点十字坐标轴（在可视范围内才显示）
+    function axisShapes2D(x0, x1, y0, y1, color = '#9ca3af') {
+      const shapes = [];
+      if (isFinite(y0) && isFinite(y1) && y0 <= 0 && y1 >= 0) {
+        shapes.push({ type: 'line', x0, y0: 0, x1, y1: 0, line: { color, width: 2 } });
+      }
+      if (isFinite(x0) && isFinite(x1) && x0 <= 0 && x1 >= 0) {
+        shapes.push({ type: 'line', x0: 0, y0, x1: 0, y1, line: { color, width: 2 } });
+      }
+      return shapes;
+    }
+
+    // 原点标注（2D）：若可视范围包含 (0,0)，在原点附近标注 "0"
+    function originAnnotation2D(x0, x1, y0, y1) {
+      if (!(isFinite(x0) && isFinite(x1) && isFinite(y0) && isFinite(y1))) return null;
+      if (x0 <= 0 && x1 >= 0 && y0 <= 0 && y1 >= 0) {
+        return {
+          x: 0,
+          y: 0,
+          text: '0',
+          showarrow: false,
+          xanchor: 'left',
+          yanchor: 'top',
+          font: { size: 12, color: '#9ca3af' },
+          xshift: 6,
+          yshift: -6,
+        };
+      }
+      return null;
+    }
+
+    // 示例预设（按类型分类）
+    const EXAMPLES = {
+      '2d_func': [
+        { name: '正弦波 y = sin(x)', fill: () => {
+            yExpr.value = 'sin(x)'; xMin.value = -6.28; xMax.value = 6.28; xSteps.value = 400;
+          }
+        },
+        { name: '多项式 y = x^3 - 2x', fill: () => {
+            yExpr.value = 'x^3 - 2*x'; xMin.value = -3; xMax.value = 3; xSteps.value = 400;
+          }
+        },
+        { name: '指数衰减 y = e^{-x} * sin(5x)', fill: () => {
+            yExpr.value = 'exp(-x) * sin(5*x)'; xMin.value = 0; xMax.value = 6; xSteps.value = 500;
+          }
+        },
+        { name: '绝对值波形 y = abs(sin(x))', fill: () => {
+            yExpr.value = 'abs(sin(x))'; xMin.value = -6.28; xMax.value = 6.28; xSteps.value = 500;
+          }
+        },
+        { name: '双频叠加 y = cos(x) + cos(3x)/3', fill: () => {
+            yExpr.value = 'cos(x) + cos(3*x)/3'; xMin.value = -6.28; xMax.value = 6.28; xSteps.value = 500;
+          }
+        },
+        { name: '逻辑斯蒂函数 y = 1/(1+e^{-x})', fill: () => {
+            yExpr.value = '1/(1+exp(-x))'; xMin.value = -8; xMax.value = 8; xSteps.value = 400;
+          }
+        },
+        { name: '双曲正切 y = tanh(x)', fill: () => {
+            yExpr.value = 'tanh(x)'; xMin.value = -4; xMax.value = 4; xSteps.value = 400;
+          }
+        },
+        { name: '余弦波 y = cos(x)', fill: () => {
+            yExpr.value = 'cos(x)'; xMin.value = -6.28; xMax.value = 6.28; xSteps.value = 500;
+          }
+        },
+        { name: '正切函数 y = tan(x)', fill: () => {
+            yExpr.value = 'tan(x)'; xMin.value = -1.3; xMax.value = 1.3; xSteps.value = 600;
+          }
+        },
+        { name: 'sinc 函数 y = sin(x)/x', fill: () => {
+            yExpr.value = 'sin(x)/(x + 1e-6)'; xMin.value = -20; xMax.value = 20; xSteps.value = 600;
+          }
+        },
+        { name: '高斯函数 y = e^{-x^2}', fill: () => {
+            yExpr.value = 'exp(-x^2)'; xMin.value = -4; xMax.value = 4; xSteps.value = 500;
+          }
+        },
+        { name: '自然对数 y = ln(x)', fill: () => {
+            yExpr.value = 'log(x)'; xMin.value = 0.1; xMax.value = 10; xSteps.value = 500;
+          }
+        },
+        { name: '平方根 y = sqrt(x)', fill: () => {
+            yExpr.value = 'sqrt(x)'; xMin.value = 0; xMax.value = 10; xSteps.value = 500;
+          }
+        },
+        { name: '绝对值 y = abs(x)', fill: () => {
+            yExpr.value = 'abs(x)'; xMin.value = -6; xMax.value = 6; xSteps.value = 500;
+          }
+        },
+        { name: '切比雪夫多项式 T3', fill: () => {
+            yExpr.value = 'cos(3*acos(x))'; xMin.value = -1; xMax.value = 1; xSteps.value = 500;
+          }
+        }
+      ],
+      '2d_param': [
+        { name: '单位圆 x=cos(t), y=sin(t)', fill: () => {
+            pxExpr.value = 'cos(t)'; pyExpr.value = 'sin(t)'; tMin.value = 0; tMax.value = 6.28; tSteps.value = 600;
+          }
+        },
+        { name: '勒萨若曲线 3:4', fill: () => {
+            pxExpr.value = 'sin(3*t)'; pyExpr.value = 'sin(4*t + pi/2)'; tMin.value = 0; tMax.value = 6.28; tSteps.value = 800;
+          }
+        },
+        { name: '阿基米德螺线 r=a*t', fill: () => {
+            pxExpr.value = 't*cos(t)'; pyExpr.value = 't*sin(t)'; tMin.value = 0; tMax.value = 10; tSteps.value = 800;
+          }
+        },
+        { name: '摆线 Cycloid', fill: () => {
+            pxExpr.value = 't - sin(t)'; pyExpr.value = '1 - cos(t)'; tMin.value = 0; tMax.value = 12.56; tSteps.value = 800;
+          }
+        },
+        { name: '玫瑰曲线 k=5', fill: () => {
+            pxExpr.value = 'cos(5*t)*cos(t)'; pyExpr.value = 'cos(5*t)*sin(t)'; tMin.value = 0; tMax.value = 6.28; tSteps.value = 800;
+          }
+        },
+        { name: '对数螺线', fill: () => {
+            pxExpr.value = 'exp(0.1*t)*cos(t)'; pyExpr.value = 'exp(0.1*t)*sin(t)'; tMin.value = 0; tMax.value = 12.56; tSteps.value = 900;
+          }
+        },
+        { name: '勒萨若曲线 5:6', fill: () => {
+            pxExpr.value = 'sin(5*t)'; pyExpr.value = 'sin(6*t + pi/2)'; tMin.value = 0; tMax.value = 6.28; tSteps.value = 800;
+          }
+        },
+        { name: '椭圆 a=2,b=1', fill: () => {
+            pxExpr.value = '2*cos(t)'; pyExpr.value = 'sin(t)'; tMin.value = 0; tMax.value = 6.28; tSteps.value = 600;
+          }
+        },
+        { name: '心形线 Cardioid', fill: () => {
+            // r = 1 - sin t
+            pxExpr.value = '(1 - sin(t))*cos(t)'; pyExpr.value = '(1 - sin(t))*sin(t)'; tMin.value = 0; tMax.value = 6.28; tSteps.value = 800;
+          }
+        },
+        { name: '蝶形曲线 Butterfly', fill: () => {
+            // r = exp(cos t) - 2*cos(4t) + sin^5(t/12)
+            pxExpr.value = '(exp(cos(t)) - 2*cos(4*t) + sin(t/12)^5) * cos(t)';
+            pyExpr.value = '(exp(cos(t)) - 2*cos(4*t) + sin(t/12)^5) * sin(t)';
+            tMin.value = 0; tMax.value = 37.68; tSteps.value = 1200; // 12π ≈ 37.699
+          }
+        },
+        { name: '外摆线 Epicycloid (a=3,b=1)', fill: () => {
+            pxExpr.value = '(3+1)*cos(t) - 1*cos((3+1)/1*t)';
+            pyExpr.value = '(3+1)*sin(t) - 1*sin((3+1)/1*t)';
+            tMin.value = 0; tMax.value = 6.28; tSteps.value = 1000;
+          }
+        },
+        { name: '星形线 Astroid', fill: () => {
+            pxExpr.value = 'cos(t)^3'; pyExpr.value = 'sin(t)^3'; tMin.value = 0; tMax.value = 6.28; tSteps.value = 800;
+          }
+        },
+        { name: '伯努利八字形 Lemniscate', fill: () => {
+            pxExpr.value = 'cos(t)/(1 + sin(t)^2)';
+            pyExpr.value = '(sin(t)*cos(t))/(1 + sin(t)^2)';
+            tMin.value = -3.14; tMax.value = 3.14; tSteps.value = 1000;
+          }
+        }
+      ],
+      '3d_surface': [
+        { name: '波纹面 z = sin(x)*cos(y)', fill: () => {
+            zExpr.value = 'sin(x)*cos(y)'; sxMin.value = -6.28; sxMax.value = 6.28; syMin.value = -6.28; syMax.value = 6.28; sxSteps.value = 60; sySteps.value = 60;
+          }
+        },
+        { name: '双曲抛物面 z = x^2 - y^2', fill: () => {
+            zExpr.value = 'x^2 - y^2'; sxMin.value = -3; sxMax.value = 3; syMin.value = -3; syMax.value = 3; sxSteps.value = 60; sySteps.value = 60;
+          }
+        },
+        { name: '高斯峰 z = e^{-(x^2+y^2)}', fill: () => {
+            zExpr.value = 'exp(-(x^2 + y^2))'; sxMin.value = -3; sxMax.value = 3; syMin.value = -3; syMax.value = 3; sxSteps.value = 80; sySteps.value = 80;
+          }
+        },
+        { name: '圆锥 z = sqrt(x^2 + y^2)', fill: () => {
+            zExpr.value = 'sqrt(x^2 + y^2)'; sxMin.value = -3; sxMax.value = 3; syMin.value = -3; syMax.value = 3; sxSteps.value = 70; sySteps.value = 70;
+          }
+        },
+        { name: '帽形 (Mexican Hat)', fill: () => {
+            zExpr.value = '(1 - (x^2 + y^2)) * exp(- (x^2 + y^2)/2)'; sxMin.value = -3; sxMax.value = 3; syMin.value = -3; syMax.value = 3; sxSteps.value = 80; sySteps.value = 80;
+          }
+        },
+        { name: '径向波 z = sin(sqrt(x^2 + y^2))', fill: () => {
+            zExpr.value = 'sin(sqrt(x^2 + y^2))'; sxMin.value = -8; sxMax.value = 8; syMin.value = -8; syMax.value = 8; sxSteps.value = 80; sySteps.value = 80;
+          }
+        },
+        { name: '棋盘波 z = sin(x*y)', fill: () => {
+            zExpr.value = 'sin(x*y)'; sxMin.value = -3; sxMax.value = 3; syMin.value = -3; syMax.value = 3; sxSteps.value = 80; sySteps.value = 80;
+          }
+        },
+        { name: '抛物面 z = x^2 + y^2', fill: () => {
+            zExpr.value = 'x^2 + y^2'; sxMin.value = -3; sxMax.value = 3; syMin.value = -3; syMax.value = 3; sxSteps.value = 70; sySteps.value = 70;
+          }
+        },
+        { name: '猴鞍面 Monkey Saddle', fill: () => {
+            zExpr.value = 'x^3 - 3*x*y^2'; sxMin.value = -2; sxMax.value = 2; syMin.value = -2; syMax.value = 2; sxSteps.value = 80; sySteps.value = 80;
+          }
+        },
+        { name: 'sinc 帽 z = sin(r)/r', fill: () => {
+            zExpr.value = 'sin(sqrt(x^2 + y^2)) / (sqrt(x^2 + y^2) + 1e-6)'; sxMin.value = -10; sxMax.value = 10; syMin.value = -10; syMax.value = 10; sxSteps.value = 90; sySteps.value = 90;
+          }
+        },
+        { name: '叠加波 z = sin(x) + sin(y)', fill: () => {
+            zExpr.value = 'sin(x) + sin(y)'; sxMin.value = -6.28; sxMax.value = 6.28; syMin.value = -6.28; syMax.value = 6.28; sxSteps.value = 80; sySteps.value = 80;
+          }
+        }
+      ],
+      '3d_param': [
+        { name: '球面（半径1）', fill: () => {
+            psxExpr.value = 'sin(u)*cos(v)'; psyExpr.value = 'sin(u)*sin(v)'; pszExpr.value = 'cos(u)'; uMin.value = 0; uMax.value = 3.14; vMin.value = 0; vMax.value = 6.28; uSteps.value = 60; vSteps.value = 80;
+          }
+        },
+        { name: '圆环面（环半径2，管半径0.6）', fill: () => {
+            // R=2, r=0.6: x=(R+r*cos v)cos u; y=(R+r*cos v)sin u; z=r*sin v
+            psxExpr.value = '(2 + 0.6*cos(v))*cos(u)'; psyExpr.value = '(2 + 0.6*cos(v))*sin(u)'; pszExpr.value = '0.6*sin(v)'; uMin.value = 0; uMax.value = 6.28; vMin.value = 0; vMax.value = 6.28; uSteps.value = 80; vSteps.value = 80;
+          }
+        },
+        { name: '莫比乌斯带（参数化）', fill: () => {
+            // u∈[0, 2π], v∈[-0.4, 0.4]
+            psxExpr.value = '(1 + (v/2)*cos(u/2))*cos(u)'; psyExpr.value = '(1 + (v/2)*cos(u/2))*sin(u)'; pszExpr.value = '(v/2)*sin(u/2)'; uMin.value = 0; uMax.value = 6.28; vMin.value = -0.4; vMax.value = 0.4; uSteps.value = 80; vSteps.value = 60;
+          }
+        },
+        { name: '螺旋面 (Helicoid)', fill: () => {
+            psxExpr.value = 'u*cos(v)'; psyExpr.value = 'u*sin(v)'; pszExpr.value = 'v'; uMin.value = 0; uMax.value = 2; vMin.value = 0; vMax.value = 6.28; uSteps.value = 60; vSteps.value = 80;
+          }
+        },
+        { name: '抛物旋转面 (Paraboloid)', fill: () => {
+            psxExpr.value = 'u*cos(v)'; psyExpr.value = 'u*sin(v)'; pszExpr.value = 'u^2'; uMin.value = 0; uMax.value = 2; vMin.value = 0; vMax.value = 6.28; uSteps.value = 60; vSteps.value = 80;
+          }
+        },
+        { name: '圆柱面', fill: () => {
+            psxExpr.value = 'cos(v)'; psyExpr.value = 'sin(v)'; pszExpr.value = 'u'; uMin.value = -2; uMax.value = 2; vMin.value = 0; vMax.value = 6.28; uSteps.value = 60; vSteps.value = 80;
+          }
+        },
+        { name: '双曲抛物面（参数）', fill: () => {
+            psxExpr.value = 'u'; psyExpr.value = 'v'; pszExpr.value = 'u^2 - v^2'; uMin.value = -2; uMax.value = 2; vMin.value = -2; vMax.value = 2; uSteps.value = 60; vSteps.value = 60;
+          }
+        },
+        { name: '椭球（a=2,b=1.2,c=0.8）', fill: () => {
+            psxExpr.value = '2*sin(u)*cos(v)'; psyExpr.value = '1.2*sin(u)*sin(v)'; pszExpr.value = '0.8*cos(u)'; uMin.value = 0; uMax.value = 3.14; vMin.value = 0; vMax.value = 6.28; uSteps.value = 70; vSteps.value = 90;
+          }
+        },
+        { name: '圆锥（参数）', fill: () => {
+            psxExpr.value = 'u*cos(v)'; psyExpr.value = 'u*sin(v)'; pszExpr.value = 'u'; uMin.value = 0; uMax.value = 2; vMin.value = 0; vMax.value = 6.28; uSteps.value = 60; vSteps.value = 80;
+          }
+        }
+      ]
+    };
+
+    // DOM 引用
+    const modeSel = document.getElementById('mode');
+    const exampleSel = document.getElementById('example');
+    const plotBtn = document.getElementById('plotBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const plotDiv = document.getElementById('plot');
+
+    // 2D func
+    const yExpr = document.getElementById('yExpr');
+    const xMin = document.getElementById('xMin');
+    const xMax = document.getElementById('xMax');
+    const xSteps = document.getElementById('xSteps');
+
+    // 2D param
+    const pxExpr = document.getElementById('pxExpr');
+    const pyExpr = document.getElementById('pyExpr');
+    const tMin = document.getElementById('tMin');
+    const tMax = document.getElementById('tMax');
+    const tSteps = document.getElementById('tSteps');
+
+    // 3D surface
+    const zExpr = document.getElementById('zExpr');
+    const sxMin = document.getElementById('sxMin');
+    const sxMax = document.getElementById('sxMax');
+    const syMin = document.getElementById('syMin');
+    const syMax = document.getElementById('syMax');
+    const sxSteps = document.getElementById('sxSteps');
+    const sySteps = document.getElementById('sySteps');
+
+    // 3D param surface
+    const psxExpr = document.getElementById('psxExpr');
+    const psyExpr = document.getElementById('psyExpr');
+    const pszExpr = document.getElementById('pszExpr');
+    const uMin = document.getElementById('uMin');
+    const uMax = document.getElementById('uMax');
+    const vMin = document.getElementById('vMin');
+    const vMax = document.getElementById('vMax');
+    const uSteps = document.getElementById('uSteps');
+    const vSteps = document.getElementById('vSteps');
+
+    // 根据模式切换配置面板和示例
+    function refreshExampleOptions() {
+      exampleSel.innerHTML = '<option value="">选择示例以快速填充</option>';
+      const list = EXAMPLES[modeSel.value] || [];
+      list.forEach((ex, idx) => {
+        const opt = document.createElement('option');
+        opt.value = String(idx);
+        opt.textContent = ex.name;
+        exampleSel.appendChild(opt);
+      });
+    }
+
+    function setVisiblePanels() {
+      document.getElementById('cfg-2d-func').style.display = (modeSel.value === '2d_func') ? '' : 'none';
+      document.getElementById('cfg-2d-param').style.display = (modeSel.value === '2d_param') ? '' : 'none';
+      document.getElementById('cfg-3d-surface').style.display = (modeSel.value === '3d_surface') ? '' : 'none';
+      document.getElementById('cfg-3d-param').style.display = (modeSel.value === '3d_param') ? '' : 'none';
+      refreshExampleOptions();
+    }
+
+    modeSel.addEventListener('change', () => {
+      setVisiblePanels();
+      exampleSel.value = '';
+      clearMsg();
+      Plotly.purge(plotDiv);
+    });
+
+    exampleSel.addEventListener('change', () => {
+      const idx = exampleSel.value ? parseInt(exampleSel.value, 10) : -1;
+      const list = EXAMPLES[modeSel.value] || [];
+      if (idx >= 0 && idx < list.length) {
+        list[idx].fill();
+        showMsg('示例已填充，可点击“绘制图形”。', 'success');
+      }
+    });
+
+    // 通用编译工具
+    function compileOrError(exprStr) {
+      try {
+        return math.compile(exprStr);
+      } catch (e) {
+        throw new Error('表达式有误：' + e.message);
+      }
+    }
+
+    // 绘制 2D 函数 y=f(x)
+    function plot2DFunction() {
+      const bg = bgColorInput.value || '#0f172a';
+      const theme = getAxisTheme(bg);
+      const exprStr = yExpr.value.trim();
+      const x0 = parseFloat(xMin.value);
+      const x1 = parseFloat(xMax.value);
+      let n = clampInt(parseInt(xSteps.value, 10) || 400, 50, 600);
+      xSteps.value = n;
+      if (!(isFinite(x0) && isFinite(x1)) || x1 <= x0) throw new Error('x 范围不合法');
+
+      const compiled = compileOrError(exprStr);
+      const xs = new Array(n);
+      const ys = new Array(n);
+      for (let i = 0; i < n; i++) {
+        const x = x0 + (i * (x1 - x0)) / (n - 1);
+        xs[i] = x;
+        try {
+          const y = compiled.evaluate({ x, pi: Math.PI, e: Math.E });
+          ys[i] = (isFinite(y)) ? y : null;
+        } catch (_) {
+          ys[i] = null; // 断点：Plotly 会断开折线
+        }
+      }
+
+      const ymm = finiteMinMax(ys);
+
+      const trace = { type: 'scatter', mode: 'lines', x: xs, y: ys, line: { color: '#22d3ee', width: 2 }, name: 'y=f(x)' };
+      const layout = {
+        paper_bgcolor: bg,
+        plot_bgcolor: bg,
+        margin: { l: 50, r: 50, b: 50, t: 30 },
+        xaxis: { automargin: true, title: 'x', titlefont: { color: theme.textColor }, tickfont: { size: 13, color: theme.tickColor }, gridcolor: theme.gridColor, zeroline: true, zerolinecolor: theme.gridColor, showline: true, linecolor: theme.lineColor, ticks: 'outside', ticklen: 6, tickwidth: 1, tickcolor: theme.tickColor },
+        yaxis: { automargin: true, title: 'y', titlefont: { color: theme.textColor }, tickfont: { size: 13, color: theme.tickColor }, gridcolor: theme.gridColor, zeroline: true, zerolinecolor: theme.gridColor, showline: true, linecolor: theme.lineColor, ticks: 'outside', ticklen: 6, tickwidth: 1, tickcolor: theme.tickColor },
+        shapes: ymm ? axisShapes2D(x0, x1, ymm.min, ymm.max, theme.lineColor) : [],
+        annotations: (() => { const ann = ymm ? originAnnotation2D(x0, x1, ymm.min, ymm.max) : null; if (ann) ann.font.color = theme.tickColor; return ann ? [ann] : []; })(),
+      };
+      Plotly.newPlot(plotDiv, [trace], layout, { responsive: true });
+    }
+
+    // 绘制 2D 参数曲线 x(t), y(t)
+    function plot2DParam() {
+      const bg = bgColorInput.value || '#0f172a';
+      const theme = getAxisTheme(bg);
+      const ex = compileOrError(pxExpr.value.trim());
+      const ey = compileOrError(pyExpr.value.trim());
+      const t0 = parseFloat(tMin.value);
+      const t1 = parseFloat(tMax.value);
+      let n = clampInt(parseInt(tSteps.value, 10) || 500, 50, 800);
+      tSteps.value = n;
+      if (!(isFinite(t0) && isFinite(t1)) || t1 <= t0) throw new Error('t 范围不合法');
+
+      const xs = new Array(n);
+      const ys = new Array(n);
+      for (let i = 0; i < n; i++) {
+        const t = t0 + (i * (t1 - t0)) / (n - 1);
+        try {
+          xs[i] = ex.evaluate({ t, pi: Math.PI, e: Math.E });
+          ys[i] = ey.evaluate({ t, pi: Math.PI, e: Math.E });
+          if (!isFinite(xs[i]) || !isFinite(ys[i])) { xs[i] = null; ys[i] = null; }
+        } catch (_) {
+          xs[i] = null; ys[i] = null;
+        }
+      }
+
+      const xmm = finiteMinMax(xs);
+      const ymm = finiteMinMax(ys);
+
+      const trace = { type: 'scatter', mode: 'lines', x: xs, y: ys, line: { color: '#34d399', width: 2 }, name: 'x(t), y(t)' };
+      const layout = {
+        paper_bgcolor: bg, plot_bgcolor: bg, margin: { l: 50, r: 50, b: 50, t: 30 },
+        xaxis: { automargin: true, title: 'x', titlefont: { color: theme.textColor }, tickfont: { size: 13, color: theme.tickColor }, gridcolor: theme.gridColor, zeroline: true, zerolinecolor: theme.gridColor, showline: true, linecolor: theme.lineColor, ticks: 'outside', ticklen: 6, tickwidth: 1, tickcolor: theme.tickColor },
+        yaxis: { automargin: true, title: 'y', titlefont: { color: theme.textColor }, tickfont: { size: 13, color: theme.tickColor }, gridcolor: theme.gridColor, zeroline: true, zerolinecolor: theme.gridColor, showline: true, linecolor: theme.lineColor, ticks: 'outside', ticklen: 6, tickwidth: 1, tickcolor: theme.tickColor },
+        shapes: (xmm && ymm) ? axisShapes2D(xmm.min, xmm.max, ymm.min, ymm.max, theme.lineColor) : [],
+        annotations: (() => { const ann = (xmm && ymm) ? originAnnotation2D(xmm.min, xmm.max, ymm.min, ymm.max) : null; if (ann) ann.font.color = theme.tickColor; return ann ? [ann] : []; })(),
+      };
+      Plotly.newPlot(plotDiv, [trace], layout, { responsive: true });
+    }
+
+    // 绘制 3D 曲面 z=f(x,y)
+    function plot3DSurface() {
+      const bg = bgColorInput.value || '#0f172a';
+      const theme = getAxisTheme(bg);
+      const expr = compileOrError(zExpr.value.trim());
+      const x0 = parseFloat(sxMin.value), x1 = parseFloat(sxMax.value);
+      const y0 = parseFloat(syMin.value), y1 = parseFloat(syMax.value);
+      let nx = clampInt(parseInt(sxSteps.value, 10) || 60, 20, 150);
+      let ny = clampInt(parseInt(sySteps.value, 10) || 60, 20, 150);
+      sxSteps.value = nx; sySteps.value = ny;
+      if (!(isFinite(x0) && isFinite(x1)) || x1 <= x0) throw new Error('x 范围不合法');
+      if (!(isFinite(y0) && isFinite(y1)) || y1 <= y0) throw new Error('y 范围不合法');
+
+      const xs = new Array(nx);
+      const ys = new Array(ny);
+      for (let i = 0; i < nx; i++) xs[i] = x0 + (i * (x1 - x0)) / (nx - 1);
+      for (let j = 0; j < ny; j++) ys[j] = y0 + (j * (y1 - y0)) / (ny - 1);
+
+      const z = new Array(ny);
+      for (let j = 0; j < ny; j++) {
+        z[j] = new Array(nx);
+        for (let i = 0; i < nx; i++) {
+          try {
+            const val = expr.evaluate({ x: xs[i], y: ys[j], pi: Math.PI, e: Math.E });
+            z[j][i] = isFinite(val) ? val : null;
+          } catch (_) { z[j][i] = null; }
+        }
+      }
+
+      const zmm = finiteMinMax2D(z);
+
+      const surface = { type: 'surface', x: xs, y: ys, z: z, colorscale: 'Viridis', contours: { z: { show: false } } };
+      const xAxis = { type: 'scatter3d', mode: 'lines', x: [x0, x1], y: [0, 0], z: [0, 0], line: { color: theme.lineColor, width: 6 }, name: 'x轴' };
+      const yAxis = { type: 'scatter3d', mode: 'lines', x: [0, 0], y: [y0, y1], z: [0, 0], line: { color: theme.lineColor, width: 6 }, name: 'y轴' };
+      const zAxis = zmm ? { type: 'scatter3d', mode: 'lines', x: [0, 0], y: [0, 0], z: [zmm.min, zmm.max], line: { color: theme.lineColor, width: 6 }, name: 'z轴' } : null;
+      const layout = {
+        paper_bgcolor: bg,
+        scene: {
+          bgcolor: bg,
+          xaxis: { title: 'x', gridcolor: theme.gridColor, linecolor: theme.lineColor, tickfont: { size: 12, color: theme.tickColor } },
+          yaxis: { title: 'y', gridcolor: theme.gridColor, linecolor: theme.lineColor, tickfont: { size: 12, color: theme.tickColor } },
+          zaxis: { title: 'z', gridcolor: theme.gridColor, linecolor: theme.lineColor, tickfont: { size: 12, color: theme.tickColor } },
+          aspectmode: 'data'
+        },
+        margin: { l: 0, r: 0, b: 0, t: 0 },
+      };
+      const data = [surface, xAxis, yAxis];
+      if (zAxis) data.push(zAxis);
+      Plotly.newPlot(plotDiv, data, layout, { responsive: true });
+    }
+
+    // 绘制 3D 参数曲面 x(u,v), y(u,v), z(u,v)
+    function plot3DParamSurface() {
+      const bg = bgColorInput.value || '#0f172a';
+      const theme = getAxisTheme(bg);
+      const ex = compileOrError(psxExpr.value.trim());
+      const ey = compileOrError(psyExpr.value.trim());
+      const ez = compileOrError(pszExpr.value.trim());
+      const u0 = parseFloat(uMin.value), u1 = parseFloat(uMax.value);
+      const v0 = parseFloat(vMin.value), v1 = parseFloat(vMax.value);
+      let nu = clampInt(parseInt(uSteps.value, 10) || 50, 20, 120);
+      let nv = clampInt(parseInt(vSteps.value, 10) || 80, 20, 120);
+      uSteps.value = nu; vSteps.value = nv;
+      if (!(isFinite(u0) && isFinite(u1)) || u1 <= u0) throw new Error('u 范围不合法');
+      if (!(isFinite(v0) && isFinite(v1)) || v1 <= v0) throw new Error('v 范围不合法');
+
+      const U = new Array(nu), V = new Array(nv);
+      for (let i = 0; i < nu; i++) U[i] = u0 + (i * (u1 - u0)) / (nu - 1);
+      for (let j = 0; j < nv; j++) V[j] = v0 + (j * (v1 - v0)) / (nv - 1);
+
+      const X = new Array(nv), Y = new Array(nv), Z = new Array(nv);
+      for (let j = 0; j < nv; j++) {
+        X[j] = new Array(nu);
+        Y[j] = new Array(nu);
+        Z[j] = new Array(nu);
+        for (let i = 0; i < nu; i++) {
+          const u = U[i], v = V[j];
+          try {
+            const sx = ex.evaluate({ u, v, pi: Math.PI, e: Math.E });
+            const sy = ey.evaluate({ u, v, pi: Math.PI, e: Math.E });
+            const sz = ez.evaluate({ u, v, pi: Math.PI, e: Math.E });
+            X[j][i] = isFinite(sx) ? sx : null;
+            Y[j][i] = isFinite(sy) ? sy : null;
+            Z[j][i] = isFinite(sz) ? sz : null;
+          } catch (_) { X[j][i] = null; Y[j][i] = null; Z[j][i] = null; }
+        }
+      }
+
+      // 范围估计
+      const xmm = finiteMinMax2D(X);
+      const ymm = finiteMinMax2D(Y);
+      const zmm = finiteMinMax2D(Z);
+
+      const surface = { type: 'surface', x: X, y: Y, z: Z, colorscale: 'RdBu', reversescale: true };
+      const xAxis = (xmm) ? { type: 'scatter3d', mode: 'lines', x: [xmm.min, xmm.max], y: [0, 0], z: [0, 0], line: { color: theme.lineColor, width: 6 }, name: 'x轴' } : null;
+      const yAxis = (ymm) ? { type: 'scatter3d', mode: 'lines', x: [0, 0], y: [ymm.min, ymm.max], z: [0, 0], line: { color: theme.lineColor, width: 6 }, name: 'y轴' } : null;
+      const zAxis = (zmm) ? { type: 'scatter3d', mode: 'lines', x: [0, 0], y: [0, 0], z: [zmm.min, zmm.max], line: { color: theme.lineColor, width: 6 }, name: 'z轴' } : null;
+      const layout = {
+        paper_bgcolor: bg,
+        scene: {
+          bgcolor: bg,
+          xaxis: { title: 'x', gridcolor: theme.gridColor, linecolor: theme.lineColor, tickfont: { size: 12, color: theme.tickColor } },
+          yaxis: { title: 'y', gridcolor: theme.gridColor, linecolor: theme.lineColor, tickfont: { size: 12, color: theme.tickColor } },
+          zaxis: { title: 'z', gridcolor: theme.gridColor, linecolor: theme.lineColor, tickfont: { size: 12, color: theme.tickColor } },
+          aspectmode: 'data'
+        },
+        margin: { l: 0, r: 0, b: 0, t: 0 },
+      };
+      const data = [surface];
+      if (xAxis) data.push(xAxis);
+      if (yAxis) data.push(yAxis);
+      if (zAxis) data.push(zAxis);
+      Plotly.newPlot(plotDiv, data, layout, { responsive: true });
+    }
+
+    // 事件：绘制与清空
+    plotBtn.addEventListener('click', () => {
+      clearMsg();
+      try {
+        if (modeSel.value === '2d_func') plot2DFunction();
+        else if (modeSel.value === '2d_param') plot2DParam();
+        else if (modeSel.value === '3d_surface') plot3DSurface();
+        else if (modeSel.value === '3d_param') plot3DParamSurface();
+        showMsg('绘制完成，可拖拽缩放查看细节。', 'success');
+      } catch (e) {
+        showMsg(e.message || '绘制失败，请检查输入。', 'error');
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      Plotly.purge(plotDiv);
+      clearMsg();
+      showMsg('图形已清空。', 'success');
+    });
+
+    // 应用页面背景颜色
+    function applyPageBackground() {
+      const color = pageBgColorInput.value || '#0f172a';
+      document.body.style.background = color;
+    }
+    applyPageBgBtn.addEventListener('click', applyPageBackground);
+
+    // 事件：下载图片
+    downloadBtn.addEventListener('click', async () => {
+      try {
+        const fmt = imgFormatSel.value || 'png';
+        await Plotly.downloadImage(plotDiv, { format: fmt, filename: 'math-plot' });
+        showMsg('图片已开始下载。', 'success');
+      } catch (e) {
+        showMsg('导出失败：请先绘制图形或更换格式。', 'error');
+      }
+    });
+
+    // 初始化
+    setVisiblePanels();
+    refreshExampleOptions();
+    showMsg('请选择类型或示例，填写表达式后绘制。', 'success');
+  </script>
+  <!-- 联系我们：按钮与模态结构 -->
+  <button id="contactBtn" class="contact-btn"><i class="fa-solid fa-phone"></i> 联系我们</button>
+  <div id="contactOverlay" class="contact-overlay" aria-hidden="true">
+    <div class="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contactTitle">
+      <div class="contact-header">
+        <div class="left"><i class="fa-solid fa-phone"></i><span id="contactTitle">联系我们</span></div>
+        <button id="contactClose" class="contact-close" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="contact-body">
+        <div class="contact-item">
+          <div class="icon"><i class="fa-brands fa-qq"></i></div>
+          <div class="info">
+            <div class="label">QQ邮箱:</div>
+            <div class="value">1990909398@qq.com</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="icon"><i class="fa-brands fa-weixin"></i></div>
+          <div class="info">
+            <div class="label">微信号:</div>
+            <div class="value">y8849112640</div>
+          </div>
+        </div>
+      </div>
+      <div class="contact-footer">向我们发送消息 如果您有任何问题或建议，请通过下面的邮箱或微信联系我们</div>
+    </div>
+  </div>
+
+  <!-- 联系我们交互脚本 -->
+  <script>
+    (function(){
+      const btn = document.getElementById('contactBtn');
+      const overlay = document.getElementById('contactOverlay');
+      const closeBtn = document.getElementById('contactClose');
+      function openContact(){ overlay.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+      function closeContact(){ overlay.style.display = 'none'; document.body.style.overflow = ''; }
+      btn.addEventListener('click', openContact);
+      closeBtn.addEventListener('click', closeContact);
+      overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeContact(); });
+      document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeContact(); });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专注写作工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .preview-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e0e0e0;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toolbar button {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .toolbar button:hover {
+            background: #f5f5f5;
+            border-color: #bbb;
+        }
+
+        .color-picker {
+            width: 32px;
+            height: 24px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            background: none;
+            padding: 0;
+        }
+
+        .font-select {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            background: white;
+        }
+
+        .save-status {
+            margin-left: auto;
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .save-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .editor {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 24px;
+            font-size: 16px;
+            line-height: 1.6;
+            resize: none;
+            background: transparent;
+            color: inherit;
+            font-family: inherit;
+        }
+
+        .preview {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background: #fafafa;
+            border-left: 1px solid #e0e0e0;
+        }
+
+        .preview h1, .preview h2, .preview h3, .preview h4, .preview h5, .preview h6 {
+            margin: 1.5em 0 0.5em 0;
+            color: #333;
+        }
+
+        .preview h1 { font-size: 2em; }
+        .preview h2 { font-size: 1.5em; }
+        .preview h3 { font-size: 1.3em; }
+
+        .preview p {
+            margin: 1em 0;
+            line-height: 1.7;
+        }
+
+        .preview ul, .preview ol {
+            margin: 1em 0;
+            padding-left: 2em;
+        }
+
+        .preview li {
+            margin: 0.5em 0;
+        }
+
+        .preview blockquote {
+            border-left: 4px solid #ddd;
+            margin: 1em 0;
+            padding: 0.5em 1em;
+            background: #f9f9f9;
+            font-style: italic;
+        }
+
+        .preview code {
+            background: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .preview pre {
+            background: #f4f4f4;
+            padding: 1em;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1em 0;
+        }
+
+        .preview pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .preview table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1em 0;
+        }
+
+        .preview th, .preview td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .preview th {
+            background: #f5f5f5;
+            font-weight: bold;
+        }
+
+        .preview a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .preview a:hover {
+            text-decoration: underline;
+        }
+
+        .preview img {
+            max-width: 100%;
+            height: auto;
+            margin: 1em 0;
+        }
+
+        .preview hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 2em 0;
+        }
+
+        /* 主题样式 */
+        .theme-light {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            color: #333333;
+        }
+
+        .theme-dark {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e0e0e0;
+        }
+
+        .theme-warm {
+            background: linear-gradient(135deg, #fff8f0 0%, #ffe4d1 100%);
+            color: #5d4037;
+        }
+
+        .theme-forest {
+            background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
+            color: #2e7d32;
+        }
+
+        .theme-ocean {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
+        }
+
+        .theme-sunset {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+            color: #7b1fa2;
+        }
+
+        .theme-coffee {
+            background: linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%);
+            color: #5d4037;
+        }
+
+        .theme-mint {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            color: #2e7d32;
+        }
+
+        .theme-rose {
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+            color: #be185d;
+        }
+
+        .theme-slate {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            color: #475569;
+        }
+
+        .theme-lavender {
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            color: #6b21a8;
+        }
+
+        .theme-autumn {
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            color: #92400e;
+        }
+
+        .theme-cherry {
+            background: linear-gradient(135deg, #fef7f7 0%, #fed7d7 100%);
+            color: #c53030;
+        }
+
+        .theme-midnight {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #e2e8f0;
+        }
+
+        .theme-cream {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            color: #78350f;
+        }
+
+        .theme-emerald {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            color: #065f46;
+        }
+
+        .theme-coral {
+            background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+            color: #c2410c;
+        }
+
+        .theme-indigo {
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            color: #3730a3;
+        }
+
+        .theme-sand {
+            background: linear-gradient(135deg, #fafaf9 0%, #f5f5f4 100%);
+            color: #57534e;
+        }
+
+        .theme-wine {
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+            color: #9d174d;
+        }
+
+        .theme-arctic {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            color: #334155;
+        }
+
+        .theme-bamboo {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            color: #166534;
+        }
+
+        .theme-peach {
+            background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+            color: #be123c;
+        }
+
+        .theme-storm {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+            color: #f9fafb;
+        }
+
+        .theme-gold {
+            background: linear-gradient(135deg, #fffbeb 0%, #fde68a 100%);
+            color: #92400e;
+        }
+
+        /* 工具栏样式 */
+        .theme-light .toolbar, .theme-warm .toolbar, .theme-forest .toolbar, 
+        .theme-ocean .toolbar, .theme-sunset .toolbar, .theme-coffee .toolbar,
+        .theme-mint .toolbar, .theme-rose .toolbar, .theme-slate .toolbar,
+        .theme-lavender .toolbar, .theme-autumn .toolbar, .theme-cherry .toolbar,
+        .theme-cream .toolbar, .theme-emerald .toolbar, .theme-coral .toolbar,
+        .theme-indigo .toolbar, .theme-sand .toolbar, .theme-wine .toolbar,
+        .theme-arctic .toolbar, .theme-bamboo .toolbar, .theme-peach .toolbar,
+        .theme-gold .toolbar {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-dark .toolbar, .theme-midnight .toolbar, .theme-storm .toolbar {
+            background: rgba(40, 40, 40, 0.9);
+            border-color: #444;
+        }
+
+        /* 编辑器样式 */
+        .theme-light .editor, .theme-warm .editor, .theme-forest .editor,
+        .theme-ocean .editor, .theme-sunset .editor, .theme-coffee .editor,
+        .theme-mint .editor, .theme-rose .editor, .theme-slate .editor,
+        .theme-lavender .editor, .theme-autumn .editor, .theme-cherry .editor,
+        .theme-cream .editor, .theme-emerald .editor, .theme-coral .editor,
+        .theme-indigo .editor, .theme-sand .editor, .theme-wine .editor,
+        .theme-arctic .editor, .theme-bamboo .editor, .theme-peach .editor,
+        .theme-gold .editor {
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .theme-dark .editor, .theme-midnight .editor, .theme-storm .editor {
+            background: rgba(30, 30, 30, 0.8);
+        }
+
+        /* 预览区样式 */
+        .theme-light .preview { background: rgba(250, 250, 250, 0.8); }
+        .theme-dark .preview { background: rgba(34, 34, 34, 0.8); }
+        .theme-warm .preview { background: rgba(255, 248, 240, 0.8); }
+        .theme-forest .preview { background: rgba(241, 248, 233, 0.8); }
+        .theme-ocean .preview { background: rgba(227, 242, 253, 0.8); }
+        .theme-sunset .preview { background: rgba(252, 228, 236, 0.8); }
+        .theme-coffee .preview { background: rgba(239, 235, 233, 0.8); }
+        .theme-mint .preview { background: rgba(232, 245, 232, 0.8); }
+        .theme-rose .preview { background: rgba(253, 242, 248, 0.8); }
+        .theme-slate .preview { background: rgba(241, 245, 249, 0.8); }
+        .theme-lavender .preview { background: rgba(243, 232, 255, 0.8); }
+        .theme-autumn .preview { background: rgba(254, 252, 232, 0.8); }
+        .theme-cherry .preview { background: rgba(254, 247, 247, 0.8); }
+        .theme-midnight .preview { background: rgba(51, 65, 85, 0.8); }
+        .theme-cream .preview { background: rgba(255, 251, 235, 0.8); }
+        .theme-emerald .preview { background: rgba(236, 253, 245, 0.8); }
+        .theme-coral .preview { background: rgba(255, 247, 237, 0.8); }
+        .theme-indigo .preview { background: rgba(238, 242, 255, 0.8); }
+        .theme-sand .preview { background: rgba(250, 250, 249, 0.8); }
+        .theme-wine .preview { background: rgba(253, 242, 248, 0.8); }
+        .theme-arctic .preview { background: rgba(248, 250, 252, 0.8); }
+        .theme-bamboo .preview { background: rgba(240, 253, 244, 0.8); }
+        .theme-peach .preview { background: rgba(255, 241, 242, 0.8); }
+        .theme-storm .preview { background: rgba(75, 85, 99, 0.8); }
+        .theme-gold .preview { background: rgba(255, 251, 235, 0.8); }
+
+        /* 边框颜色 */
+        .theme-light .editor-panel, .theme-light .preview { border-color: rgba(0, 0, 0, 0.1); }
+        .theme-dark .editor-panel, .theme-dark .preview { border-color: #444; }
+        .theme-warm .editor-panel, .theme-warm .preview { border-color: rgba(93, 64, 55, 0.2); }
+        .theme-forest .editor-panel, .theme-forest .preview { border-color: rgba(46, 125, 50, 0.2); }
+        .theme-ocean .editor-panel, .theme-ocean .preview { border-color: rgba(21, 101, 192, 0.2); }
+        .theme-sunset .editor-panel, .theme-sunset .preview { border-color: rgba(123, 31, 162, 0.2); }
+        .theme-coffee .editor-panel, .theme-coffee .preview { border-color: rgba(93, 64, 55, 0.2); }
+        .theme-mint .editor-panel, .theme-mint .preview { border-color: rgba(46, 125, 50, 0.2); }
+        .theme-rose .editor-panel, .theme-rose .preview { border-color: rgba(190, 24, 93, 0.2); }
+        .theme-slate .editor-panel, .theme-slate .preview { border-color: rgba(71, 85, 105, 0.2); }
+        .theme-lavender .editor-panel, .theme-lavender .preview { border-color: rgba(107, 33, 168, 0.2); }
+        .theme-autumn .editor-panel, .theme-autumn .preview { border-color: rgba(146, 64, 14, 0.2); }
+        .theme-cherry .editor-panel, .theme-cherry .preview { border-color: rgba(197, 48, 48, 0.2); }
+        .theme-midnight .editor-panel, .theme-midnight .preview { border-color: #555; }
+        .theme-cream .editor-panel, .theme-cream .preview { border-color: rgba(120, 53, 15, 0.2); }
+        .theme-emerald .editor-panel, .theme-emerald .preview { border-color: rgba(6, 95, 70, 0.2); }
+        .theme-coral .editor-panel, .theme-coral .preview { border-color: rgba(194, 65, 12, 0.2); }
+        .theme-indigo .editor-panel, .theme-indigo .preview { border-color: rgba(55, 48, 163, 0.2); }
+        .theme-sand .editor-panel, .theme-sand .preview { border-color: rgba(87, 83, 78, 0.2); }
+        .theme-wine .editor-panel, .theme-wine .preview { border-color: rgba(157, 23, 77, 0.2); }
+        .theme-arctic .editor-panel, .theme-arctic .preview { border-color: rgba(51, 65, 85, 0.2); }
+        .theme-bamboo .editor-panel, .theme-bamboo .preview { border-color: rgba(22, 101, 52, 0.2); }
+        .theme-peach .editor-panel, .theme-peach .preview { border-color: rgba(190, 18, 60, 0.2); }
+        .theme-storm .editor-panel, .theme-storm .preview { border-color: #666; }
+        .theme-gold .editor-panel, .theme-gold .preview { border-color: rgba(146, 64, 14, 0.2); }
+
+        /* 按钮和表单元素样式 */
+        .theme-dark .toolbar button, .theme-dark .font-select,
+        .theme-midnight .toolbar button, .theme-midnight .font-select,
+        .theme-storm .toolbar button, .theme-storm .font-select {
+            background: #333;
+            border-color: #555;
+            color: #e0e0e0;
+        }
+
+        .theme-dark .toolbar button:hover,
+        .theme-midnight .toolbar button:hover,
+        .theme-storm .toolbar button:hover {
+            background: #444;
+            border-color: #666;
+        }
+
+        /* 预览内容样式调整 */
+        .theme-dark .preview h1, .theme-dark .preview h2, .theme-dark .preview h3,
+        .theme-dark .preview h4, .theme-dark .preview h5, .theme-dark .preview h6,
+        .theme-midnight .preview h1, .theme-midnight .preview h2, .theme-midnight .preview h3,
+        .theme-midnight .preview h4, .theme-midnight .preview h5, .theme-midnight .preview h6,
+        .theme-storm .preview h1, .theme-storm .preview h2, .theme-storm .preview h3,
+        .theme-storm .preview h4, .theme-storm .preview h5, .theme-storm .preview h6 {
+            color: #f0f0f0;
+        }
+
+        .theme-dark .preview blockquote,
+        .theme-midnight .preview blockquote,
+        .theme-storm .preview blockquote {
+            background: rgba(42, 42, 42, 0.8);
+            border-color: #555;
+        }
+
+        .theme-dark .preview code, .theme-dark .preview pre,
+        .theme-midnight .preview code, .theme-midnight .preview pre,
+        .theme-storm .preview code, .theme-storm .preview pre {
+            background: rgba(42, 42, 42, 0.8);
+        }
+
+        .theme-dark .preview th,
+        .theme-midnight .preview th,
+        .theme-storm .preview th {
+            background: rgba(51, 51, 51, 0.8);
+        }
+
+        .theme-dark .preview th, .theme-dark .preview td,
+        .theme-midnight .preview th, .theme-midnight .preview td,
+        .theme-storm .preview th, .theme-storm .preview td {
+            border-color: #555;
+        }
+
+        /* 字体样式 */
+        .font-serif {
+            font-family: Georgia, 'Times New Roman', serif;
+        }
+
+        .font-sans {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .font-mono {
+            font-family: 'Courier New', Monaco, monospace;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .editor-panel {
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            
+            .preview {
+                border-left: none;
+                border-top: 1px solid #e0e0e0;
+            }
+            
+            .toolbar {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body class="theme-light font-sans">
+    <div class="container">
+        <div class="editor-panel">
+            <div class="toolbar">
+                <div class="toolbar-group">
+                    <select class="font-select" id="themeSelect" onchange="changeTheme(this.value)">
+                        <option value="light">🌞 经典白</option>
+                        <option value="dark">🌙 深邃黑</option>
+                        <option value="warm">🍂 温暖橙</option>
+                        <option value="forest">🌲 森林绿</option>
+                        <option value="ocean">🌊 海洋蓝</option>
+                        <option value="sunset">🌅 日落紫</option>
+                        <option value="coffee">☕ 咖啡棕</option>
+                        <option value="mint">🌿 薄荷绿</option>
+                        <option value="rose">🌹 玫瑰粉</option>
+                        <option value="slate">🌫️ 石板灰</option>
+                        <option value="lavender">💜 薰衣草</option>
+                        <option value="autumn">🍁 秋叶黄</option>
+                        <option value="cherry">🌸 樱花粉</option>
+                        <option value="midnight">🌌 午夜蓝</option>
+                        <option value="cream">🥛 奶油白</option>
+                        <option value="emerald">💎 翡翠绿</option>
+                        <option value="coral">🪸 珊瑚橙</option>
+                        <option value="indigo">🔮 靛青蓝</option>
+                        <option value="sand">🏖️ 沙滩色</option>
+                        <option value="wine">🍷 酒红色</option>
+                        <option value="arctic">❄️ 极地白</option>
+                        <option value="bamboo">🎋 竹叶绿</option>
+                        <option value="peach">🍑 蜜桃色</option>
+                        <option value="storm">⛈️ 暴风灰</option>
+                        <option value="gold">✨ 金色梦</option>
+                    </select>
+                    <select class="font-select" onchange="changeFont(this.value)">
+                        <option value="sans">系统无衬线</option>
+                        <option value="serif">经典衬线</option>
+                        <option value="mono">等宽字体</option>
+                        <option value="songti">宋体</option>
+                        <option value="heiti">黑体</option>
+                        <option value="kaiti">楷体</option>
+                        <option value="fangsong">仿宋</option>
+                        <option value="consolas">Consolas</option>
+                        <option value="georgia">Georgia</option>
+                        <option value="times">Times New Roman</option>
+                    </select>
+                </div>
+                <div class="toolbar-group">
+                    <button onclick="exportAsText()">📄 导出文本</button>
+                    <button onclick="exportAsMarkdown()">📝 导出MD</button>
+                    <button onclick="clearContent()">🗑️ 清空</button>
+                </div>
+                <div class="save-status">
+                    <div class="save-indicator"></div>
+                    <span id="saveStatus">已保存</span>
+                </div>
+            </div>
+            <textarea class="editor" id="editor" placeholder="开始写作..."></textarea>
+        </div>
+        <div class="preview-panel">
+            <div class="toolbar">
+                <span style="font-weight: bold; color: #666;">实时预览</span>
+            </div>
+            <div class="preview" id="preview"></div>
+        </div>
+    </div>
+
+    <script>
+        // Markdown解析器
+        function parseMarkdown(text) {
+            // 转义HTML字符
+            text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            
+            // 标题
+            text = text.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+            text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+            text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+            
+            // 粗体和斜体
+            text = text.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // 代码块
+            text = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+            text = text.replace(/`(.*?)`/g, '<code>$1</code>');
+            
+            // 链接
+            text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+            
+            // 图片
+            text = text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+            
+            // 引用
+            text = text.replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>');
+            
+            // 水平线
+            text = text.replace(/^---$/gim, '<hr>');
+            
+            // 无序列表
+            text = text.replace(/^\* (.*$)/gim, '<li>$1</li>');
+            text = text.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+            
+            // 有序列表
+            text = text.replace(/^\d+\. (.*$)/gim, '<li>$1</li>');
+            
+            // 段落
+            text = text.replace(/\n\n/g, '</p><p>');
+            text = '<p>' + text + '</p>';
+            
+            // 清理空段落
+            text = text.replace(/<p><\/p>/g, '');
+            text = text.replace(/<p>(<h[1-6]>)/g, '$1');
+            text = text.replace(/(<\/h[1-6]>)<\/p>/g, '$1');
+            text = text.replace(/<p>(<ul>)/g, '$1');
+            text = text.replace(/(<\/ul>)<\/p>/g, '$1');
+            text = text.replace(/<p>(<blockquote>)/g, '$1');
+            text = text.replace(/(<\/blockquote>)<\/p>/g, '$1');
+            text = text.replace(/<p>(<pre>)/g, '$1');
+            text = text.replace(/(<\/pre>)<\/p>/g, '$1');
+            text = text.replace(/<p>(<hr>)<\/p>/g, '$1');
+            
+            return text;
+        }
+
+        // 获取DOM元素
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+        const saveStatus = document.getElementById('saveStatus');
+        const themeSelect = document.getElementById('themeSelect');
+
+        // 自动保存功能
+        let saveTimeout;
+        let isModified = false;
+
+        function updateSaveStatus(status) {
+            saveStatus.textContent = status;
+            if (status === '已保存') {
+                saveStatus.style.color = '#28a745';
+            } else {
+                saveStatus.style.color = '#ffc107';
+            }
+        }
+
+        function saveContent() {
+            localStorage.setItem('focusWriterContent', editor.value);
+            localStorage.setItem('focusWriterTimestamp', new Date().toLocaleString());
+            updateSaveStatus('已保存');
+            isModified = false;
+        }
+
+        function loadContent() {
+            const saved = localStorage.getItem('focusWriterContent');
+            if (saved) {
+                editor.value = saved;
+                updatePreview();
+            }
+        }
+
+        function updatePreview() {
+            const markdown = editor.value;
+            preview.innerHTML = parseMarkdown(markdown);
+        }
+
+        // 编辑器事件监听
+        editor.addEventListener('input', function() {
+            updatePreview();
+            
+            if (!isModified) {
+                isModified = true;
+                updateSaveStatus('保存中...');
+            }
+            
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveContent, 1000);
+        });
+
+        // 主题切换
+        let currentTheme = localStorage.getItem('focusWriterTheme') || 'light';
+
+        function changeTheme(theme) {
+            currentTheme = theme;
+            
+            // 移除所有主题类
+            document.body.className = document.body.className.replace(/theme-\w+/g, '');
+            
+            // 添加新主题类和字体类
+            const fontClass = document.body.className.match(/font-\w+/);
+            document.body.className = `theme-${theme}`;
+            if (fontClass) {
+                document.body.classList.add(fontClass[0]);
+            }
+            
+            localStorage.setItem('focusWriterTheme', theme);
+        }
+
+        // 字体更改
+        function changeFont(fontType) {
+            document.body.className = document.body.className.replace(/font-\w+/, '');
+            document.body.classList.add('font-' + fontType);
+            localStorage.setItem('focusWriterFont', fontType);
+        }
+
+        // 导出功能
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type: type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function exportAsText() {
+            const content = editor.value;
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            downloadFile(content, `写作内容_${timestamp}.txt`, 'text/plain');
+        }
+
+        function exportAsMarkdown() {
+            const content = editor.value;
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            downloadFile(content, `写作内容_${timestamp}.md`, 'text/markdown');
+        }
+
+        // 清空内容
+        function clearContent() {
+            if (confirm('确定要清空所有内容吗？此操作不可撤销。')) {
+                editor.value = '';
+                updatePreview();
+                saveContent();
+            }
+        }
+
+        // 键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+S 保存
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveContent();
+            }
+            
+            // Ctrl+E 导出Markdown
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                exportAsMarkdown();
+            }
+            
+            // Ctrl+Shift+E 导出文本
+            if (e.ctrlKey && e.shiftKey && e.key === 'E') {
+                e.preventDefault();
+                exportAsText();
+            }
+            
+            // F11 全屏（浏览器原生）
+            // Ctrl+T 循环切换主题
+            if (e.ctrlKey && e.key === 't') {
+                e.preventDefault();
+                const themes = [
+                    'light', 'dark', 'warm', 'forest', 'ocean', 'sunset', 'coffee', 'mint', 'rose', 'slate',
+                    'lavender', 'autumn', 'cherry', 'midnight', 'cream', 'emerald', 'coral', 'indigo', 
+                    'sand', 'wine', 'arctic', 'bamboo', 'peach', 'storm', 'gold'
+                ];
+                const currentIndex = themes.indexOf(currentTheme);
+                const nextIndex = (currentIndex + 1) % themes.length;
+                const nextTheme = themes[nextIndex];
+                themeSelect.value = nextTheme;
+                changeTheme(nextTheme);
+            }
+        });
+
+        // 初始化
+        function init() {
+            // 加载保存的内容
+            loadContent();
+            
+            // 加载保存的主题
+            const savedTheme = localStorage.getItem('focusWriterTheme') || 'light';
+            themeSelect.value = savedTheme;
+            changeTheme(savedTheme);
+            
+            // 加载保存的字体
+            const savedFont = localStorage.getItem('focusWriterFont');
+            if (savedFont) {
+                changeFont(savedFont);
+                document.querySelector('.font-select').value = savedFont;
+            }
+            
+            // 聚焦编辑器
+            editor.focus();
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', init);
+
+        // 页面卸载前保存
+        window.addEventListener('beforeunload', function() {
+            if (isModified) {
+                saveContent();
+            }
+        });
+    </script>
+</body>
+</html>

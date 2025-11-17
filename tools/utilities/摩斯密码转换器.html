@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>摩斯密码转换器</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .converter-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            resize: vertical;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        button {
+            padding: 10px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #3e8e41;
+        }
+        .btn-secondary {
+            background-color: #f1f1f1;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        h3 {
+            color: #444;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <h1>摩斯密码转换器</h1>
+    <div class="container">
+        <div class="converter-section">
+            <h3>文本转摩斯密码</h3>
+            <textarea id="textInput" placeholder="输入要转换的文本"></textarea>
+            <div class="button-group">
+                <button class="btn-primary" onclick="textToMorse()">
+                    <span>转换为摩斯密码</span>
+                </button>
+                <button class="btn-secondary" onclick="clearInput('textInput')">
+                    <span>清除输入</span>
+                </button>
+            </div>
+            <textarea id="morseOutput" readonly placeholder="摩斯密码结果"></textarea>
+            <div class="button-group">
+                <button class="btn-primary" onclick="copyToClipboard('morseOutput')">
+                    <span>复制结果</span>
+                </button>
+                <button class="btn-secondary" onclick="clearInput('morseOutput')">
+                    <span>清除结果</span>
+                </button>
+            </div>
+        </div>
+        <div class="converter-section">
+            <h3>摩斯密码转文本</h3>
+            <textarea id="morseInput" placeholder="输入摩斯密码 (用空格分隔字母，/分隔单词)"></textarea>
+            <div class="button-group">
+                <button class="btn-primary" onclick="morseToText()">
+                    <span>转换为文本</span>
+                </button>
+                <button class="btn-secondary" onclick="clearInput('morseInput')">
+                    <span>清除输入</span>
+                </button>
+            </div>
+            <textarea id="textOutput" readonly placeholder="文本结果"></textarea>
+            <div class="button-group">
+                <button class="btn-primary" onclick="copyToClipboard('textOutput')">
+                    <span>复制结果</span>
+                </button>
+                <button class="btn-secondary" onclick="clearInput('textOutput')">
+                    <span>清除结果</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const morseCode = Object.freeze({
+            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+            'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+            'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+            'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+            'Y': '-.--', 'Z': '--..', '0': '-----', '1': '.----', '2': '..---',
+            '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...',
+            '8': '---..', '9': '----.', '.': '.-.-.-', ',': '--..--', '?': '..--..',
+            "'": '.----.', '!': '-.-.--', '/': '-..-.', '(': '-.--.', ')': '-.--.-',
+            '&': '.-...', ':': '---...', ';': '-.-.-.', '=': '-...-', '+': '.-.-.',
+            '-': '-....-', '_': '..--.-', '"': '.-..-.', '$': '...-..-', '@': '.--.-.',
+            ' ': '/'
+        });
+
+        const reverseMorseCode = Object.freeze(
+            Object.fromEntries(
+                Object.entries(morseCode).map(([key, value]) => [value, key])
+            )
+        );
+
+        function textToMorse() {
+            const text = document.getElementById('textInput').value.toUpperCase();
+            let morse = '';
+            
+            for (const char of text) {
+                if (morseCode[char] !== undefined) {
+                    morse += morseCode[char] + ' ';
+                } else {
+                    morse += '? ';
+                }
+            }
+            
+            document.getElementById('morseOutput').value = morse.trim();
+        }
+
+        function morseToText() {
+            const morse = document.getElementById('morseInput').value.trim();
+            if (!morse) return;
+            
+            const words = morse.split(' / ');
+            let text = '';
+            
+            for (const word of words) {
+                const letters = word.split(' ').filter(Boolean);
+                for (const code of letters) {
+                    text += reverseMorseCode[code] || '?';
+                }
+                text += ' ';
+            }
+            
+            document.getElementById('textOutput').value = text.trim();
+        }
+        
+        function clearInput(id) {
+            document.getElementById(id).value = '';
+        }
+        
+        function copyToClipboard(id) {
+            const element = document.getElementById(id);
+            element.select();
+            document.execCommand('copy');
+            
+            // 显示复制成功的提示
+            const originalText = element.nextElementSibling?.querySelector('.btn-primary span')?.textContent;
+            if (originalText) {
+                const btn = element.nextElementSibling.querySelector('.btn-primary');
+                btn.innerHTML = '<span>✓ 复制成功!</span>';
+                setTimeout(() => {
+                    btn.innerHTML = `<span>${originalText}</span>`;
+                }, 2000);
+            }
+        }
+    </script>
+</body>
+</html>

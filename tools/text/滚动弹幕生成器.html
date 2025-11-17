@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"content="width=device-width, initial-scale=1.0">
+    <title>滚动弹幕生成器</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+        h1.title {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: title-glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes title-glow {
+            from {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1), 0 0 10px rgba(102, 126, 234, 0.3);
+            }
+            to {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1), 0 0 20px rgba(102, 126, 234, 0.6), 0 0 30px rgba(102, 126, 234, 0.4);
+            }
+        }
+        .input-section {
+            margin-bottom: 25px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+            font-size: 1.1em;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: scale(1.02);
+        }
+        textarea {
+            height: 120px;
+            resize: vertical;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(0);
+        }
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            margin-top: 10px;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #5a6fd8, #6a4190);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: linear-gradient(45deg, #e083eb, #e5475c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
+        }
+        .btn-tertiary {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+        }
+        .btn-tertiary:hover {
+            background: linear-gradient(45deg, #3f9cfe, #00e2ee);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+        }
+        .preview-section {
+            position: relative;
+            height: 450px;
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 25px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.1);
+        }
+        .danmu {
+            position: absolute;
+            white-space: nowrap;
+            color: white;
+            font-size: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            left: 100%;
+            animation: danmu-float 0.5s ease-out;
+        }
+        @keyframes danmu-float {
+            0% {
+                transform: translateY(10px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .controls .btn {
+            flex: 1;
+        }
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .speed-control input[type="range"] {
+            width: auto;
+            flex: 1;
+            height: 8px;
+            border-radius: 5px;
+            background: #e1e5e9;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .speed-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        .speed-control input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .speed-value {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.2em;
+            min-width: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">滚动弹幕生成器</h1>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="danmuText">弹幕内容：</label>
+                <textarea id="danmuText"placeholder="输入弹幕内容，每行一条弹幕"></textarea>
+            </div>
+            
+            <div class="input-group">
+                <label for="danmuColor">弹幕颜色：</label>
+                <select id="danmuColor">
+                    <option value="white">白色</option>
+                    <option value="red">红色</option>
+                    <option value="blue">蓝色</option>
+                    <option value="green">绿色</option>
+                    <option value="yellow">黄色</option>
+                    <option value="orange">橙色</option>
+                    <option value="purple">紫色</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label for="danmuSize">弹幕大小：</label>
+                <select id="danmuSize">
+                    <option value="16">小</option>
+                    <option value="20" selected>中</option>
+                    <option value="24">大</option>
+                    <option value="28">超大</option>
+                </select>
+            </div>
+            
+            <div class="input-group speed-control">
+                <label for="danmuSpeed">弹幕速度：</label>
+                <input type="range" id="danmuSpeed" min="1" max="10" value="5">
+                <span id="speedValue" class="speed-value">5</span>
+            </div>
+            
+            <div class="input-group">
+                <label for="danmuDirection">弹幕方向：</label>
+                <select id="danmuDirection">
+                    <option value="horizontal">水平（从右到左）</option>
+                    <option value="vertical">垂直（从下到上）</option>
+                    <option value="diagonal">对角线（从右下到左上）</option>
+                </select>
+            </div>
+            
+            <button id="sendDanmu" class="btn btn-primary">发送弹幕</button>
+            
+            <div class="controls">
+                <button id="clearDanmu" class="btn btn-secondary">清空弹幕</button>
+                <button id="clearInput" class="btn btn-secondary">清除内容</button>
+                <button id="pauseDanmu" class="btn btn-tertiary">暂停/继续</button>
+            </div>
+        </div>
+        
+        <div class="preview-section" id="previewSection">
+            <!-- 弹幕将在这里显示 -->
+        </div>
+    </div>
+
+    <script>
+        // 弹幕数组
+        let danmus = [];
+        let isPaused = false;
+        
+        // 获取DOM元素
+        const previewSection = document.getElementById('previewSection');
+        const danmuText = document.getElementById('danmuText');
+        const danmuColor = document.getElementById('danmuColor');
+        const danmuSize = document.getElementById('danmuSize');
+        const danmuSpeed = document.getElementById('danmuSpeed');
+        const speedValue = document.getElementById('speedValue');
+        
+        // 更新速度显示
+        danmuSpeed.addEventListener('input', function() {
+            speedValue.textContent = this.value;
+        });
+        
+        // 发送弹幕
+        document.getElementById('sendDanmu').addEventListener('click', function() {
+            const btn = this;
+            // 添加点击动画效果
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                btn.style.transform = '';
+            }, 150);
+            
+            const text = danmuText.value.trim();
+            if (text === '') {
+                alert('请输入弹幕内容');
+                // 添加输入框震动效果
+                danmuText.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    danmuText.style.animation = '';
+                }, 500);
+                return;
+            }
+            
+            // 按行分割弹幕内容
+            const lines = text.split('\n');
+            lines.forEach(line => {
+                if (line.trim() !== '') {
+                    createDanmu(line.trim());
+                }
+            });
+            
+            // 清空输入框
+            danmuText.value = '';
+        });
+        
+        // 创建弹幕
+        function createDanmu(text) {
+            const danmuEl = document.createElement('div');
+            danmuEl.className = 'danmu';
+            danmuEl.textContent = text;
+            
+            // 设置样式
+            danmuEl.style.color = danmuColor.value;
+            danmuEl.style.fontSize = danmuSize.value + 'px';
+            
+            // 为白色弹幕添加特殊效果
+            if (danmuColor.value === 'white') {
+                danmuEl.style.textShadow = '2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 255, 255, 0.5)';
+            } else {
+                // 为彩色弹幕添加发光效果
+                danmuEl.style.textShadow = `2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px ${danmuColor.value}`;
+            }
+            
+            // 随机位置，确保弹幕之间有一定的间距
+            const maxTries = 50; // 最大尝试次数
+            let top;
+            let validPosition = false;
+            
+            for (let i = 0; i < maxTries; i++) {
+                top = Math.random() * (previewSection.offsetHeight - 50);
+                
+                // 检查是否与其他弹幕重叠
+                validPosition = true;
+                for (const existingDanmu of danmus) {
+                    const existingTop = parseFloat(existingDanmu.element.style.top);
+                    if (Math.abs(top - existingTop) < 40) { // 40px 间距
+                        validPosition = false;
+                        break;
+                    }
+                }
+                
+                if (validPosition) break;
+            }
+            
+            // 如果没有找到合适的位置，还是随机放置
+            if (!validPosition) {
+                top = Math.random() * (previewSection.offsetHeight - 50);
+            }
+            
+            // 根据运动方向设置初始位置
+            const direction = document.getElementById('danmuDirection').value;
+            
+            switch (direction) {
+                case 'horizontal': // 水平运动（从右到左）
+                    danmuEl.style.top = top + 'px';
+                    // 设置初始位置在屏幕右侧外
+                    danmuEl.style.left = previewSection.offsetWidth + 'px';
+                    break;
+                    
+                case 'vertical': // 垂直运动（从下到上）
+                    // 设置初始位置在屏幕底部外
+                    danmuEl.style.top = previewSection.offsetHeight + 'px';
+                    // 随机水平位置
+                    const left = Math.random() * (previewSection.offsetWidth - 100);
+                    danmuEl.style.left = left + 'px';
+                    break;
+                    
+                case 'diagonal': // 对角线运动（从右下到左上）
+                    // 设置初始位置在屏幕右侧外
+                    danmuEl.style.left = previewSection.offsetWidth + 'px';
+                    // 设置初始位置在屏幕底部外
+                    danmuEl.style.top = previewSection.offsetHeight + 'px';
+                    break;
+            }
+            
+            // 添加随机旋转效果
+            const rotation = (Math.random() - 0.5) * 10; // -5° 到 5°
+            danmuEl.style.transform = `rotate(${rotation}deg)`;
+            
+            // 添加随机透明度
+            const opacity = 0.8 + Math.random() * 0.2; // 0.8 到 1.0
+            danmuEl.style.opacity = opacity;
+            
+            // 添加到预览区域
+            previewSection.appendChild(danmuEl);
+            
+            // 添加到弹幕数组
+            danmus.push({
+                element: danmuEl,
+                speed: parseInt(danmuSpeed.value),
+                direction: direction
+            });
+        }
+        
+        // 清空弹幕
+        document.getElementById('clearDanmu').addEventListener('click', function() {
+            const btn = this;
+            // 添加点击动画效果
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                btn.style.transform = '';
+            }, 150);
+            
+            // 移除所有弹幕元素并清空数组
+            for (let i = danmus.length - 1; i >= 0; i--) {
+                if (danmus[i].element && danmus[i].element.parentNode) {
+                    danmus[i].element.remove();                    
+                    danmus.splice(i, 1);
+                }
+            }
+        });
+        
+        // 清除弹幕输入框内容
+        document.getElementById('clearInput').addEventListener('click', function() {
+            const btn = this;
+            // 添加点击动画效果
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                btn.style.transform = '';
+            }, 150);
+            
+            // 清空输入框
+            danmuText.value = '';
+        });
+        
+        // 暂停/继续弹幕
+        document.getElementById('pauseDanmu').addEventListener('click', function() {
+            const btn = this;
+            // 添加点击动画效果
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                btn.style.transform = '';
+            }, 150);
+            
+            isPaused = !isPaused;
+            // 更新按钮文本
+            this.textContent = isPaused ? '继续弹幕' : '暂停弹幕';
+        });
+        
+        // 动画循环
+        function animate() {
+            if (!isPaused) {
+                // 使用普通for循环以便在需要时修改数组
+                for (let i = danmus.length - 1; i >= 0; i--) {
+                    const danmu = danmus[i];
+                    const el = danmu.element;
+                    const rect = el.getBoundingClientRect();
+                    
+                    // 根据运动方向移动弹幕
+                    switch (danmu.direction) {
+                        case 'horizontal': // 水平运动（从右到左）
+                            // 移动弹幕
+                            const currentLeft = parseFloat(el.style.left) || previewSection.offsetWidth;
+                            const newLeft = currentLeft - danmu.speed;
+                            el.style.left = newLeft + 'px';
+                            
+                            // 添加轻微的上下浮动效果
+                            const currentTopHorizontal = parseFloat(el.style.top) || 0;
+                            const timeHorizontal = Date.now() / 1000;
+                            const floatOffset = Math.sin(timeHorizontal * 2 + i) * 2; // 轻微的上下浮动
+                            el.style.top = (currentTopHorizontal + floatOffset * 0.1) + 'px';
+                            
+                            // 如果弹幕完全移出屏幕左侧，移除它
+                            if (newLeft < -rect.width) {
+                                // 添加淡出效果
+                                el.style.transition = 'opacity 0.5s ease-out';
+                                el.style.opacity = '0';
+                                
+                                // 延迟移除元素
+                                setTimeout(() => {
+                                    if (el.parentNode) {
+                                        el.remove();
+                                        danmus.splice(i, 1);
+                                    }
+                                }, 500);
+                            }
+                            break;
+                            
+                        case 'vertical': // 垂直运动（从下到上）
+                            // 移动弹幕
+                            const currentTop = parseFloat(el.style.top) || previewSection.offsetHeight;
+                            const newTop = currentTop - danmu.speed;
+                            el.style.top = newTop + 'px';
+                            
+                            // 如果弹幕完全移出屏幕上侧，移除它
+                            if (newTop < -rect.height) {
+                                // 添加淡出效果
+                                el.style.transition = 'opacity 0.5s ease-out';
+                                el.style.opacity = '0';
+                                
+                                // 延迟移除元素
+                                setTimeout(() => {
+                                    if (el.parentNode) {
+                                        el.remove();
+                                        danmus.splice(i, 1);
+                                    }
+                                }, 500);
+                            }
+                            break;
+                            
+                        case 'diagonal': // 对角线运动（从右下到左上）
+                            // 移动弹幕
+                            const currentLeftDiag = parseFloat(el.style.left) || previewSection.offsetWidth;
+                            const currentTopDiag = parseFloat(el.style.top) || previewSection.offsetHeight;
+                            const newLeftDiag = currentLeftDiag - danmu.speed;
+                            const newTopDiag = currentTopDiag - danmu.speed;
+                            el.style.left = newLeftDiag + 'px';
+                            el.style.top = newTopDiag + 'px';
+                            
+                            // 添加轻微的浮动效果（与旋转效果结合）
+                            const timeDiagonal = Date.now() / 1000;
+                            const floatOffsetX = Math.sin(timeDiagonal * 2 + i) * 1; // 轻微的水平浮动
+                            const floatOffsetY = Math.cos(timeDiagonal * 2 + i) * 1; // 轻微的垂直浮动
+                            const rotation = (Math.random() - 0.5) * 10; // -5° 到 5°
+                            el.style.transform = `rotate(${rotation}deg) translate(${floatOffsetX}px, ${floatOffsetY}px)`;
+                            
+                            // 如果弹幕完全移出屏幕左侧或上侧，移除它
+                            if (newLeftDiag < -rect.width || newTopDiag < -rect.height) {
+                                // 添加淡出效果
+                                el.style.transition = 'opacity 0.5s ease-out';
+                                el.style.opacity = '0';
+                                
+                                // 延迟移除元素
+                                setTimeout(() => {
+                                    if (el.parentNode) {
+                                        el.remove();
+                                        danmus.splice(i, 1);
+                                    }
+                                }, 500);
+                            }
+                            break;
+                    }
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // 启动动画
+        animate();
+        
+        // 添加示例弹幕
+        window.addEventListener('load', function() {
+            // 添加一些示例弹幕
+            const examples = [
+                '欢迎使用弹幕生成器！',
+                '这是一条示例弹幕',
+                '你可以自定义弹幕颜色和大小',
+                '调整速度滑块改变弹幕速度',
+                '试试输入多行文字发送多条弹幕'
+            ];
+            
+            // 添加容器动画效果
+            const container = document.querySelector('.container');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(20px)';
+            
+            // 渐入动画
+            setTimeout(() => {
+                container.style.transition = 'all 0.8s ease-out';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 100);
+            
+            examples.forEach((text, index) => {
+                setTimeout(() => {
+                    danmuText.value = text;
+                    document.getElementById('sendDanmu').click();
+                }, 1500 + 1000 * index);
+            });
+        });
+    </script>
+</body>
+</html>

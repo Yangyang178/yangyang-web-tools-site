@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>群论入门 - 基本概念与运算</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(45deg);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin-top: 40px;
+            margin-bottom: 25px;
+            font-size: 2rem;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        h2::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 8px;
+            height: 30px;
+            width: 8px;
+            background: linear-gradient(to bottom, #3498db, #2980b9);
+            border-radius: 4px;
+        }
+        
+        h3 {
+            color: #3498db;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .definition {
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            border-left: 5px solid #3498db;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 10px 10px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .definition:hover {
+            transform: translateY(-5px);
+        }
+        
+        .definition h3 {
+            color: #2980b9;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .definition h3 i {
+            margin-right: 10px;
+        }
+        
+        .example {
+            background: linear-gradient(to right, #e8f4fc, #d1ecf1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .example::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 10px;
+            height: 100%;
+            background: linear-gradient(to bottom, #3498db, #2980b9);
+        }
+        
+        .property {
+            background: linear-gradient(to right, #f0f8e8, #e6f7d9);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .property::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 10px;
+            height: 100%;
+            background: linear-gradient(to bottom, #2ecc71, #27ae60);
+        }
+        
+        .property h3 {
+            color: #27ae60;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .property h3 i {
+            margin-right: 10px;
+        }
+        
+        .operation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .operation-table th, .operation-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .operation-table th {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .operation-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .operation-table tr:hover {
+            background-color: #e8f4fc;
+            transition: background-color 0.3s ease;
+        }
+        
+        .interactive {
+            background: linear-gradient(135deg, #fff9e6, #fff3cd);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .interactive::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(45deg);
+        }
+        
+        .interactive h3 {
+            color: #d35400;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+        }
+        
+        .interactive h3 i {
+            margin-right: 10px;
+        }
+        
+        .calculator {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .calculator input, .calculator select, .calculator button {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .calculator input:focus, .calculator select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+        
+        .calculator button {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 25px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .calculator button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .calculator button:hover::before {
+            left: 100%;
+        }
+        
+        .calculator button:hover {
+            background: linear-gradient(135deg, #2980b9, #21618c);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(41, 128, 185, 0.4);
+        }
+        
+        .calculator button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(41, 128, 185, 0.3);
+        }
+        
+        .calculator button i {
+            margin-right: 8px;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            display: none;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .note {
+            font-style: italic;
+            color: #7f8c8d;
+            margin: 15px 0;
+            padding-left: 15px;
+            border-left: 3px solid #bdc3c7;
+        }
+        
+        .math {
+            font-family: 'Times New Roman', Times, serif;
+            font-style: italic;
+        }
+        
+        .highlight {
+            background-color: #fffacd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .tab-container {
+            margin: 30px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            overflow: hidden;
+            background: linear-gradient(to right, #f1f1f1, #e0e0e0);
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 15px 25px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            font-weight: 500;
+            color: #555;
+            position: relative;
+            border-radius: 10px 10px 0 0;
+            margin-right: 5px;
+            overflow: hidden;
+        }
+        
+        .tab button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .tab button::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, #3498db, #2980b9);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .tab button:hover {
+            color: #3498db;
+        }
+        
+        .tab button:hover::before {
+            opacity: 1;
+        }
+        
+        .tab button.active {
+            color: #3498db;
+            font-weight: 600;
+            background: white;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .tab button.active::after {
+            transform: scaleX(1);
+        }
+        
+        .tabcontent {
+            display: none;
+            padding: 25px;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            background-color: white;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        ul, ol {
+            padding-left: 25px;
+            margin: 15px 0;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+        }
+        
+        .footer {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            text-align: center;
+            padding: 25px;
+            margin-top: 40px;
+        }
+        
+        .footer p {
+            margin: 0;
+            opacity: 0.8;
+        }
+        
+        .icon-box {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .icon-box i {
+            font-size: 24px;
+            margin-right: 15px;
+            color: #3498db;
+        }
+        
+        .icon-box h3 {
+            margin: 0;
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        
+        .back-to-top::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .back-to-top.visible {
+            opacity: 1;
+        }
+        
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        
+        .back-to-top:hover::before {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .back-to-top:active {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 15px rgba(0,0,0,0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .calculator {
+                flex-direction: column;
+            }
+            
+            .calculator input, .calculator select, .calculator button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>群论入门</h1>
+            <div class="subtitle">基本概念与运算</div>
+        </header>
+        
+        <div class="content">
+            <h2>什么是群？</h2>
+            <div class="definition">
+                <div class="icon-box">
+                    <i class="fas fa-shapes"></i>
+                    <h3>群（Group）</h3>
+                </div>
+                <p>群是代数学中的一个基本概念，它是一个集合G，配上一个二元运算·，满足以下四个性质：</p>
+                <ol>
+                    <li><strong>封闭性（Closure）</strong>：对于所有a, b ∈ G，有a·b ∈ G</li>
+                    <li><strong>结合律（Associativity）</strong>：对于所有a, b, c ∈ G，有(a·b)·c = a·(b·c)</li>
+                    <li><strong>单位元（Identity Element）</strong>：存在一个元素e ∈ G，使得对于所有a ∈ G，有e·a = a·e = a</li>
+                    <li><strong>逆元（Inverse Element）</strong>：对于每个a ∈ G，存在一个元素b ∈ G，使得a·b = b·a = e</li>
+                </ol>
+            </div>
+        
+        <h2>群的例子</h2>
+            <div class="tab-container">
+                <div class="tab">
+                    <button class="tablinks active" onclick="openTab(event, 'integer-addition')"><i class="fas fa-plus"></i> 整数加法群</button>
+                    <button class="tablinks" onclick="openTab(event, 'nonzero-multiplication')"><i class="fas fa-times"></i> 非零实数乘法群</button>
+                    <button class="tablinks" onclick="openTab(event, 'symmetry-group')"><i class="fas fa-sync-alt"></i> 对称群</button>
+                    <button class="tablinks" onclick="openTab(event, 'modular-group')"><i class="fas fa-calculator"></i> 模n加法群</button>
+                </div>
+                
+                <div id="integer-addition" class="tabcontent" style="display: block;">
+                    <h3>整数加法群 (ℤ, +)</h3>
+                    <p>所有整数ℤ的集合，配上加法运算+，构成一个群：</p>
+                    <ul>
+                        <li><strong>封闭性</strong>：任意两个整数相加仍然是整数</li>
+                        <li><strong>结合律</strong>：(a + b) + c = a + (b + c)</li>
+                        <li><strong>单位元</strong>：0，因为 a + 0 = 0 + a = a</li>
+                        <li><strong>逆元</strong>：对于任意整数a，其逆元是-a，因为 a + (-a) = (-a) + a = 0</li>
+                    </ul>
+                    <div class="example">
+                        <div class="icon-box">
+                            <i class="fas fa-lightbulb"></i>
+                            <h3>示例</h3>
+                        </div>
+                        <p>在整数加法群中，3的逆元是-3，因为 3 + (-3) = 0</p>
+                    </div>
+                </div>
+                
+                <div id="nonzero-multiplication" class="tabcontent">
+                    <h3>非零实数乘法群 (ℝ\{0}, ×)</h3>
+                    <p>所有非零实数的集合，配上乘法运算×，构成一个群：</p>
+                    <ul>
+                        <li><strong>封闭性</strong>：任意两个非零实数相乘仍然是非零实数</li>
+                        <li><strong>结合律</strong>：(a × b) × c = a × (b × c)</li>
+                        <li><strong>单位元</strong>：1，因为 a × 1 = 1 × a = a</li>
+                        <li><strong>逆元</strong>：对于任意非零实数a，其逆元是1/a，因为 a × (1/a) = (1/a) × a = 1</li>
+                    </ul>
+                    <div class="example">
+                        <div class="icon-box">
+                            <i class="fas fa-lightbulb"></i>
+                            <h3>示例</h3>
+                        </div>
+                        <p>在非零实数乘法群中，5的逆元是1/5，因为 5 × (1/5) = 1</p>
+                    </div>
+                </div>
+                
+                <div id="symmetry-group" class="tabcontent">
+                    <h3>对称群 S₃</h3>
+                    <p>对称群S₃是由三个元素的所有排列组成的群，共有6个元素：</p>
+                    <ul>
+                        <li>e = (1)(2)(3) - 恒等排列</li>
+                        <li>a = (1 2)(3) - 交换1和2</li>
+                        <li>b = (1 3)(2) - 交换1和3</li>
+                        <li>c = (2 3)(1) - 交换2和3</li>
+                        <li>d = (1 2 3) - 循环排列1→2→3→1</li>
+                        <li>f = (1 3 2) - 循环排列1→3→2→1</li>
+                    </ul>
+                    <p>群的运算是排列的复合（先执行一个排列，再执行另一个排列）。</p>
+                    <div class="example">
+                        <div class="icon-box">
+                            <i class="fas fa-lightbulb"></i>
+                            <h3>示例</h3>
+                        </div>
+                        <p>在S₃中，a·d = b，因为先执行d(1→2→3→1)，再执行a(交换1和2)，结果是1→3→2→1，即f。</p>
+                    </div>
+                </div>
+                
+                <div id="modular-group" class="tabcontent">
+                    <h3>模n加法群 (ℤₙ, +ₙ)</h3>
+                    <p>模n加法群是由集合{0, 1, 2, ..., n-1}配上模n加法运算构成的群：</p>
+                    <ul>
+                        <li><strong>封闭性</strong>：对于任意a, b ∈ {0, 1, 2, ..., n-1}，(a + b) mod n ∈ {0, 1, 2, ..., n-1}</li>
+                        <li><strong>结合律</strong>：(a +ₙ b) +ₙ c = a +ₙ (b +ₙ c)</li>
+                        <li><strong>单位元</strong>：0，因为 a +ₙ 0 = 0 +ₙ a = a</li>
+                        <li><strong>逆元</strong>：对于任意元素a，其逆元是(n-a) mod n</li>
+                    </ul>
+                    <div class="example">
+                        <div class="icon-box">
+                            <i class="fas fa-lightbulb"></i>
+                            <h3>示例</h3>
+                        </div>
+                        <p>在模5加法群ℤ₅中，2的逆元是3，因为 (2 + 3) mod 5 = 5 mod 5 = 0</p>
+                    </div>
+                </div>
+            </div>
+        
+        <h2>群的基本性质</h2>
+            <div class="property">
+                <div class="icon-box">
+                    <i class="fas fa-certificate"></i>
+                    <h3>性质1：单位元的唯一性</h3>
+                </div>
+                <p>群G中的单位元e是唯一的。</p>
+                <p><strong>证明</strong>：假设e₁和e₂都是G的单位元，那么根据单位元的定义，有e₁·e₂ = e₁（因为e₂是单位元），同时e₁·e₂ = e₂（因为e₁是单位元）。因此，e₁ = e₂，即单位元是唯一的。</p>
+            </div>
+            
+            <div class="property">
+                <div class="icon-box">
+                    <i class="fas fa-certificate"></i>
+                    <h3>性质2：逆元的唯一性</h3>
+                </div>
+                <p>对于群G中的任意元素a，其逆元是唯一的。</p>
+                <p><strong>证明</strong>：假设b和c都是a的逆元，那么根据逆元的定义，有a·b = b·a = e和a·c = c·a = e。因此，b = b·e = b·(a·c) = (b·a)·c = e·c = c，即逆元是唯一的。</p>
+            </div>
+            
+            <div class="property">
+                <div class="icon-box">
+                    <i class="fas fa-certificate"></i>
+                    <h3>性质3：消去律</h3>
+                </div>
+                <p>对于群G中的任意元素a, b, c，如果a·b = a·c，则b = c（左消去律）；如果b·a = c·a，则b = c（右消去律）。</p>
+                <p><strong>证明</strong>：如果a·b = a·c，那么a⁻¹·(a·b) = a⁻¹·(a·c)，即(a⁻¹·a)·b = (a⁻¹·a)·c，即e·b = e·c，即b = c。类似地，可以证明右消去律。</p>
+            </div>
+            
+            <div class="property">
+                <div class="icon-box">
+                    <i class="fas fa-certificate"></i>
+                    <h3>性质4：方程的可解性</h3>
+                </div>
+                <p>对于群G中的任意元素a, b，方程a·x = b和y·a = b都有唯一解，分别是x = a⁻¹·b和y = b·a⁻¹。</p>
+                <p><strong>证明</strong>：将x = a⁻¹·b代入方程a·x = b，得到a·(a⁻¹·b) = (a·a⁻¹)·b = e·b = b，因此x = a⁻¹·b是方程的解。由消去律可知，这个解是唯一的。类似地，可以证明y = b·a⁻¹是方程y·a = b的唯一解。</p>
+            </div>
+        
+        <h2>群的运算表</h2>
+            <p>对于有限群，我们可以用运算表（也称为凯莱表）来表示群的运算。下面是一些群的运算表示例：</p>
+            
+            <div class="tab-container">
+                <div class="tab">
+                    <button class="tablinks active" onclick="openTab(event, 'klein-group')"><i class="fas fa-th"></i> 克莱因四元群</button>
+                    <button class="tablinks" onclick="openTab(event, 'cyclic-group-3')"><i class="fas fa-sync"></i> 3阶循环群</button>
+                    <button class="tablinks" onclick="openTab(event, 'modular-group-4')"><i class="fas fa-calculator"></i> 模4加法群</button>
+                </div>
+                
+                <div id="klein-group" class="tabcontent" style="display: block;">
+                    <h3>克莱因四元群 K₄</h3>
+                    <p>克莱因四元群是最小的非循环群，有4个元素：{e, a, b, c}，其中e是单位元。</p>
+                    <table class="operation-table">
+                        <tr>
+                            <th>·</th>
+                            <th>e</th>
+                            <th>a</th>
+                            <th>b</th>
+                            <th>c</th>
+                        </tr>
+                        <tr>
+                            <th>e</th>
+                            <td>e</td>
+                            <td>a</td>
+                            <td>b</td>
+                            <td>c</td>
+                        </tr>
+                        <tr>
+                            <th>a</th>
+                            <td>a</td>
+                            <td>e</td>
+                            <td>c</td>
+                            <td>b</td>
+                        </tr>
+                        <tr>
+                            <th>b</th>
+                            <td>b</td>
+                            <td>c</td>
+                            <td>e</td>
+                            <td>a</td>
+                        </tr>
+                        <tr>
+                            <th>c</th>
+                            <td>c</td>
+                            <td>b</td>
+                            <td>a</td>
+                            <td>e</td>
+                        </tr>
+                    </table>
+                    <p>从表中可以看出，每个元素都是其自身的逆元，即a² = b² = c² = e。</p>
+                </div>
+                
+                <div id="cyclic-group-3" class="tabcontent">
+                    <h3>3阶循环群 C₃</h3>
+                    <p>3阶循环群有3个元素：{e, a, a²}，其中e是单位元，a³ = e。</p>
+                    <table class="operation-table">
+                        <tr>
+                            <th>·</th>
+                            <th>e</th>
+                            <th>a</th>
+                            <th>a²</th>
+                        </tr>
+                        <tr>
+                            <th>e</th>
+                            <td>e</td>
+                            <td>a</td>
+                            <td>a²</td>
+                        </tr>
+                        <tr>
+                            <th>a</th>
+                            <td>a</td>
+                            <td>a²</td>
+                            <td>e</td>
+                        </tr>
+                        <tr>
+                            <th>a²</th>
+                            <td>a²</td>
+                            <td>e</td>
+                            <td>a</td>
+                        </tr>
+                    </table>
+                    <p>从表中可以看出，a的逆元是a²，a²的逆元是a，因为a·a² = a²·a = e。</p>
+                </div>
+                
+                <div id="modular-group-4" class="tabcontent">
+                    <h3>模4加法群 ℤ₄</h3>
+                    <p>模4加法群有4个元素：{0, 1, 2, 3}，运算是模4加法。</p>
+                    <table class="operation-table">
+                        <tr>
+                            <th>+₄</th>
+                            <th>0</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>3</th>
+                        </tr>
+                        <tr>
+                            <th>0</th>
+                            <td>0</td>
+                            <td>1</td>
+                            <td>2</td>
+                            <td>3</td>
+                        </tr>
+                        <tr>
+                            <th>1</th>
+                            <td>1</td>
+                            <td>2</td>
+                            <td>3</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <th>2</th>
+                            <td>2</td>
+                            <td>3</td>
+                            <td>0</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <th>3</th>
+                            <td>3</td>
+                            <td>0</td>
+                            <td>1</td>
+                            <td>2</td>
+                        </tr>
+                    </table>
+                    <p>从表中可以看出，1的逆元是3，2的逆元是2，3的逆元是1，因为：
+                    (1 + 3) mod 4 = 0, (2 + 2) mod 4 = 0, (3 + 1) mod 4 = 0。</p>
+                </div>
+            </div>
+        
+        <h2>交互式群运算计算器</h2>
+            <div class="icon-box">
+                <i class="fas fa-calculator"></i>
+                <h3>模n加法群计算器</h3>
+            </div>
+            <p>使用下面的计算器来探索模n加法群 ℤₙ 的运算性质：</p>
+            
+            <div class="calculator-container">
+                <div class="calculator-input">
+                    <label for="modulus">模数 n (2 ≤ n ≤ 20):</label>
+                    <input type="number" id="modulus" min="2" max="20" value="5">
+                    <button onclick="generateModularGroup()">生成群</button>
+                </div>
+                
+                <div class="calculator-input">
+                    <label for="element1">元素 a:</label>
+                    <input type="number" id="element1" min="0" max="19" value="1">
+                    <label for="element2">元素 b:</label>
+                    <input type="number" id="element2" min="0" max="19" value="2">
+                    <button onclick="calculateModularSum()">计算 a + b (mod n)</button>
+                </div>
+                
+                <div id="calculation-result" class="result-box">
+                    <p>结果: <span id="result">3</span></p>
+                    <p>逆元: a⁻¹ = <span id="inverse-a">4</span>, b⁻¹ = <span id="inverse-b">3</span></p>
+                </div>
+                
+                <div id="modular-group-table" class="operation-table-container">
+                    <h3>模5加法群 ℤ₅ 的运算表</h3>
+                    <table class="operation-table" id="modular-table">
+                        <!-- 表格将由JavaScript动态生成 -->
+                    </table>
+                </div>
+            </div>
+        
+        <h2>进阶概念</h2>
+            <div class="icon-box">
+                <i class="fas fa-graduation-cap"></i>
+                <h3>子群</h3>
+            </div>
+            <div class="content">
+                <p><strong>子群（Subgroup）</strong>：如果H是群G的一个非空子集，并且H在G的运算下也构成一个群，那么H称为G的子群，记作H ≤ G。</p>
+                <p>判断H是否是G的子群，可以使用以下子群判定准则：</p>
+                <ul>
+                    <li>H是非空子集</li>
+                    <li>对于任意a, b ∈ H，有a·b⁻¹ ∈ H</li>
+                </ul>
+                
+                <div class="example-box">
+                    <h4>子群的例子</h4>
+                    <p><strong>例1</strong>：在整数加法群(ℤ, +)中，所有偶数的集合2ℤ = {..., -4, -2, 0, 2, 4, ...}是一个子群。</p>
+                    <ul>
+                        <li>2ℤ是非空的（包含0）</li>
+                        <li>对于任意两个偶数a, b，a + (-b) = a - b也是偶数</li>
+                    </ul>
+                    <p><strong>例2</strong>：在模6加法群ℤ₆ = {0, 1, 2, 3, 4, 5}中，{0, 2, 4}是一个子群。</p>
+                    <ul>
+                        <li>{0, 2, 4}是非空的</li>
+                        <li>对于任意a, b ∈ {0, 2, 4}，(a + (6-b)) mod 6 ∈ {0, 2, 4}</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="icon-box">
+                <i class="fas fa-project-diagram"></i>
+                <h3>群的同构</h3>
+            </div>
+            <div class="content">
+                <p><strong>群的同构（Group Isomorphism）</strong>：如果两个群(G, ·)和(H, ∗)之间存在一个双射（一一对应）φ: G → H，使得对于所有a, b ∈ G，有φ(a·b) = φ(a) ∗ φ(b)，那么称G和H是同构的，记作G ≅ H。</p>
+                <p>同构的群具有相同的群结构，只是元素的表示和运算的符号可能不同。</p>
+                
+                <div class="example-box">
+                    <h4>同构的例子</h4>
+                    <p><strong>例1</strong>：模4加法群ℤ₄ = {0, 1, 2, 3}和4阶循环群C₄ = {e, a, a², a³}是同构的。同构映射φ可以定义为：φ(0) = e, φ(1) = a, φ(2) = a², φ(3) = a³。</p>
+                    <p><strong>例2</strong>：模2加法群ℤ₂ = {0, 1}和{1, -1}在乘法运算下构成的群是同构的。同构映射φ可以定义为：φ(0) = 1, φ(1) = -1。</p>
+                </div>
+            </div>
+            
+            <div class="icon-box">
+                <i class="fas fa-balance-scale"></i>
+                <h3>拉格朗日定理</h3>
+            </div>
+            <div class="content">
+                <p><strong>拉格朗日定理（Lagrange's Theorem）</strong>：如果G是有限群，H是G的子群，那么H的阶（元素个数）整除G的阶。</p>
+                <p><strong>推论</strong>：有限群G中任意元素的阶（该元素生成的子群的阶）整除G的阶。</p>
+                <p><strong>推论</strong>：任何素数阶的群都是循环群。</p>
+                
+                <div class="example-box">
+                    <h4>拉格朗日定理的应用</h4>
+                    <p><strong>例1</strong>：如果G是一个6阶群，那么G的子群的阶只能是1, 2, 3或6。</p>
+                    <p><strong>例2</strong>：如果G是一个5阶群（5是素数），那么G一定是循环群，且除了{e}和G本身外，没有其他子群。</p>
+                </div>
+            </div>
+            
+            <div class="icon-box">
+                <i class="fas fa-cubes"></i>
+                <h3>正规子群与商群</h3>
+            </div>
+            <div class="content">
+                <p>如果群G的子群N满足对于所有g ∈ G和n ∈ N，都有gng⁻¹ ∈ N，则N称为G的<strong>正规子群</strong>。对于正规子群N，我们可以构造<strong>商群</strong>G/N，其元素是N的陪集。</p>
+                <p><strong>例子</strong>：在整数加法群(ℤ, +)中，子集nℤ = {nk | k ∈ ℤ}（n的倍数集）是一个正规子群。商群ℤ/nℤ就是模n加法群ℤₙ。</p>
+            </div>
+        
+        <h2>总结</h2>
+            <div class="icon-box">
+                <i class="fas fa-bookmark"></i>
+                <h3>群论的应用</h3>
+            </div>
+            <div class="content">
+                <p>群论是研究对称性的数学工具，它有着广泛的应用，包括：</p>
+                <ul>
+                    <li><i class="fas fa-atom"></i> <strong>物理学</strong>：对称性和守恒定律</li>
+                    <li><i class="fas fa-flask"></i> <strong>化学</strong>：分子对称性</li>
+                    <li><i class="fas fa-laptop-code"></i> <strong>计算机科学</strong>：密码学和编码理论</li>
+                    <li><i class="fas fa-shapes"></i> <strong>几何学</strong>：对称变换</li>
+                    <li><i class="fas fa-sort-numeric-up"></i> <strong>数论</strong>：模运算</li>
+                </ul>
+                <p>通过学习群的基本概念和性质，我们可以更好地理解和应用对称性在各个领域中的作用。</p>
+            </div>
+            
+            <div class="icon-box">
+                <i class="fas fa-lightbulb"></i>
+                <h3>进一步学习</h3>
+            </div>
+            <div class="content">
+                <p>如果你对群论感兴趣，可以进一步学习以下内容：</p>
+                <ul>
+                    <li><strong>环与域</strong>：比群更复杂的代数结构</li>
+                    <li><strong>群表示论</strong>：用线性代数研究群</li>
+                    <li><strong>伽罗瓦理论</strong>：群论与方程求解的联系</li>
+                    <li><strong>拓扑群</strong>：具有拓扑结构的群</li>
+                    <li><strong>李群</strong>：连续变换群</li>
+                </ul>
+            </div>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        
+        function generateModularGroup() {
+            const modulus = parseInt(document.getElementById('modulus').value);
+            
+            // 更新元素输入的最大值
+            document.getElementById('element1').max = modulus - 1;
+            document.getElementById('element2').max = modulus - 1;
+            
+            // 生成运算表
+            generateModularTable(modulus);
+            
+            // 更新标题
+            document.querySelector('#modular-group-table h3').textContent = `模${modulus}加法群 ℤ${modulus} 的运算表`;
+        }
+        
+        function calculateModularSum() {
+            const modulus = parseInt(document.getElementById('modulus').value);
+            const element1 = parseInt(document.getElementById('element1').value);
+            const element2 = parseInt(document.getElementById('element2').value);
+            
+            // 验证输入
+            if (isNaN(element1) || isNaN(element2) || element1 < 0 || element2 < 0 || 
+                element1 >= modulus || element2 >= modulus) {
+                document.getElementById('result').textContent = "错误：请输入0到" + (modulus-1) + "之间的整数。";
+                document.getElementById('inverse-a').textContent = "-";
+                document.getElementById('inverse-b').textContent = "-";
+                return;
+            }
+            
+            // 计算模加法
+            const result = (element1 + element2) % modulus;
+            document.getElementById('result').textContent = result;
+            
+            // 计算逆元
+            const inverseA = (modulus - element1) % modulus;
+            const inverseB = (modulus - element2) % modulus;
+            document.getElementById('inverse-a').textContent = inverseA;
+            document.getElementById('inverse-b').textContent = inverseB;
+        }
+        
+        function generateModularTable(modulus) {
+            let tableHTML = `<tr><th>+${modulus}</th>`;
+            
+            // 生成表头
+            for (let i = 0; i < modulus; i++) {
+                tableHTML += `<th>${i}</th>`;
+            }
+            tableHTML += `</tr>`;
+            
+            // 生成表格内容
+            for (let i = 0; i < modulus; i++) {
+                tableHTML += `<tr><th>${i}</th>`;
+                for (let j = 0; j < modulus; j++) {
+                    const result = (i + j) % modulus;
+                    tableHTML += `<td>${result}</td>`;
+                }
+                tableHTML += `</tr>`;
+            }
+            
+            document.getElementById('modular-table').innerHTML = tableHTML;
+        }
+        
+        // 初始化
+        window.onload = function() {
+            generateModularGroup();
+            
+            // 添加滚动动画
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            // 观察所有需要动画的元素
+            document.querySelectorAll('.icon-box, .content, .example-box').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+        };
+    </script>
+</body>
+</html>

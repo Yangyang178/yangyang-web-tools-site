@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>响应式页面测试器 - 专业版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 0;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 背景动画粒子 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="90" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="1" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 2000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #43e97b 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .header h1 {
+            font-size: 3.2em;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        .header p {
+            opacity: 0.95;
+            font-size: 1.3em;
+            font-weight: 300;
+            position: relative;
+            z-index: 2;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            padding: 40px;
+            min-height: calc(100vh - 200px);
+        }
+
+        .controls-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            height: fit-content;
+            position: sticky;
+            top: 40px;
+        }
+
+        .control-section {
+            margin-bottom: 35px;
+        }
+
+        .control-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            border-radius: 2px;
+        }
+
+        .url-input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #4facfe;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: #94a3b8;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .clear-btn:hover {
+            background: #64748b;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .url-input:not(:placeholder-shown) + .clear-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .custom-size-inputs {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .size-input {
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .size-input:focus {
+            outline: none;
+            border-color: #4facfe;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .multiply-sign {
+            font-size: 18px;
+            font-weight: bold;
+            color: #64748b;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(108, 117, 125, 0.4);
+        }
+
+        .btn-rotate {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-rotate:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4);
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .device-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .device-grid::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+
+        .device-grid::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .device-grid::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .device-btn {
+            padding: 15px 10px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .device-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .device-btn:hover {
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.2);
+        }
+
+        .device-btn:hover::before {
+            opacity: 0.1;
+        }
+
+        .device-btn.active {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.3);
+        }
+
+        .device-name {
+            font-weight: 700;
+            margin-bottom: 6px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .device-size {
+            color: #64748b;
+            font-size: 11px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .device-btn.active .device-size {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .preview-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .preview-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .preview-title::before {
+            content: '📱';
+            font-size: 1.2em;
+        }
+
+        .preview-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 500px;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            position: relative;
+            overflow: auto;
+            cursor: grab;
+        }
+
+        .preview-area:active {
+            cursor: grabbing;
+        }
+
+        .preview-area::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .preview-area::-webkit-scrollbar-track {
+            background: rgba(241, 245, 249, 0.5);
+            border-radius: 4px;
+        }
+
+        .preview-area::-webkit-scrollbar-thumb {
+            background: rgba(203, 213, 225, 0.8);
+            border-radius: 4px;
+        }
+
+        .preview-area::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.9);
+        }
+
+        .preview-container {
+            min-width: 100%;
+            min-height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .slider-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .device-viewport {
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            background: white;
+        }
+
+        .device-content {
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .slider-controls {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slider-track {
+            width: 300px;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .slider-thumb {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            border-radius: 50%;
+            position: absolute;
+            top: -7px;
+            cursor: grab;
+            box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+        }
+
+        .slider-thumb:active {
+            cursor: grabbing;
+            transform: scale(1.2);
+        }
+
+        .slider-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .viewport-info {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+
+
+        .device-frame {
+            background: linear-gradient(145deg, #2d3748, #1a202c);
+            border-radius: 25px;
+            padding: 12px;
+            box-shadow: 
+                0 25px 50px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: all 0.5s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .device-frame.rotated {
+            transform: rotate(90deg);
+        }
+
+        .device-screen {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .device-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        .device-info {
+            position: absolute;
+            top: -45px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(0,0,0,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #64748b;
+            position: relative;
+            z-index: 2;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 25px;
+        }
+
+        .loading-text {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            color: #742a2a;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 1px solid #fc8181;
+            font-weight: 500;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .controls-panel {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .custom-size-inputs {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .multiply-sign {
+                display: none;
+            }
+            
+            .device-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+
+        /* 新增动画效果 */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-in {
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* 联系我们样式 */
+        .contact-section {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+
+        .contact-text {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+        }
+
+        .contact-text:hover {
+            color: #4facfe;
+            border-bottom-color: #4facfe;
+        }
+
+        /* 联系信息弹窗样式 */
+        .contact-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .contact-modal.show {
+            display: flex;
+        }
+
+        .contact-modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            animation: modalShow 0.3s ease-out forwards;
+            overflow: hidden;
+        }
+
+        @keyframes modalShow {
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .contact-modal-header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .contact-modal-header h3 {
+            margin: 0;
+            font-size: 1.4em;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .contact-info {
+            padding: 30px;
+        }
+
+        .contact-description {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .contact-description h4 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d3748;
+            margin: 0 0 10px 0;
+        }
+
+        .contact-description p {
+            font-size: 14px;
+            color: #64748b;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .contact-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .contact-item:hover {
+            background: #e2e8f0;
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.1);
+        }
+
+        .contact-icon {
+            font-size: 24px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .contact-details {
+            flex: 1;
+        }
+
+        .contact-label {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .contact-value {
+            font-size: 16px;
+            color: #2d3748;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .copy-btn.copied {
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .contact-text {
+                font-size: 12px;
+            }
+
+            .contact-modal-content {
+                width: 95%;
+                margin: 20px;
+            }
+
+            .contact-info {
+                padding: 20px;
+            }
+
+            .contact-item {
+                padding: 15px;
+                gap: 15px;
+            }
+
+            .contact-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 响应式页面测试器</h1>
+            <p>专业级网页响应式设计预览工具</p>
+        </div>
+
+        <div class="main-content">
+            <div class="controls-panel slide-in">
+                <div class="control-section">
+                    <div class="section-title">🌐 网页地址</div>
+                    <div class="url-input-group">
+                        <input type="url" class="url-input" id="url-input" 
+                               placeholder="输入要测试的网址..." 
+                               value="https://www.baidu.com">
+                        <button class="clear-btn" id="clear-btn" onclick="clearUrl()">×</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <div class="section-title">📐 自定义尺寸</div>
+                    <div class="custom-size-inputs">
+                        <input type="number" class="size-input" id="custom-width" 
+                               placeholder="宽度" min="200" max="2000" value="375">
+                        <span class="multiply-sign">×</span>
+                        <input type="number" class="size-input" id="custom-height" 
+                               placeholder="高度" min="200" max="2000" value="667">
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <div class="section-title">⚡ 操作控制</div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="loadPreview()">
+                            🔄 加载预览
+                        </button>
+                        <button class="btn btn-rotate" onclick="toggleRotation()">
+                            🔄 旋转设备
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetView()">
+                            ↩️ 重置视图
+                        </button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <div class="section-title">📱 设备预设</div>
+                    <div class="device-grid" id="device-grid">
+                        <!-- 设备按钮将通过JavaScript生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-panel fade-in">
+                <div class="preview-header">
+                    <div class="preview-title">实时预览</div>
+                </div>
+                <div class="preview-area" id="preview-area">
+                    <div class="preview-container">
+                        <div class="loading">
+                            <div class="loading-text">请输入网址并点击"加载预览"开始测试</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 联系我们区域 -->
+        <div class="contact-section">
+            <span class="contact-text" onclick="toggleContactInfo()">
+                联系我们
+            </span>
+        </div>
+
+        <!-- 联系信息弹窗 -->
+        <div class="contact-modal" id="contact-modal">
+            <div class="contact-modal-content">
+                <div class="contact-modal-header">
+                    <h3>📞 联系我们</h3>
+                    <button class="close-btn" onclick="closeContactInfo()">×</button>
+                </div>
+                <div class="contact-info">
+                    <div class="contact-description">
+                        <h4>向我们发送消息</h4>
+                        <p>如果您有任何问题或建议，请通过下面的邮箱或微信联系我们</p>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">📧</div>
+                        <div class="contact-details">
+                            <div class="contact-label">邮箱</div>
+                            <div class="contact-value">1990909398@qq.com</div>
+                        </div>
+                        <button class="copy-btn" onclick="copyToClipboard('1990909398@qq.com', this)">复制</button>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">💬</div>
+                        <div class="contact-details">
+                            <div class="contact-label">微信</div>
+                            <div class="contact-value">y8849112640</div>
+                        </div>
+                        <button class="copy-btn" onclick="copyToClipboard('y8849112640', this)">复制</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 设备预设数据
+        const devices = {
+            // iPhone 系列
+            'iPhone SE': { width: 375, height: 667, category: 'iPhone' },
+            'iPhone 12 Mini': { width: 375, height: 812, category: 'iPhone' },
+            'iPhone 12/13/14': { width: 390, height: 844, category: 'iPhone' },
+            'iPhone 12/13/14 Pro': { width: 393, height: 852, category: 'iPhone' },
+            'iPhone 14 Plus': { width: 428, height: 926, category: 'iPhone' },
+            'iPhone 14 Pro Max': { width: 430, height: 932, category: 'iPhone' },
+            'iPhone 15': { width: 393, height: 852, category: 'iPhone' },
+            'iPhone 15 Plus': { width: 430, height: 932, category: 'iPhone' },
+            'iPhone 15 Pro': { width: 393, height: 852, category: 'iPhone' },
+            'iPhone 15 Pro Max': { width: 430, height: 932, category: 'iPhone' },
+
+            // iPad 系列
+            'iPad Mini': { width: 768, height: 1024, category: 'iPad' },
+            'iPad': { width: 820, height: 1180, category: 'iPad' },
+            'iPad Air': { width: 820, height: 1180, category: 'iPad' },
+            'iPad Pro 11"': { width: 834, height: 1194, category: 'iPad' },
+            'iPad Pro 12.9"': { width: 1024, height: 1366, category: 'iPad' },
+
+            // Android 手机
+            'Galaxy S21': { width: 384, height: 854, category: 'Android' },
+            'Galaxy S22': { width: 384, height: 854, category: 'Android' },
+            'Galaxy S23': { width: 384, height: 854, category: 'Android' },
+            'Galaxy Note 20': { width: 412, height: 915, category: 'Android' },
+            'Pixel 6': { width: 412, height: 915, category: 'Android' },
+            'Pixel 7': { width: 412, height: 915, category: 'Android' },
+            'OnePlus 9': { width: 412, height: 919, category: 'Android' },
+            'Xiaomi 12': { width: 393, height: 851, category: 'Android' },
+
+            // Android 平板
+            'Galaxy Tab S8': { width: 753, height: 1037, category: 'Android Tablet' },
+            'Galaxy Tab A': { width: 768, height: 1024, category: 'Android Tablet' },
+
+            // 桌面设备
+            'MacBook Air': { width: 1280, height: 800, category: 'Desktop' },
+            'MacBook Pro 13"': { width: 1440, height: 900, category: 'Desktop' },
+            'MacBook Pro 16"': { width: 1728, height: 1117, category: 'Desktop' },
+            'iMac 24"': { width: 1920, height: 1080, category: 'Desktop' },
+            'Desktop HD': { width: 1366, height: 768, category: 'Desktop' },
+            'Desktop FHD': { width: 1920, height: 1080, category: 'Desktop' },
+            'Desktop 2K': { width: 2560, height: 1440, category: 'Desktop' },
+            'Desktop 4K': { width: 3840, height: 2160, category: 'Desktop' }
+        };
+
+        let currentDevice = null;
+        let isRotated = false;
+        const SCALE_FACTOR = 0.6; // 缩放系数，0.6表示缩小到60%
+
+        // 初始化设备网格
+        function initDeviceGrid() {
+            const grid = document.getElementById('device-grid');
+            
+            Object.entries(devices).forEach(([name, specs]) => {
+                const button = document.createElement('button');
+                button.className = 'device-btn';
+                button.onclick = () => selectDevice(name, specs);
+                
+                button.innerHTML = `
+                    <div class="device-name">${name}</div>
+                    <div class="device-size">${specs.width} × ${specs.height}</div>
+                `;
+                
+                grid.appendChild(button);
+            });
+        }
+
+        // 选择设备
+        function selectDevice(name, specs) {
+            // 移除之前的选中状态
+            document.querySelectorAll('.device-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 添加当前选中状态
+            event.target.closest('.device-btn').classList.add('active');
+            
+            currentDevice = { name, ...specs };
+            
+            // 更新自定义输入框
+            document.getElementById('custom-width').value = specs.width;
+            document.getElementById('custom-height').value = specs.height;
+            
+            // 如果已经有预览，立即更新
+            if (document.querySelector('.device-frame')) {
+                updateDeviceFrame();
+            }
+        }
+
+        // 加载预览
+        function loadPreview() {
+            const url = document.getElementById('url-input').value.trim();
+            
+            if (!url) {
+                showError('请输入有效的网址');
+                return;
+            }
+
+            // 确保URL有协议
+            const finalUrl = url.startsWith('http') ? url : 'https://' + url;
+            
+            const width = parseInt(document.getElementById('custom-width').value) || 375;
+            const height = parseInt(document.getElementById('custom-height').value) || 667;
+            
+            createDeviceFrame(finalUrl, width, height);
+        }
+
+        // 创建设备框架
+        function createDeviceFrame(url, width, height) {
+            const previewArea = document.getElementById('preview-area');
+            
+            // 显示加载状态
+            previewArea.innerHTML = `
+                <div class="preview-container">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text">正在加载页面...</div>
+                    </div>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                const actualWidth = isRotated ? height : width;
+                const actualHeight = isRotated ? width : height;
+                
+                // 应用缩放系数
+                const scaledWidth = Math.round(actualWidth * SCALE_FACTOR);
+                const scaledHeight = Math.round(actualHeight * SCALE_FACTOR);
+                
+                const deviceName = currentDevice ? currentDevice.name : `自定义 (${width}×${height})`;
+                
+                // 检查是否为大尺寸设备，需要滑块控制
+                const isLargeDevice = actualWidth >= 2560 || actualHeight >= 1440;
+                
+                if (isLargeDevice) {
+                    createSliderDevice(previewArea, url, deviceName, actualWidth, actualHeight, scaledWidth, scaledHeight);
+                } else {
+                    createNormalDevice(previewArea, url, deviceName, actualWidth, actualHeight, scaledWidth, scaledHeight);
+                }
+            }, 500);
+        }
+
+        // 创建普通设备显示
+        function createNormalDevice(previewArea, url, deviceName, actualWidth, actualHeight, scaledWidth, scaledHeight) {
+            previewArea.innerHTML = `
+                <div class="preview-container" style="min-width: ${scaledWidth + 100}px;">
+                    <div class="device-frame" id="device-frame">
+                        <div class="device-info">${deviceName} - ${actualWidth} × ${actualHeight}</div>
+                        <div class="device-screen" style="width: ${scaledWidth}px; height: ${scaledHeight}px;">
+                            <iframe class="device-iframe" src="${url}" 
+                                    onload="hideLoading()" 
+                                    onerror="showError('页面加载失败，请检查网址是否正确')">
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 创建带滑块的大设备显示
+        function createSliderDevice(previewArea, url, deviceName, actualWidth, actualHeight, scaledWidth, scaledHeight) {
+            // 计算视口尺寸（显示区域）
+            const viewportWidth = Math.min(scaledWidth, 800);
+            const viewportHeight = Math.min(scaledHeight, 600);
+            
+            previewArea.innerHTML = `
+                <div class="preview-container">
+                    <div class="slider-container">
+                        <div class="viewport-info">${deviceName} - ${actualWidth} × ${actualHeight}</div>
+                        <div class="device-viewport" style="width: ${viewportWidth}px; height: ${viewportHeight}px;">
+                            <div class="device-content" id="device-content" style="width: ${scaledWidth}px; height: ${scaledHeight}px;">
+                                <iframe class="device-iframe" src="${url}" 
+                                        onload="hideLoading()" 
+                                        onerror="showError('页面加载失败，请检查网址是否正确')"
+                                        style="width: ${scaledWidth}px; height: ${scaledHeight}px;">
+                                </iframe>
+                            </div>
+                        </div>
+                        <div class="slider-controls">
+                            <div class="slider-label">水平滑动</div>
+                            <div class="slider-track" id="horizontal-slider">
+                                <div class="slider-thumb" id="horizontal-thumb"></div>
+                            </div>
+                            <div class="slider-label">垂直滑动</div>
+                            <div class="slider-track" id="vertical-slider">
+                                <div class="slider-thumb" id="vertical-thumb"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 初始化滑块
+            initSliders(scaledWidth, scaledHeight, viewportWidth, viewportHeight);
+        }
+
+        // 初始化滑块功能
+        function initSliders(contentWidth, contentHeight, viewportWidth, viewportHeight) {
+            const deviceContent = document.getElementById('device-content');
+            const horizontalSlider = document.getElementById('horizontal-slider');
+            const verticalSlider = document.getElementById('vertical-slider');
+            const horizontalThumb = document.getElementById('horizontal-thumb');
+            const verticalThumb = document.getElementById('vertical-thumb');
+            
+            if (!deviceContent || !horizontalSlider || !verticalSlider) return;
+            
+            const maxHorizontalOffset = contentWidth - viewportWidth;
+            const maxVerticalOffset = contentHeight - viewportHeight;
+            
+            let currentX = 0;
+            let currentY = 0;
+            
+            // 水平滑块
+            let isDraggingH = false;
+            
+            horizontalThumb.addEventListener('mousedown', (e) => {
+                isDraggingH = true;
+                e.preventDefault();
+            });
+            
+            horizontalSlider.addEventListener('click', (e) => {
+                if (e.target === horizontalSlider) {
+                    const rect = horizontalSlider.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    const percentage = clickX / rect.width;
+                    updateHorizontalPosition(percentage);
+                }
+            });
+            
+            // 垂直滑块
+            let isDraggingV = false;
+            
+            verticalThumb.addEventListener('mousedown', (e) => {
+                isDraggingV = true;
+                e.preventDefault();
+            });
+            
+            verticalSlider.addEventListener('click', (e) => {
+                if (e.target === verticalSlider) {
+                    const rect = verticalSlider.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    const percentage = clickX / rect.width;
+                    updateVerticalPosition(percentage);
+                }
+            });
+            
+            // 鼠标移动和释放事件
+            document.addEventListener('mousemove', (e) => {
+                if (isDraggingH) {
+                    const rect = horizontalSlider.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const percentage = Math.max(0, Math.min(1, x / rect.width));
+                    updateHorizontalPosition(percentage);
+                }
+                
+                if (isDraggingV) {
+                    const rect = verticalSlider.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const percentage = Math.max(0, Math.min(1, x / rect.width));
+                    updateVerticalPosition(percentage);
+                }
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isDraggingH = false;
+                isDraggingV = false;
+            });
+            
+            function updateHorizontalPosition(percentage) {
+                currentX = -maxHorizontalOffset * percentage;
+                horizontalThumb.style.left = (percentage * (horizontalSlider.offsetWidth - 20)) + 'px';
+                updateContentPosition();
+            }
+            
+            function updateVerticalPosition(percentage) {
+                currentY = -maxVerticalOffset * percentage;
+                verticalThumb.style.left = (percentage * (verticalSlider.offsetWidth - 20)) + 'px';
+                updateContentPosition();
+            }
+            
+            function updateContentPosition() {
+                deviceContent.style.transform = `translate(${currentX}px, ${currentY}px)`;
+            }
+            
+            // 初始化滑块位置
+            horizontalThumb.style.left = '0px';
+            verticalThumb.style.left = '0px';
+        }
+
+        // 更新设备框架
+        function updateDeviceFrame() {
+            const width = parseInt(document.getElementById('custom-width').value) || 375;
+            const height = parseInt(document.getElementById('custom-height').value) || 667;
+            
+            const actualWidth = isRotated ? height : width;
+            const actualHeight = isRotated ? width : height;
+            
+            // 应用缩放系数
+            const scaledWidth = Math.round(actualWidth * SCALE_FACTOR);
+            const scaledHeight = Math.round(actualHeight * SCALE_FACTOR);
+            
+            const deviceName = currentDevice ? currentDevice.name : `自定义 (${width}×${height})`;
+            
+            // 检查是否为滑块模式
+            const sliderContainer = document.querySelector('.slider-container');
+            const frame = document.getElementById('device-frame');
+            
+            if (sliderContainer) {
+                // 滑块模式更新
+                const viewportInfo = document.querySelector('.viewport-info');
+                const deviceViewport = document.querySelector('.device-viewport');
+                const deviceContent = document.getElementById('device-content');
+                const iframe = deviceContent?.querySelector('.device-iframe');
+                
+                if (viewportInfo) {
+                    viewportInfo.textContent = `${deviceName} - ${actualWidth} × ${actualHeight}`;
+                }
+                
+                if (deviceContent && iframe) {
+                    deviceContent.style.width = scaledWidth + 'px';
+                    deviceContent.style.height = scaledHeight + 'px';
+                    iframe.style.width = scaledWidth + 'px';
+                    iframe.style.height = scaledHeight + 'px';
+                    
+                    // 重新初始化滑块
+                    const viewportWidth = deviceViewport ? deviceViewport.offsetWidth : 800;
+                    const viewportHeight = deviceViewport ? deviceViewport.offsetHeight : 600;
+                    initSliders(scaledWidth, scaledHeight, viewportWidth, viewportHeight);
+                }
+            } else if (frame) {
+                // 普通模式更新
+                const screen = frame.querySelector('.device-screen');
+                const info = frame.querySelector('.device-info');
+                const container = frame.closest('.preview-container');
+                
+                if (screen && info) {
+                    screen.style.width = scaledWidth + 'px';
+                    screen.style.height = scaledHeight + 'px';
+                    info.textContent = `${deviceName} - ${actualWidth} × ${actualHeight}`;
+                }
+                
+                // 更新容器尺寸以支持滚动
+                if (container) {
+                    container.style.minWidth = (scaledWidth + 100) + 'px';
+                    container.style.minHeight = (scaledHeight + 100) + 'px';
+                }
+            }
+        }
+
+        // 切换旋转
+        function toggleRotation() {
+            const frame = document.getElementById('device-frame');
+            if (!frame) {
+                showError('请先加载页面预览');
+                return;
+            }
+            
+            isRotated = !isRotated;
+            frame.classList.toggle('rotated', isRotated);
+            updateDeviceFrame();
+        }
+
+        // 重置视图
+        function resetView() {
+            const previewArea = document.getElementById('preview-area');
+            previewArea.innerHTML = `
+                <div class="preview-container">
+                    <div class="loading">
+                        <div class="loading-text">请输入网址并点击"加载预览"开始测试</div>
+                    </div>
+                </div>
+            `;
+            
+            // 重置状态
+            currentDevice = null;
+            isRotated = false;
+            
+            // 清除设备选中状态
+            document.querySelectorAll('.device-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 重置输入框
+            document.getElementById('custom-width').value = '375';
+            document.getElementById('custom-height').value = '667';
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            const previewArea = document.getElementById('preview-area');
+            previewArea.innerHTML = `
+                <div class="preview-container">
+                    <div class="error-message">
+                        <strong>错误：</strong> ${message}
+                    </div>
+                </div>
+            `;
+        }
+
+        // 隐藏加载状态
+        function hideLoading() {
+            // iframe加载完成后的处理
+            console.log('页面加载完成');
+        }
+
+        // 监听自定义尺寸输入变化
+        document.getElementById('custom-width').addEventListener('input', () => {
+            if (document.querySelector('.device-frame')) {
+                updateDeviceFrame();
+            }
+        });
+
+        document.getElementById('custom-height').addEventListener('input', () => {
+            if (document.querySelector('.device-frame')) {
+                updateDeviceFrame();
+            }
+        });
+
+        // 清除网址
+        function clearUrl() {
+            const urlInput = document.getElementById('url-input');
+            urlInput.value = '';
+            urlInput.focus();
+        }
+
+        // 监听回车键
+        document.getElementById('url-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                loadPreview();
+            }
+        });
+
+        // 监听输入变化，控制清除按钮显示
+        document.getElementById('url-input').addEventListener('input', (e) => {
+            const clearBtn = document.getElementById('clear-btn');
+            if (e.target.value.trim()) {
+                clearBtn.style.opacity = '1';
+                clearBtn.style.pointerEvents = 'auto';
+            } else {
+                clearBtn.style.opacity = '0';
+                clearBtn.style.pointerEvents = 'none';
+            }
+        });
+
+        // 拖拽滑动功能
+        function initDragScroll() {
+            const previewArea = document.getElementById('preview-area');
+            let isDown = false;
+            let startX;
+            let startY;
+            let scrollLeft;
+            let scrollTop;
+
+            previewArea.addEventListener('mousedown', (e) => {
+                isDown = true;
+                previewArea.style.cursor = 'grabbing';
+                startX = e.pageX - previewArea.offsetLeft;
+                startY = e.pageY - previewArea.offsetTop;
+                scrollLeft = previewArea.scrollLeft;
+                scrollTop = previewArea.scrollTop;
+            });
+
+            previewArea.addEventListener('mouseleave', () => {
+                isDown = false;
+                previewArea.style.cursor = 'grab';
+            });
+
+            previewArea.addEventListener('mouseup', () => {
+                isDown = false;
+                previewArea.style.cursor = 'grab';
+            });
+
+            previewArea.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - previewArea.offsetLeft;
+                const y = e.pageY - previewArea.offsetTop;
+                const walkX = (x - startX) * 1.5;
+                const walkY = (y - startY) * 1.5;
+                previewArea.scrollLeft = scrollLeft - walkX;
+                previewArea.scrollTop = scrollTop - walkY;
+            });
+
+            // 触摸设备支持
+            previewArea.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                startX = touch.pageX - previewArea.offsetLeft;
+                startY = touch.pageY - previewArea.offsetTop;
+                scrollLeft = previewArea.scrollLeft;
+                scrollTop = previewArea.scrollTop;
+            });
+
+            previewArea.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const x = touch.pageX - previewArea.offsetLeft;
+                const y = touch.pageY - previewArea.offsetTop;
+                const walkX = (x - startX) * 1.5;
+                const walkY = (y - startY) * 1.5;
+                previewArea.scrollLeft = scrollLeft - walkX;
+                previewArea.scrollTop = scrollTop - walkY;
+            });
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initDeviceGrid();
+            initDragScroll();
+        });
+
+        // 联系我们功能
+        function toggleContactInfo() {
+            const modal = document.getElementById('contact-modal');
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeContactInfo() {
+            const modal = document.getElementById('contact-modal');
+            modal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 复制到剪贴板功能
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '已复制';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('复制失败:', err);
+                // 降级方案
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    const originalText = button.textContent;
+                    button.textContent = '已复制';
+                    button.classList.add('copied');
+                    
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.classList.remove('copied');
+                    }, 2000);
+                } catch (err) {
+                    console.error('降级复制也失败:', err);
+                }
+                document.body.removeChild(textArea);
+            });
+        }
+
+        // 点击弹窗外部关闭
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('contact-modal');
+            if (e.target === modal) {
+                closeContactInfo();
+            }
+        });
+
+        // ESC键关闭弹窗
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('contact-modal');
+                if (modal.classList.contains('show')) {
+                    closeContactInfo();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
