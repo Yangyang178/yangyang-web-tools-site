@@ -5,6 +5,8 @@ let aiTools = [];
 let favorites = JSON.parse(localStorage.getItem('toolFavorites') || '[]');
 let featuredSelected = JSON.parse(localStorage.getItem('featuredTools') || '[]');
 let featuredDisabled = JSON.parse(localStorage.getItem('featuredToolsDisabled') || '[]');
+let uploadedToolsData = [];
+let pendingDeleteId = null;
 
 // 工具数据（直接嵌入，避免fetch加载问题）
 let toolsData = [
@@ -407,6 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeTheme();
     initializeSidebarState();
     checkScrollPosition();
+    initializeUploadUI();
 });
 
 // 加载工具数据
@@ -416,7 +419,8 @@ function loadToolsData() {
         aiTools = [];
         
         // 合并所有工具
-        let allTools = [...toolsData, ...aiTools];
+        uploadedToolsData = buildUploadedTools();
+        let allTools = [...toolsData, ...aiTools, ...uploadedToolsData];
         
         // 去重逻辑：基于localPath去重，优先保留中文版本
         const uniqueTools = [];
@@ -525,6 +529,25 @@ function loadToolsData() {
     }
 }
 
+function buildUploadedTools() {
+    try {
+        const metas = JSON.parse(localStorage.getItem('uploadedTools') || '[]');
+        if (!Array.isArray(metas)) return [];
+        return metas.map(m => ({
+            id: m.id,
+            name: m.name,
+            description: m.description,
+            category: m.category || 'utility',
+            tags: Array.isArray(m.tags) ? m.tags : [],
+            localPath: 'uploaded:' + m.id,
+            isOriginal: false,
+            featured: false,
+            source: 'uploaded',
+            dateAdded: m.dateAdded || new Date().toISOString().slice(0,10)
+        }));
+    } catch (e) { return []; }
+}
+
 // 渲染工具卡片
 function renderTools(toolsToRender = null) {
     console.log('renderTools called with:', toolsToRender ? toolsToRender.length : 'default tools'); // 调试日志
@@ -572,6 +595,9 @@ function renderTools(toolsToRender = null) {
 function createToolCard(tool) {
     const card = document.createElement('div');
     card.className = 'tool-card';
+    if (tool.source === 'uploaded') {
+        card.classList.add('uploaded-card');
+    }
     card.setAttribute('data-category', tool.category || 'utility');
     
     const icon = tool.icon || getDefaultIcon(tool.category);
@@ -608,9 +634,10 @@ function createToolCard(tool) {
             </div>
         </div>
         
-        <div class="tool-card-footer">
-            
-            <button class="tool-action-btn" onclick="openTool('${tool.localPath || '#'}', '${tool.name}')">
+        <div class="tool-card-footer tool-actions-row">
+            ${tool.source === 'uploaded' ? `<button class="tool-action-btn small" onclick="openEditUploaded('${tool.id}')"><span>编辑</span></button>` : ''}
+            ${tool.source === 'uploaded' ? `<button class="tool-action-btn small" onclick="requestDeleteUploaded('${tool.id}')"><span>删除</span></button>` : ''}
+            <button class="tool-action-btn small use-btn" onclick="openTool('${tool.localPath || '#'}', '${tool.name}')">
                 <span>使用工具</span>
                 <svg class="tool-action-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -815,7 +842,7 @@ function handleSort(e) {
 
 // 应用筛选和排序
 function applyFilters() {
-    let filteredTools = [...toolsData, ...aiTools];
+    let filteredTools = [...toolsData, ...aiTools, ...uploadedToolsData];
     
     // 分类筛选
     if (currentCategory !== 'all') {
@@ -1139,7 +1166,142 @@ function getToolById(id) {
     for (let i = 0; i < all.length; i++) {
         if (all[i].id === id) return all[i];
     }
+    const up = uploadedToolsData.find(t => t.id === id);
+    if (up) return up;
     return null;
+}
+
+function initializeUploadUI() {
+    const btn = document.getElementById('uploadPageBtn');
+    const modal = document.getElementById('uploadModal');
+    const closeBtn = document.getElementById('uploadClose');
+    const saveBtn = document.getElementById('uploadSave');
+    const fileInput = document.getElementById('upFile');
+    const drop = document.getElementById('upDrop');
+    const fileName = document.getElementById('upFileName');
+    if (btn) btn.addEventListener('click', () => { modal.style.display = 'flex'; clearUploadForm(); });
+    if (closeBtn) closeBtn.addEventListener('click', () => { modal.style.display = 'none'; clearUploadForm(); });
+    if (saveBtn) saveBtn.addEventListener('click', handleUploadSave);
+    if (drop) {
+        drop.addEventListener('click', () => { if (fileInput) fileInput.click(); });
+        drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.style.borderColor = '#6366f1'; });
+        drop.addEventListener('dragleave', () => { drop.style.borderColor = '#cbd5e1'; });
+        drop.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (fileInput && e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+                fileInput.files = e.dataTransfer.files;
+                updateUploadFileUI(fileInput, fileName, drop);
+            }
+        });
+    }
+    if (fileInput) fileInput.addEventListener('change', () => updateUploadFileUI(fileInput, fileName, drop));
+    bindConfirmDelete();
+}
+
+function clearUploadForm() {
+    const ids = ['upId','upMode','upName','upDesc','upCategory','upTags','upFile'];
+    ids.forEach(id => { const el = document.getElementById(id); if (el) { if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.value = ''; } });
+    const fileName = document.getElementById('upFileName');
+    const drop = document.getElementById('upDrop');
+    const err = document.getElementById('upError');
+    if (fileName) fileName.textContent = '点击此区域选择文件或拖拽HTML文件到此';
+    if (drop) drop.style.borderColor = '#cbd5e1';
+    if (err) err.style.display = 'none';
+}
+
+function handleUploadSave() {
+    const idInput = document.getElementById('upId');
+    const modeInput = document.getElementById('upMode');
+    const nameInput = document.getElementById('upName');
+    const descInput = document.getElementById('upDesc');
+    const catInput = document.getElementById('upCategory');
+    const tagsInput = document.getElementById('upTags');
+    const fileInput = document.getElementById('upFile');
+    const modal = document.getElementById('uploadModal');
+    const mode = (modeInput && modeInput.value) || '';
+    const err = document.getElementById('upError');
+    const baseMeta = {
+        id: (idInput && idInput.value) || ('up-' + Date.now()),
+        name: nameInput ? nameInput.value.trim() : '',
+        description: descInput ? descInput.value.trim() : '',
+        category: catInput ? catInput.value : 'utility',
+        tags: tagsInput ? tagsInput.value.split(',').map(t => t.trim()).filter(Boolean) : [],
+        dateAdded: new Date().toISOString().slice(0,10)
+    };
+    // 校验：名称、介绍、分类、文件（新建必须有文件）
+    const needFile = mode !== 'edit';
+    const valid = (!!baseMeta.name && !!baseMeta.description && !!baseMeta.category && (!needFile ? true : (fileInput && fileInput.files && fileInput.files[0])));
+    if (!valid) {
+        if (err) err.style.display = 'block';
+        return;
+    }
+    const metas = JSON.parse(localStorage.getItem('uploadedTools') || '[]');
+    const readerDone = (html) => {
+        localStorage.setItem('uploadedToolContent:' + baseMeta.id, html || '');
+        const idx = metas.findIndex(m => m.id === baseMeta.id);
+        if (idx > -1) metas[idx] = baseMeta; else metas.push(baseMeta);
+        localStorage.setItem('uploadedTools', JSON.stringify(metas));
+        uploadedToolsData = buildUploadedTools();
+        applyFilters();
+        if (modal) modal.style.display = 'none';
+        clearUploadForm();
+    };
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = () => readerDone(String(reader.result || ''));
+        reader.readAsText(fileInput.files[0]);
+    } else {
+        const existing = localStorage.getItem('uploadedToolContent:' + baseMeta.id) || '';
+        readerDone(existing);
+    }
+}
+
+function updateUploadFileUI(fileInput, fileNameEl, dropEl) {
+    if (!fileInput) return;
+    const f = fileInput.files && fileInput.files[0];
+    if (f && fileNameEl) fileNameEl.textContent = f.name;
+    if (dropEl) dropEl.style.borderColor = '#6366f1';
+    const err = document.getElementById('upError');
+    if (err) err.style.display = 'none';
+}
+
+function openEditUploaded(id) {
+    const metas = JSON.parse(localStorage.getItem('uploadedTools') || '[]');
+    const meta = metas.find(m => m.id === id);
+    const modal = document.getElementById('uploadModal');
+    if (!meta || !modal) return;
+    document.getElementById('upId').value = meta.id;
+    document.getElementById('upMode').value = 'edit';
+    document.getElementById('upName').value = meta.name || '';
+    document.getElementById('upDesc').value = meta.description || '';
+    document.getElementById('upCategory').value = meta.category || 'utility';
+    document.getElementById('upTags').value = (Array.isArray(meta.tags) ? meta.tags.join(',') : '');
+    modal.style.display = 'flex';
+}
+
+function requestDeleteUploaded(id) {
+    pendingDeleteId = id;
+    const m = document.getElementById('confirmDeleteModal');
+    if (m) m.style.display = 'flex';
+}
+
+function bindConfirmDelete() {
+    const m = document.getElementById('confirmDeleteModal');
+    const yes = document.getElementById('confirmDeleteYes');
+    const no = document.getElementById('confirmDeleteNo');
+    if (yes) yes.addEventListener('click', () => {
+        if (!pendingDeleteId) { if (m) m.style.display = 'none'; return; }
+        const metas = JSON.parse(localStorage.getItem('uploadedTools') || '[]');
+        const idx = metas.findIndex(mm => mm.id === pendingDeleteId);
+        if (idx > -1) metas.splice(idx,1);
+        localStorage.setItem('uploadedTools', JSON.stringify(metas));
+        localStorage.removeItem('uploadedToolContent:' + pendingDeleteId);
+        uploadedToolsData = buildUploadedTools();
+        applyFilters();
+        pendingDeleteId = null;
+        if (m) m.style.display = 'none';
+    });
+    if (no) no.addEventListener('click', () => { pendingDeleteId = null; if (m) m.style.display = 'none'; });
 }
 
 function getFavoriteTools() {

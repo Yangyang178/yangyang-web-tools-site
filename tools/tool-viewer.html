@@ -88,8 +88,21 @@
     let rawPath = qs.get('path') || '';
     if (rawPath.startsWith('/')) rawPath = rawPath.slice(1);
     const isFileProto = location.protocol === 'file:';
-    const safeUrl = isFileProto ? rawPath.replace(/^tools\//, '') : '/' + rawPath;
-    const encodedUrl = encodeURI(safeUrl);
+    let safeUrl = '';
+    let encodedUrl = '';
+    let isSpecial = false;
+    if (rawPath.startsWith('uploaded:')) {
+      const id = rawPath.split(':')[1];
+      const content = localStorage.getItem('uploadedToolContent:' + id) || '';
+      const blob = new Blob([content], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      safeUrl = url;
+      encodedUrl = url;
+      isSpecial = true;
+    } else {
+      safeUrl = isFileProto ? rawPath.replace(/^tools\//, '') : '/' + rawPath;
+      encodedUrl = encodeURI(safeUrl);
+    }
     const frame = document.getElementById('toolFrame');
     const overlay = document.getElementById('overlay');
     const loading = document.getElementById('loading');
@@ -197,7 +210,7 @@
     function loadFrame() {
       overlay.style.display = 'none';
       loading.style.display = 'flex';
-      if (isFileProto) {
+      if (isFileProto || isSpecial || encodedUrl.startsWith('blob:') || encodedUrl.startsWith('data:')) {
         frame.src = encodedUrl;
         return;
       }
@@ -235,9 +248,7 @@
       }
     });
 
-    openDirectBtn.addEventListener('click', () => {
-      window.open(encodedUrl, '_blank');
-    });
+    openDirectBtn.addEventListener('click', () => { window.open(encodedUrl, '_blank'); });
     tryAgainBtn.addEventListener('click', () => loadFrame());
     reloadBtn.addEventListener('click', () => {
       frame.contentWindow ? frame.contentWindow.location.reload() : loadFrame();
