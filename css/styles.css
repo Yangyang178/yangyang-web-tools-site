@@ -818,6 +818,9 @@ body {
   overflow: hidden;
   height: auto;
   min-height: 200px;
+  will-change: transform, box-shadow;
+  content-visibility: auto;
+  contain-intrinsic-size: 300px;
 }
 .tool-card-header {
   padding: 1rem;

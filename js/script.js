@@ -8,6 +8,8 @@ let featuredDisabled = JSON.parse(localStorage.getItem('featuredToolsDisabled') 
 let uploadedToolsData = [];
 let upSelectedFile = null;
 let upSaving = false;
+let scrollScheduled = false;
+function debounce(fn, delay) { let t = 0; return function(...args){ clearTimeout(t); t = setTimeout(()=>fn.apply(this,args), delay); }; }
 let pendingDeleteId = null;
 
 // 工具数据（直接嵌入，避免fetch加载问题）
@@ -561,8 +563,10 @@ function renderTools(toolsToRender = null) {
         return;
     }
     
-    // 使用传入的工具列表或默认的currentTools
-    const toolsToShow = toolsToRender || currentTools;
+    // 使用传入的工具列表或默认的currentTools（仅渲染当前页之前的数量）
+    const base = toolsToRender || currentTools;
+    const end = Math.min(base.length, currentPage * toolsPerPage);
+    const toolsToShow = base.slice(0, end);
     
     // 如果没有工具，显示空状态
     if (toolsToShow.length === 0) {
@@ -582,14 +586,10 @@ function renderTools(toolsToRender = null) {
         return;
     }
     
-    // 清空现有内容
     targetGrid.innerHTML = '';
-    
-    // 渲染工具卡片
-    toolsToShow.forEach((tool, index) => {
-        const toolCard = createToolCard(tool);
-        targetGrid.appendChild(toolCard);
-    });
+    const frag = document.createDocumentFragment();
+    toolsToShow.forEach((tool) => { frag.appendChild(createToolCard(tool)); });
+    targetGrid.appendChild(frag);
     
     console.log('Rendered', toolsToShow.length, 'tools'); // 调试日志
 }
@@ -740,7 +740,8 @@ function updateLoadMoreButton() {
 function initializeEventListeners() {
     // 搜索功能
     if (searchInput) {
-        searchInput.addEventListener('input', handleSearch);
+        const debouncedSearch = debounce(handleSearch, 250);
+        searchInput.addEventListener('input', debouncedSearch);
     }
     
     // 分类筛选
@@ -784,7 +785,11 @@ function initializeEventListeners() {
     }
     
     // 滚动监听
-    window.addEventListener('scroll', checkScrollPosition);
+    window.addEventListener('scroll', function(){
+        if (scrollScheduled) return;
+        scrollScheduled = true;
+        requestAnimationFrame(function(){ scrollScheduled = false; checkScrollPosition(); });
+    }, { passive: true });
 
     const logStartInput = document.getElementById('logStart');
     const logEndInput = document.getElementById('logEnd');
@@ -891,7 +896,6 @@ function applyFilters() {
     currentPage = 1;
     renderTools();
     updateLoadMoreButton();
-    updateCategoryCounts();
 }
 
 // 加载更多工具
@@ -1261,6 +1265,7 @@ function handleUploadSave() {
         localStorage.setItem('uploadedTools', JSON.stringify(metas));
         uploadedToolsData = buildUploadedTools();
         applyFilters();
+        updateCategoryCounts();
         if (modal) modal.style.display = 'none';
         clearUploadForm();
         upSaving = false;
@@ -1319,6 +1324,7 @@ function bindConfirmDelete() {
         localStorage.removeItem('uploadedToolContent:' + pendingDeleteId);
         uploadedToolsData = buildUploadedTools();
         applyFilters();
+        updateCategoryCounts();
         pendingDeleteId = null;
         if (m) m.style.display = 'none';
     });
@@ -1605,11 +1611,7 @@ function updateCategoryCounts() {
             const cat = link.dataset.category || 'all';
             const n = counts[cat] || 0;
             let badge = link.querySelector('.category-count');
-            if (!badge) {
-                badge = document.createElement('span');
-                badge.className = 'category-count';
-                link.appendChild(badge);
-            }
+            if (!badge) { badge = document.createElement('span'); badge.className = 'category-count'; link.appendChild(badge); }
             badge.textContent = String(n);
         });
     } catch (_) {}
