@@ -722,6 +722,16 @@ function openTool(path, name) {
     }
 }
 
+function openContact() {
+    const m = document.getElementById('contactModal');
+    if (m) m.style.display = 'flex';
+}
+
+function closeContact() {
+    const m = document.getElementById('contactModal');
+    if (m) m.style.display = 'none';
+}
+
 // 更新加载更多按钮
 function updateLoadMoreButton() {
     if (!loadMoreBtn) return;
