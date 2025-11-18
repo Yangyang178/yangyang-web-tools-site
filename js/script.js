@@ -6,6 +6,8 @@ let favorites = JSON.parse(localStorage.getItem('toolFavorites') || '[]');
 let featuredSelected = JSON.parse(localStorage.getItem('featuredTools') || '[]');
 let featuredDisabled = JSON.parse(localStorage.getItem('featuredToolsDisabled') || '[]');
 let uploadedToolsData = [];
+let upSelectedFile = null;
+let upSaving = false;
 let pendingDeleteId = null;
 
 // 工具数据（直接嵌入，避免fetch加载问题）
@@ -504,6 +506,7 @@ function loadToolsData() {
         
         // 默认排序为最新发布，加载时自动应用筛选与排序
         applyFilters();
+        updateCategoryCounts();
         
         console.log('工具数据加载成功，原始工具数:', allTools.length, '去重后工具数:', currentTools.length);
         
@@ -888,6 +891,7 @@ function applyFilters() {
     currentPage = 1;
     renderTools();
     updateLoadMoreButton();
+    updateCategoryCounts();
 }
 
 // 加载更多工具
@@ -1188,13 +1192,18 @@ function initializeUploadUI() {
         drop.addEventListener('dragleave', () => { drop.style.borderColor = '#cbd5e1'; });
         drop.addEventListener('drop', (e) => {
             e.preventDefault();
-            if (fileInput && e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
-                fileInput.files = e.dataTransfer.files;
-                updateUploadFileUI(fileInput, fileName, drop);
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+                upSelectedFile = e.dataTransfer.files[0];
+                try {
+                    const dt = new DataTransfer();
+                    dt.items.add(upSelectedFile);
+                    if (fileInput) fileInput.files = dt.files;
+                } catch (_) { /* ignore */ }
+                if (fileInput) updateUploadFileUI(fileInput, fileName, drop);
             }
         });
     }
-    if (fileInput) fileInput.addEventListener('change', () => updateUploadFileUI(fileInput, fileName, drop));
+    if (fileInput) fileInput.addEventListener('change', () => { upSelectedFile = (fileInput.files && fileInput.files[0]) || null; updateUploadFileUI(fileInput, fileName, drop); });
     bindConfirmDelete();
 }
 
@@ -1207,9 +1216,14 @@ function clearUploadForm() {
     if (fileName) fileName.textContent = '点击此区域选择文件或拖拽HTML文件到此';
     if (drop) drop.style.borderColor = '#cbd5e1';
     if (err) err.style.display = 'none';
+    upSelectedFile = null;
+    upSaving = false;
+    const saveBtn = document.getElementById('uploadSave');
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '保存'; }
 }
 
 function handleUploadSave() {
+    if (upSaving) return;
     const idInput = document.getElementById('upId');
     const modeInput = document.getElementById('upMode');
     const nameInput = document.getElementById('upName');
@@ -1230,11 +1244,15 @@ function handleUploadSave() {
     };
     // 校验：名称、介绍、分类、文件（新建必须有文件）
     const needFile = mode !== 'edit';
-    const valid = (!!baseMeta.name && !!baseMeta.description && !!baseMeta.category && (!needFile ? true : (fileInput && fileInput.files && fileInput.files[0])));
+    const file = (fileInput && fileInput.files && fileInput.files[0]) || upSelectedFile;
+    const valid = (!!baseMeta.name && !!baseMeta.description && !!baseMeta.category && (!needFile ? true : !!file));
     if (!valid) {
         if (err) err.style.display = 'block';
         return;
     }
+    const saveBtn = document.getElementById('uploadSave');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '保存中…'; }
+    upSaving = true;
     const metas = JSON.parse(localStorage.getItem('uploadedTools') || '[]');
     const readerDone = (html) => {
         localStorage.setItem('uploadedToolContent:' + baseMeta.id, html || '');
@@ -1245,11 +1263,14 @@ function handleUploadSave() {
         applyFilters();
         if (modal) modal.style.display = 'none';
         clearUploadForm();
+        upSaving = false;
     };
-    if (fileInput && fileInput.files && fileInput.files[0]) {
+    if (file) {
         const reader = new FileReader();
         reader.onload = () => readerDone(String(reader.result || ''));
-        reader.readAsText(fileInput.files[0]);
+        reader.onerror = () => { readerDone(''); };
+        reader.onabort = () => { readerDone(''); };
+        reader.readAsText(file);
     } else {
         const existing = localStorage.getItem('uploadedToolContent:' + baseMeta.id) || '';
         readerDone(existing);
@@ -1563,4 +1584,33 @@ function showLogStats() {
     if (modal) {
         modal.style.display = 'flex';
     }
+}
+function updateCategoryCounts() {
+    try {
+        const links = document.querySelectorAll('.category-link');
+        if (!links || links.length === 0) return;
+        const all = [...toolsData, ...aiTools, ...uploadedToolsData];
+        const seen = new Set();
+        const dedup = [];
+        for (const t of all) {
+            const key = (t.localPath || t.id || '').toLowerCase();
+            if (key && !seen.has(key)) { seen.add(key); dedup.push(t); }
+        }
+        const counts = { all: dedup.length };
+        for (const t of dedup) {
+            const cat = t.category || 'utility';
+            counts[cat] = (counts[cat] || 0) + 1;
+        }
+        links.forEach(link => {
+            const cat = link.dataset.category || 'all';
+            const n = counts[cat] || 0;
+            let badge = link.querySelector('.category-count');
+            if (!badge) {
+                badge = document.createElement('span');
+                badge.className = 'category-count';
+                link.appendChild(badge);
+            }
+            badge.textContent = String(n);
+        });
+    } catch (_) {}
 }
